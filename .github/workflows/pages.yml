@@ -48,6 +48,23 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
+      - name: Make page content fail-safe visible
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' css; do
+            cat >> "$css" <<'CSS'
+
+          /* GitHub Pages visibility safety: content must never remain hidden
+             when reveal JavaScript fails or is delayed. */
+          html.js .reveal,
+          html.js .reveal.is-visible {
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          CSS
+          done < <(find _site -type f -name '*.css' -print0)
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
