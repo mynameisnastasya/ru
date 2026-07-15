@@ -13,7 +13,7 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect Pages and failed deploy log
+      - name: Print exact Pages configuration error
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -21,11 +21,6 @@ jobs:
         run: |
           set -euo pipefail
           auth=(-H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json")
-          echo '=== PAGES API ==='
-          curl --silent --show-error --location "${auth[@]}" \
-            -w '\nHTTP_STATUS:%{http_code}\n' \
-            "https://api.github.com/repos/$REPO/pages"
-
           curl --fail --silent --show-error --location "${auth[@]}" \
             "https://api.github.com/repos/$REPO/actions/runs?event=push&per_page=20" \
             > /tmp/runs.json
@@ -36,7 +31,6 @@ jobs:
           print(run['id'])
           PY
           )
-          echo "FAILED_RUN_ID:$run_id"
           curl --fail --silent --show-error --location "${auth[@]}" \
             "https://api.github.com/repos/$REPO/actions/runs/$run_id/jobs" \
             > /tmp/jobs.json
@@ -47,10 +41,11 @@ jobs:
           print(job['id'])
           PY
           )
-          echo "FAILED_JOB_ID:$job_id"
           curl --fail --silent --show-error --location \
             -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$REPO/actions/jobs/$job_id/logs" \
             --output /tmp/job.log
-          echo '=== FAILED LOG TAIL ==='
-          tail -80 /tmp/job.log
+          echo "FAILED_RUN_ID:$run_id"
+          echo "FAILED_JOB_ID:$job_id"
+          echo '=== RELEVANT ERROR LINES ==='
+          grep -Ei 'error|failed|pages|not found|enable|resource|permission|forbidden|integration' /tmp/job.log | tail -60 || true
