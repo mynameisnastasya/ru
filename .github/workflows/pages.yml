@@ -31,13 +31,13 @@ jobs:
           mkdir -p _site
           python3 - <<'PY'
           from pathlib import Path
-          parts = sorted(Path('site').glob('site.tar.xz.hex.part-*'))
-          if len(parts) != 12:
-              raise SystemExit(f'Expected 12 archive parts, found {len(parts)}')
+          parts = sorted(Path('site-good').glob('site.tar.xz.hex.part-*'))
+          if len(parts) != 6:
+              raise SystemExit(f'Expected 6 archive parts, found {len(parts)}')
           hex_data = ''.join(part.read_text().strip() for part in parts)
           Path('/tmp/site.tar.xz').write_bytes(bytes.fromhex(hex_data))
           PY
-          echo "f94e9173e9e29e1b7a733e1b719d22ea25d46b7b76e681fd1abf5e5455a68bb3  /tmp/site.tar.xz" | sha256sum --check -
+          echo "2f2ddb6dc6af525e1fd3e2f65411c66e4d45e5ea6cbdecfc06e9f5d526762c44  /tmp/site.tar.xz" | sha256sum --check -
           tar -xJf /tmp/site.tar.xz -C _site
           test -f _site/index.html
           test -f _site/versions/01-aurora-botanical/index.html
