@@ -1,0 +1,35 @@
+name: Verify uploaded site
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact archive and pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat \
+            publish/site.tar.xz.hex.part-00 \
+            publish/site.tar.xz.hex.part-01 \
+            publish/site.tar.xz.hex.part-02-03 \
+            publish/site.tar.xz.hex.part-04-05 \
+            publish/site.tar.xz.hex.part-06-07 \
+            publish/site.tar.xz.hex.part-08-09 \
+            > /tmp/site.tar.xz.hex
+          xxd -r -p /tmp/site.tar.xz.hex /tmp/site.tar.xz
+          echo "2f2ddb6dc6af525e1fd3e2f65411c66e4d45e5ea6cbdecfc06e9f5d526762c44  /tmp/site.tar.xz" | sha256sum --check -
+          mkdir _site
+          tar -xJf /tmp/site.tar.xz -C _site
+          test -f _site/index.html
+          for slug in 01-aurora-botanical 02-spotlight-atelier 03-editorial-cut 04-shader-forest 05-3d-tactile; do
+            test -f "_site/versions/$slug/index.html"
+            grep -qi '<!doctype html' "_site/versions/$slug/index.html"
+          done
