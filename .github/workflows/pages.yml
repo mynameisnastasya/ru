@@ -48,22 +48,54 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
-      - name: Make page content fail-safe visible
+      - name: Remove fragile reveal hiding
         shell: bash
         run: |
           set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          marker = 'document.documentElement.classList.add("js");'
+          replacement = 'document.documentElement.classList.remove("js");'
+
+          for html in Path('_site').rglob('*.html'):
+              text = html.read_text(encoding='utf-8')
+              text = text.replace(marker, replacement)
+              html.write_text(text, encoding='utf-8')
+          PY
+
           while IFS= read -r -d '' css; do
             cat >> "$css" <<'CSS'
 
-          /* GitHub Pages visibility safety: content must never remain hidden
-             when reveal JavaScript fails or is delayed. */
+          /* Publication safety: primary content must always render above backgrounds. */
           html.js .reveal,
-          html.js .reveal.is-visible {
+          html.js .reveal.is-visible,
+          .reveal,
+          .reveal.is-visible {
             opacity: 1 !important;
+            visibility: visible !important;
             transform: none !important;
+          }
+
+          main,
+          .hero,
+          .hero-copy,
+          .hero-visual,
+          .hero-foot {
+            position: relative;
+            z-index: 3;
+            visibility: visible !important;
+            opacity: 1 !important;
           }
           CSS
           done < <(find _site -type f -name '*.css' -print0)
+
+      - name: Verify visible content safeguards
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -R -F 'document.documentElement.classList.add("js");' _site --include='*.html'
+          grep -R -F 'visibility: visible !important' _site --include='*.css' >/dev/null
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
