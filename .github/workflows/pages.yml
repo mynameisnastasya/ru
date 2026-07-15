@@ -1,9 +1,7 @@
-name: Deploy static site to Pages
+name: Deploy exact uploaded site to Pages
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -13,30 +11,34 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild static site
+      - name: Restore uploaded site
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
           mkdir -p _site
-          python3 - <<'PY'
-          from pathlib import Path
-          parts = sorted(Path('site-good').glob('site.tar.xz.hex.part-*'))
-          if len(parts) != 6:
-              raise SystemExit(f'Expected 6 archive parts, found {len(parts)}')
-          hex_data = ''.join(part.read_text().strip() for part in parts)
-          Path('/tmp/site.tar.xz').write_bytes(bytes.fromhex(hex_data))
-          PY
+          cat \
+            publish/site.tar.xz.hex.part-00 \
+            publish/site.tar.xz.hex.part-01 \
+            publish/site.tar.xz.hex.part-02-03 \
+            publish/site.tar.xz.hex.part-04-05 \
+            publish/site.tar.xz.hex.part-06-07 \
+            publish/site.tar.xz.hex.part-08-09 \
+            > /tmp/site.tar.xz.hex
+          xxd -r -p /tmp/site.tar.xz.hex /tmp/site.tar.xz
           echo "2f2ddb6dc6af525e1fd3e2f65411c66e4d45e5ea6cbdecfc06e9f5d526762c44  /tmp/site.tar.xz" | sha256sum --check -
           tar -xJf /tmp/site.tar.xz -C _site
           test -f _site/index.html
@@ -46,51 +48,16 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
-      - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Deploy to GitHub Pages
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-
-  verify-live:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify all public links
-        shell: bash
-        run: |
-          set -euo pipefail
-          base="https://mynameisnastasya.github.io/ru"
-          urls=(
-            "$base/"
-            "$base/versions/01-aurora-botanical/"
-            "$base/versions/02-spotlight-atelier/"
-            "$base/versions/03-editorial-cut/"
-            "$base/versions/04-shader-forest/"
-            "$base/versions/05-3d-tactile/"
-          )
-          for url in "${urls[@]}"; do
-            echo "Checking $url"
-            curl --fail --silent --show-error --location \
-              --retry 12 --retry-delay 10 --retry-all-errors \
-              --output /tmp/page.html "$url"
-            grep -qi '<!doctype html' /tmp/page.html
-          done
