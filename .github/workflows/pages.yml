@@ -48,43 +48,37 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
-      - name: Force all content visible
+      - name: Inject inline visibility repair
         shell: bash
         run: |
           set -euo pipefail
-          while IFS= read -r -d '' css; do
-            cat >> "$css" <<'CSS'
+          python3 - <<'PY'
+          from pathlib import Path
 
-          /* GitHub Pages emergency visibility fix. */
-          html.js .reveal,
-          html.js .reveal.is-visible,
-          .reveal,
-          .reveal.is-visible,
-          main,
-          main *,
-          .hero,
-          .hero *,
-          section,
-          article {
-            opacity: 1 !important;
-            visibility: visible !important;
-          }
+          inline = '''
+          <style id="pages-visible-content-fix">
+            html, body, main, section, article, .hero, .hero-copy, .hero-visual, .hero-foot,
+            .reveal, .reveal.is-visible, main *, .hero * {
+              opacity: 1 !important;
+              visibility: visible !important;
+            }
+            .reveal, html.js .reveal {
+              transform: none !important;
+            }
+            main, .hero, .hero-copy, .hero-visual, .hero-foot {
+              position: relative !important;
+              z-index: 10 !important;
+            }
+          </style>
+          '''
 
-          html.js .reveal,
-          .reveal {
-            transform: none !important;
-          }
-
-          main,
-          .hero,
-          .hero-copy,
-          .hero-visual,
-          .hero-foot {
-            position: relative;
-            z-index: 5;
-          }
-          CSS
-          done < <(find _site -type f -name '*.css' -print0)
+          for html in Path('_site').rglob('*.html'):
+              text = html.read_text(encoding='utf-8')
+              text = text.replace('document.documentElement.classList.add("js");', 'document.documentElement.classList.remove("js");')
+              if 'pages-visible-content-fix' not in text:
+                  text = text.replace('</head>', inline + '\n</head>', 1)
+              html.write_text(text, encoding='utf-8')
+          PY
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
