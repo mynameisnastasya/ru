@@ -1,0 +1,1 @@
+Verify all public GitHub Pages links.
