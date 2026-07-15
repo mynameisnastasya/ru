@@ -1,0 +1,33 @@
+name: Verify live Pages links
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all published links
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://mynameisnastasya.github.io/ru"
+          urls=(
+            "$base/"
+            "$base/versions/01-aurora-botanical/"
+            "$base/versions/02-spotlight-atelier/"
+            "$base/versions/03-editorial-cut/"
+            "$base/versions/04-shader-forest/"
+            "$base/versions/05-3d-tactile/"
+          )
+          for url in "${urls[@]}"; do
+            echo "Checking $url"
+            curl --fail --silent --show-error --location \
+              --retry 30 --retry-delay 5 --retry-all-errors \
+              --output /tmp/page.html "$url"
+            grep -qi '<!doctype html' /tmp/page.html
+          done
