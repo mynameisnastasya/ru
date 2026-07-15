@@ -7,18 +7,8 @@
       name="description"
       content="Настасья — сайты и digital-упаковка бизнеса под заявки: оффер, визуал, Telegram и понятный путь клиента."
     />
-    <meta name="theme-color" content="#121f16" />
+    <meta name="theme-color" content="#152219" />
     <title>Настасья — digital-упаковка под заявки</title>
-
-    <!--
-      Вариант 01 «Aurora Botanical» — атмосферная глубина.
-      Адаптированные компоненты 21st.dev (vanilla CSS/JS, без React/Tailwind):
-      - manuarora700/aurora-background — анимированные ленты ауроры в hero (repeating-linear-gradient, blur, mix-blend-difference, radial-маска)
-      - aceternity/aurora-background — та же техника, приглушённый вариант в секции #audit
-      - aceternity/flip-words — ротация слов «понятной / дорогой / системной / живой» под H1 (y + blur + opacity)
-      - aceternity/card-spotlight — подсветка за курсором на карточках .service-card (--mouse-x/--mouse-y + pointermove)
-      - magicui/animated-shiny-text — бегущий блик на .eyebrow (background-clip: text)
-    -->
 
     <!-- Перед публикацией заменить og:url и og:image на абсолютные адреса домена -->
     <meta property="og:type" content="website" />
@@ -28,7 +18,7 @@
       property="og:description"
       content="Сайты и digital-упаковка бизнеса под заявки: оффер, визуал, Telegram и понятный путь клиента."
     />
-    <meta property="og:image" content="../../assets/dark-leaves.jpg" />
+    <meta property="og:image" content="assets/dark-leaves.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <link
@@ -36,7 +26,7 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23294632'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='38' fill='%23f9f8f3'%3EN%3C/text%3E%3C/svg%3E"
     />
 
-    <link rel="preload" as="image" href="../../assets/dark-leaves.jpg" />
+    <link rel="preload" as="image" href="assets/dark-leaves.jpg" />
     <link rel="stylesheet" href="styles.css" />
     <script>document.documentElement.classList.add("js");</script>
     <script defer src="script.js"></script>
@@ -66,60 +56,45 @@
     </header>
 
     <main id="top">
-      <div class="hero-band">
-        <!-- Aurora Background: manuarora700/aurora-background + aceternity/aurora-background -->
-        <div class="aurora" aria-hidden="true"><div class="aurora-layer"></div></div>
-
-        <section class="hero section-shell">
-          <div class="hero-copy reveal">
-            <p class="eyebrow light"><span></span> Digital-упаковка под заявки</p>
-            <h1>Собираю сайты и digital-системы, после которых <em>понятно, почему вам стоит написать</em></h1>
-            <!-- Flip Words: aceternity/flip-words -->
-            <p class="hero-flip">
-              Чтобы упаковка была
-              <span
-                class="flip-word"
-                data-flip-words='["понятной","дорогой","системной","живой"]'
-                aria-hidden="true"
-              >понятной</span>
-              <span class="sr-only">понятной, дорогой, системной, живой</span>
-            </p>
-            <p class="hero-lead">
-              Помогаю экспертам и небольшим бизнесам объяснить ценность, выглядеть на свой реальный уровень и
-              провести человека от первого экрана до заявки.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#audit">Получить мини-разбор <span>↗</span></a>
-              <a class="text-link" href="#method">Посмотреть, как я работаю <span>↓</span></a>
-            </div>
-            <p class="microcopy">Без созвона на час и продажи с порога. Сначала посмотрю одну точку.</p>
+      <section class="hero section-shell">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span></span> Digital-упаковка под заявки</p>
+          <h1>Собираю сайты и digital-системы, после которых <em>понятно, почему вам стоит написать</em></h1>
+          <p class="hero-lead">
+            Помогаю экспертам и небольшим бизнесам объяснить ценность, выглядеть на свой реальный уровень и
+            провести человека от первого экрана до заявки.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#audit">Получить мини-разбор <span>↗</span></a>
+            <a class="text-link" href="#method">Посмотреть, как я работаю <span>↓</span></a>
           </div>
+          <p class="microcopy">Без созвона на час и продажи с порога. Сначала посмотрю одну точку.</p>
+        </div>
 
-          <div class="hero-visual editorial-collage reveal reveal-delay-1" aria-label="Визуальная композиция бренда Настасьи">
-            <figure class="editorial-photo editorial-photo-main">
-              <img src="../../assets/dark-leaves.jpg" alt="Тёмная ботаническая фактура" width="1200" height="1599" fetchpriority="high" />
-              <figcaption>Nastasya / digital direction</figcaption>
-            </figure>
-            <figure class="editorial-photo editorial-photo-detail">
-              <img src="../../assets/leaf-macro.jpg" alt="Фактура зелёного листа" width="1400" height="933" loading="lazy" />
-            </figure>
-            <div class="editorial-statement">
-              <span>THE POINT IS NOT TO LOOK EXPENSIVE</span>
-              <strong>А быть<br /><em>понятной</em></strong>
-            </div>
-            <div class="editorial-seal" aria-hidden="true">N</div>
-            <p class="editorial-caption">Стратегия · визуал · путь до заявки</p>
+        <div class="hero-visual editorial-collage reveal reveal-delay-1" aria-label="Визуальная композиция бренда Настасьи">
+          <figure class="editorial-photo editorial-photo-main">
+            <img src="assets/dark-leaves.jpg" alt="Тёмная ботаническая фактура" width="1200" height="1599" fetchpriority="high" />
+            <figcaption>Nastasya / digital direction</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-detail">
+            <img src="assets/leaf-macro.jpg" alt="Фактура зелёного листа" width="1400" height="933" loading="lazy" />
+          </figure>
+          <div class="editorial-statement">
+            <span>THE POINT IS NOT TO LOOK EXPENSIVE</span>
+            <strong>А быть<br /><em>понятной</em></strong>
           </div>
+          <div class="editorial-seal" aria-hidden="true">N</div>
+          <p class="editorial-caption">Стратегия · визуал · путь до заявки</p>
+        </div>
 
-          <div class="hero-foot reveal reveal-delay-2">
-            <span>CLARITY</span>
-            <span>DEPTH</span>
-            <span>VALUE</span>
-            <span>MOVEMENT</span>
-            <span>SYSTEM</span>
-          </div>
-        </section>
-      </div>
+        <div class="hero-foot reveal reveal-delay-2">
+          <span>CLARITY</span>
+          <span>DEPTH</span>
+          <span>VALUE</span>
+          <span>MOVEMENT</span>
+          <span>SYSTEM</span>
+        </div>
+      </section>
 
       <section class="brand-code section-shell reveal" aria-label="Идея бренда">
         <div class="brand-code-index">N / 01</div>
@@ -255,7 +230,6 @@
           <p>Не знаете, что выбрать? Это нормально. Мини-разбор как раз нужен, чтобы не покупать лишнее.</p>
         </div>
 
-        <!-- Card Spotlight: aceternity/card-spotlight (подсветка за курсором) -->
         <div class="service-grid">
           <article class="service-card reveal">
             <div class="service-top"><span>01</span><span class="service-tag">ENTRY</span></div>
@@ -433,9 +407,6 @@
       </section>
 
       <section class="audit section-shell" id="audit">
-        <!-- Приглушённая аурора: aceternity/aurora-background -->
-        <div class="aurora aurora-muted" aria-hidden="true"><div class="aurora-layer"></div></div>
-
         <div class="audit-copy reveal">
           <p class="eyebrow light"><span></span> Начнём без лишнего риска</p>
           <h2>Давайте сначала поймём, <em>что у вас действительно нужно чинить</em></h2>

@@ -1,12 +1,3 @@
-/* ============================================================
-   Вариант 01 «Aurora Botanical».
-   База: меню, диагностика, reveal, форма, FAQ (из исходного script.js).
-   Адаптации 21st.dev:
-   - aceternity/flip-words → ротация слов (setInterval + классы enter/exit)
-   - aceternity/card-spotlight → --mouse-x/--mouse-y на .service-card
-   - aurora-background → пауза анимации при document.hidden
-   ============================================================ */
-
 const diagnosticContent = {
   offer: {
     index: "01 / 05",
@@ -45,8 +36,6 @@ const resultCopy = document.querySelector("[data-result-copy]");
 const form = document.querySelector("[data-audit-form]");
 const formSuccess = document.querySelector("[data-form-success]");
 const formReset = document.querySelector("[data-form-reset]");
-
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 function updateHeader() {
   header?.classList.toggle("is-scrolled", window.scrollY > 24);
@@ -135,82 +124,4 @@ document.querySelectorAll("details").forEach((detail) => {
       if (other !== detail) other.open = false;
     });
   });
-});
-
-/* ---------- Flip Words (aceternity/flip-words) ----------
-   Ротация слов: exit (y вверх + blur + opacity) → замена текста →
-   enter (снизу + blur → на место). Классы is-exiting / is-entering,
-   переходы описаны в CSS. */
-
-(function initFlipWords() {
-  const el = document.querySelector("[data-flip-words]");
-  if (!el || prefersReducedMotion.matches) return;
-
-  let words;
-  try {
-    words = JSON.parse(el.dataset.flipWords);
-  } catch {
-    return;
-  }
-  if (!Array.isArray(words) || words.length < 2) return;
-
-  const EXIT_MS = 350;
-  const HOLD_MS = 2600;
-  let index = Math.max(0, words.indexOf(el.textContent.trim()));
-  let timer = 0;
-
-  function flip() {
-    el.classList.add("is-exiting");
-    window.setTimeout(() => {
-      index = (index + 1) % words.length;
-      el.textContent = words[index];
-      el.classList.remove("is-exiting");
-      el.classList.add("is-entering");
-      // форсируем начальное состояние, затем анимируем в ноль
-      void el.offsetWidth;
-      el.classList.remove("is-entering");
-    }, EXIT_MS);
-  }
-
-  function start() {
-    if (timer) return;
-    timer = window.setInterval(flip, HOLD_MS);
-  }
-  function stop() {
-    window.clearInterval(timer);
-    timer = 0;
-  }
-
-  start();
-
-  // Пауза, когда вкладка скрыта — незачем крутить слова в фоне
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stop();
-    else start();
-  });
-})();
-
-/* ---------- Card Spotlight (aceternity/card-spotlight) ----------
-   Свечение следует за курсором: пишем координаты в CSS custom
-   properties, сам градиент — в styles.css (.service-card::after).
-   Только для точных указателей: на тач эффект не имеет смысла. */
-
-(function initCardSpotlight() {
-  if (!window.matchMedia("(pointer: fine)").matches || prefersReducedMotion.matches) return;
-
-  document.querySelectorAll(".service-card").forEach((card) => {
-    card.addEventListener("pointermove", (event) => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
-      card.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
-    });
-  });
-})();
-
-/* ---------- Aurora: пауза при скрытой вкладке ----------
-   CSS-анимация лент ставится на паузу через html.page-hidden
-   (см. styles.css). */
-
-document.addEventListener("visibilitychange", () => {
-  document.documentElement.classList.toggle("page-hidden", document.hidden);
 });
