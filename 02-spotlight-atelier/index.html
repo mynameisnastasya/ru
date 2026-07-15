@@ -1,1 +1,521 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spotlight Atelier — Настасья</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#17120f;color:#fff4df;font-family:Arial,sans-serif;background-image:radial-gradient(circle at 72% 35%,#ffce7a55 0,transparent 18%),radial-gradient(circle at 70% 45%,#a75a2522,transparent 35%)}nav{padding:25px 6vw;display:flex;justify-content:space-between;border-bottom:1px solid #ffffff22}a{color:inherit}.back{text-decoration:none;opacity:.7}main{min-height:82vh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:6vw;padding:7vh 8vw}.kicker{font:12px monospace;letter-spacing:.2em;color:#d7a869}h1{font-size:clamp(58px,9vw,130px);line-height:.82;text-transform:uppercase;letter-spacing:-.07em;margin:.3em 0}.copy{font-size:20px;line-height:1.55;color:#dccdbc;max-width:600px}.stage{aspect-ratio:4/5;border:1px solid #e5b87455;position:relative;overflow:hidden;background:#241914;box-shadow:0 0 120px #f6b95022 inset}.stage:before{content:"N";position:absolute;inset:0;display:grid;place-items:center;font:italic 190px Georgia;color:#ffd791;text-shadow:0 0 70px #ffb43b}.stage:after{content:"ATELIER";position:absolute;bottom:24px;left:24px;letter-spacing:.35em;font-size:11px}.cta{display:inline-block;margin-top:25px;padding:14px 22px;border:1px solid #e7bc78;text-decoration:none}@media(max-width:760px){main{grid-template-columns:1fr}.stage{max-width:420px}}</style></head><body><nav><b>NASTASYA / 02</b><a class="back" href="../">← Все версии</a></nav><main><section><span class="kicker">LIGHT · CRAFT · STRATEGY</span><h1>Spotlight<br>Atelier</h1><p class="copy">Театральная версия с направленным светом, контрастом ремесленной мастерской и сильной крупной типографикой.</p><a class="cta" href="#">Обсудить проект ↗</a></section><div class="stage"></div></main></body></html>
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Настасья — сайты и digital-упаковка бизнеса под заявки: оффер, визуал, Telegram и понятный путь клиента."
+    />
+    <meta name="theme-color" content="#0b120d" />
+    <title>Настасья — digital-упаковка под заявки</title>
+
+    <!--
+      Вариант 02 — «Spotlight Atelier»: тёмная сцена галереи, свет — главный герой.
+      Адаптированные компоненты 21st.dev (vanilla-порт):
+      · aceternity / spotlight-new — два качающихся прожектора в hero (rotate ±45°, translateX 7s)
+      · aceternity / spotlight — референс формы и мягкости светового пятна
+      · aceternity / floating-navbar — шапка прячется при скролле вниз, выплывает при скролле вверх
+      · aceternity / glowing-effect — бегущий по границе conic-градиент, следует за углом к курсору
+    -->
+
+    <!-- Перед публикацией заменить og:url и og:image на абсолютные адреса домена -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="Настасья — digital-упаковка под заявки" />
+    <meta
+      property="og:description"
+      content="Сайты и digital-упаковка бизнеса под заявки: оффер, визуал, Telegram и понятный путь клиента."
+    />
+    <meta property="og:image" content="../../assets/dark-leaves.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='6' fill='%23294632'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='38' fill='%23f9f8f3'%3EN%3C/text%3E%3C/svg%3E"
+    />
+
+    <link rel="preload" as="image" href="../../assets/dark-leaves.jpg" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>document.documentElement.classList.add("js");</script>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#top">Перейти к содержимому</a>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="spotlight-cursor" aria-hidden="true"></div>
+
+    <header class="site-header" data-header>
+      <a class="brand" href="#top" aria-label="Настасья — на главную">
+        <span class="brand-mark">N</span>
+        <span class="brand-name">Настасья</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span></span><span></span>
+        <span class="sr-only">Открыть меню</span>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Основная навигация">
+        <a href="#method">Метод</a>
+        <a href="#services">Форматы</a>
+        <a href="#cases">Кейсы</a>
+        <a href="#about">Обо мне</a>
+        <a class="nav-cta" href="#audit">Получить разбор</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero section-shell">
+        <!-- aceternity / spotlight-new: два прожектора над сценой -->
+        <div class="stage-spotlights" aria-hidden="true">
+          <div class="spot-group spot-group-left">
+            <span class="spot-beam beam-a"></span>
+            <span class="spot-beam beam-b"></span>
+            <span class="spot-beam beam-c"></span>
+          </div>
+          <div class="spot-group spot-group-right">
+            <span class="spot-beam beam-a"></span>
+            <span class="spot-beam beam-b"></span>
+            <span class="spot-beam beam-c"></span>
+          </div>
+        </div>
+
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span></span> Digital-упаковка под заявки</p>
+          <h1>Собираю сайты и digital-системы, после которых <em>понятно, почему вам стоит написать</em></h1>
+          <p class="hero-lead">
+            Помогаю экспертам и небольшим бизнесам объяснить ценность, выглядеть на свой реальный уровень и
+            провести человека от первого экрана до заявки.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#audit">Получить мини-разбор <span>↗</span></a>
+            <a class="text-link" href="#method">Посмотреть, как я работаю <span>↓</span></a>
+          </div>
+          <p class="microcopy">Без созвона на час и продажи с порога. Сначала посмотрю одну точку.</p>
+        </div>
+
+        <div class="hero-visual editorial-collage reveal reveal-delay-1" aria-label="Визуальная композиция бренда Настасьи">
+          <figure class="editorial-photo editorial-photo-main">
+            <img src="../../assets/dark-leaves.jpg" alt="Тёмная ботаническая фактура" width="1200" height="1599" fetchpriority="high" />
+            <figcaption>Nastasya / digital direction</figcaption>
+          </figure>
+          <figure class="editorial-photo editorial-photo-detail">
+            <img src="../../assets/leaf-macro.jpg" alt="Фактура зелёного листа" width="1400" height="933" loading="lazy" />
+          </figure>
+          <div class="editorial-statement">
+            <span>THE POINT IS NOT TO LOOK EXPENSIVE</span>
+            <strong>А быть<br /><em>понятной</em></strong>
+          </div>
+          <div class="editorial-seal" aria-hidden="true">N</div>
+          <p class="editorial-caption">Стратегия · визуал · путь до заявки</p>
+        </div>
+
+        <div class="hero-foot reveal reveal-delay-2">
+          <span>CLARITY</span>
+          <span>DEPTH</span>
+          <span>VALUE</span>
+          <span>MOVEMENT</span>
+          <span>SYSTEM</span>
+        </div>
+      </section>
+
+      <section class="brand-code section-shell reveal" aria-label="Идея бренда">
+        <div class="brand-code-index">N / 01</div>
+        <h2>Из хаоса — <em>в понятный маршрут.</em></h2>
+        <p>
+          Не добавляю бизнесу ещё один красивый кусок. Собираю разрозненные смыслы, визуал и площадки в
+          систему, по которой человеку легко двигаться.
+        </p>
+        <div class="route-sign" aria-hidden="true"><i></i><span>→</span></div>
+      </section>
+
+      <section class="problem section-shell" id="problem">
+        <div class="section-heading reveal">
+          <p class="eyebrow"><span></span> Узнаёте?</p>
+          <h2>Возможно, ваш продукт сильнее, <em>чем кажется по его упаковке</em></h2>
+          <p>
+            Клиент открывает профиль или сайт и за несколько секунд решает: здесь понятно и надёжно — или
+            какая-то мутная хрень, которую проще закрыть.
+          </p>
+        </div>
+
+        <div class="problem-grid">
+          <article class="problem-card glow-card reveal">
+            <div class="glow-border" aria-hidden="true"></div>
+            <span>01</span>
+            <h3>Непонятно, что вы продаёте</h3>
+            <p>Много красивых слов, но нет конкретного результата для клиента.</p>
+          </article>
+          <article class="problem-card glow-card reveal reveal-delay-1">
+            <div class="glow-border" aria-hidden="true"></div>
+            <span>02</span>
+            <h3>Цена выглядит случайной</h3>
+            <p>Продукт стоит дорого, а профиль и визуал вообще не объясняют почему.</p>
+          </article>
+          <article class="problem-card glow-card reveal reveal-delay-2">
+            <div class="glow-border" aria-hidden="true"></div>
+            <span>03</span>
+            <h3>Доверие надо додумывать</h3>
+            <p>Нет кейсов, процесса или нормального ответа на страхи клиента.</p>
+          </article>
+          <article class="problem-card glow-card reveal reveal-delay-3">
+            <div class="glow-border" aria-hidden="true"></div>
+            <span>04</span>
+            <h3>Заявка теряется по дороге</h3>
+            <p>Сайт ведёт в пустой Telegram, а кнопка обещает загадочное «подробнее».</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="route-band">
+        <div class="section-shell route-content reveal">
+          <div>
+            <p class="eyebrow light"><span></span> Не просто сайт</p>
+            <h2>Весь путь до сообщения</h2>
+          </div>
+          <div class="route-line" aria-label="Путь клиента">
+            <span>Оффер</span><b>→</b><span>Экран</span><b>→</b><span>Доверие</span><b>→</b><span>Действие</span><b>→</b><span>Заявка</span>
+          </div>
+          <p>
+            AI помогает быстрее собирать черновики и визуальные тесты. Думать за бизнес он, слава богу,
+            пока не умеет.
+          </p>
+        </div>
+      </section>
+
+      <section class="diagnostic section-shell" id="diagnostic">
+        <div class="section-heading compact reveal">
+          <p class="eyebrow"><span></span> Быстрая диагностика</p>
+          <h2>Где у вас сейчас <em>ломается путь клиента?</em></h2>
+          <p>Выберите самый знакомый вариант — покажу, с чего логичнее начать.</p>
+        </div>
+
+        <div class="diagnostic-layout reveal reveal-delay-1">
+          <div class="diagnostic-options" role="group" aria-label="Варианты проблем">
+            <button class="diagnostic-option is-active" data-diagnostic="offer" type="button" aria-pressed="true">
+              Не могу объяснить ценность <span>↗</span>
+            </button>
+            <button class="diagnostic-option" data-diagnostic="premium" type="button" aria-pressed="false">
+              Выгляжу дешевле своего уровня <span>↗</span>
+            </button>
+            <button class="diagnostic-option" data-diagnostic="leads" type="button" aria-pressed="false">
+              Есть сайт, но мало обращений <span>↗</span>
+            </button>
+            <button class="diagnostic-option" data-diagnostic="funnel" type="button" aria-pressed="false">
+              Instagram и Telegram живут отдельно <span>↗</span>
+            </button>
+            <button class="diagnostic-option" data-diagnostic="unknown" type="button" aria-pressed="false">
+              Вообще не понимаю, где проблема <span>↗</span>
+            </button>
+          </div>
+
+          <div class="diagnostic-result" aria-live="polite">
+            <span class="result-index">01 / 05</span>
+            <h3 data-result-title>Начните с оффера</h3>
+            <p data-result-copy>
+              Скорее всего, вам пока не нужен полный редизайн. Сначала нужно собрать понятное обещание и
+              первый экран. Для этого подойдёт Conversion Sprint.
+            </p>
+            <a class="button button-dark" href="#audit">Получить мой взгляд <span>↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="method section-shell" id="method">
+        <div class="method-intro reveal">
+          <p class="eyebrow"><span></span> Мой метод</p>
+          <h2>Сначала разбираюсь.<br /><em>Потом рисую.</em></h2>
+          <p>
+            Я не начинаю проект с вопроса «какой цвет вам нравится?». Сначала прохожу пять слоёв — от смысла
+            до реального действия клиента.
+          </p>
+        </div>
+
+        <div class="method-list">
+          <article class="method-item reveal">
+            <span>01</span><div><h3>Оффер</h3><p>Кому вы помогаете, с какой задачей и что меняется для клиента.</p></div>
+          </article>
+          <article class="method-item reveal">
+            <span>02</span><div><h3>Первый экран</h3><p>Что человек понимает за пять секунд и почему остаётся.</p></div>
+          </article>
+          <article class="method-item reveal">
+            <span>03</span><div><h3>Доверие</h3><p>Кейсы, процесс, аргументы, границы и ответы на риск.</p></div>
+          </article>
+          <article class="method-item reveal">
+            <span>04</span><div><h3>Визуальный уровень</h3><p>Соответствует ли внешний образ реальной цене продукта.</p></div>
+          </article>
+          <article class="method-item reveal">
+            <span>05</span><div><h3>Маршрут</h3><p>Куда человек идёт дальше и что происходит после кнопки.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="services section-shell" id="services">
+        <div class="section-heading reveal">
+          <p class="eyebrow"><span></span> Форматы работы</p>
+          <h2>Можно начать с одной точки. <em>Не обязательно переделывать всё</em></h2>
+          <p>Не знаете, что выбрать? Это нормально. Мини-разбор как раз нужен, чтобы не покупать лишнее.</p>
+        </div>
+
+        <div class="service-grid">
+          <article class="service-card glow-card reveal">
+            <div class="glow-border" aria-hidden="true"></div>
+            <div class="service-top"><span>01</span><span class="service-tag">ENTRY</span></div>
+            <h3>Digital-диагностика</h3>
+            <p class="service-for">Когда вообще непонятно, что именно не работает.</p>
+            <ul>
+              <li>оффер, доверие и визуал</li>
+              <li>путь до заявки</li>
+              <li>карта приоритетов</li>
+              <li>до 5 рабочих дней</li>
+            </ul>
+            <div class="service-bottom"><strong>7 900 ₽</strong><a href="#audit">Выбрать <span>↗</span></a></div>
+          </article>
+
+          <article class="service-card service-card-accent glow-card reveal reveal-delay-1">
+            <div class="glow-border" aria-hidden="true"></div>
+            <div class="service-top"><span>02</span><span class="service-tag">BEST START</span></div>
+            <h3>Conversion Sprint</h3>
+            <p class="service-for">Когда продукт есть, но объяснить его нормально не получается.</p>
+            <ul>
+              <li>короткое исследование</li>
+              <li>сильный оффер</li>
+              <li>структура и дизайн экрана</li>
+              <li>одна итерация правок</li>
+            </ul>
+            <div class="service-bottom"><strong>от 19 900 ₽</strong><a href="#audit">Выбрать <span>↗</span></a></div>
+          </article>
+
+          <article class="service-card glow-card reveal">
+            <div class="glow-border" aria-hidden="true"></div>
+            <div class="service-top"><span>03</span><span class="service-tag">CORE</span></div>
+            <h3>Сайт под заявки</h3>
+            <p class="service-for">Когда нужна полная страница, а не одна красивая заплатка.</p>
+            <ul>
+              <li>исследование и структура</li>
+              <li>тексты и визуальная идея</li>
+              <li>дизайн и адаптация</li>
+              <li>сборка в согласованном объёме</li>
+            </ul>
+            <div class="service-bottom"><strong>от 59 000 ₽</strong><a href="#audit">Выбрать <span>↗</span></a></div>
+          </article>
+
+          <article class="service-card service-card-dark glow-card reveal reveal-delay-1">
+            <div class="glow-border" aria-hidden="true"></div>
+            <div class="service-top"><span>04</span><span class="service-tag">PREMIUM</span></div>
+            <h3>Digital Launch System</h3>
+            <p class="service-for">Когда сайт, Instagram и Telegram существуют каждый сам по себе.</p>
+            <ul>
+              <li>позиционирование</li>
+              <li>сайт и AI-визуал</li>
+              <li>Telegram-маршрут</li>
+              <li>система до заявки</li>
+            </ul>
+            <div class="service-bottom"><strong>от 119 000 ₽</strong><a href="#audit">Обсудить <span>↗</span></a></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="cases section-shell" id="cases">
+        <div class="section-heading reveal">
+          <p class="eyebrow"><span></span> Ход мысли</p>
+          <h2>Не «сделала красиво», а <em>разобрала задачу и собрала решение</em></h2>
+        </div>
+
+        <article class="case-feature reveal">
+          <div class="case-visual">
+            <span class="case-badge">КОНЦЕПТ-КЕЙС</span>
+            <div class="case-screen case-screen-before">
+              <small>до</small>
+              <h4>Помогаю прийти к лучшей версии себя</h4>
+              <span class="fake-button">Узнать больше</span>
+            </div>
+            <div class="case-screen case-screen-after">
+              <small>после</small>
+              <h4>Возвращаю руководителям управляемый график за 8 недель</h4>
+              <span class="fake-button">Разобрать мой график</span>
+            </div>
+          </div>
+          <div class="case-copy">
+            <p class="eyebrow"><span></span> Важно: это концепт</p>
+            <h3>Из красивой абстракции — в понятный результат</h3>
+            <p>
+              Исходная фраза могла стоять на сайте кого угодно. Я обозначила аудиторию, проблему, формат
+              результата и конкретный следующий шаг.
+            </p>
+            <ul>
+              <li><span>01</span> убрала воду из первого экрана</li>
+              <li><span>02</span> показала реальную ситуацию клиента</li>
+              <li><span>03</span> заменила безликий CTA</li>
+            </ul>
+            <p class="case-note">Коммерческие кейсы будут добавляться только с реальными результатами — без выдуманных процентов.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="process section-shell" id="process">
+        <div class="section-heading compact reveal">
+          <p class="eyebrow"><span></span> Процесс</p>
+          <h2>Без квеста из <em>сорока созвонов</em></h2>
+        </div>
+        <div class="process-list">
+          <article class="process-step reveal"><span>01</span><h3>Знакомимся с задачей</h3><p>Вы присылаете ссылку и отвечаете на три вопроса. Я говорю, вижу ли задачу.</p></article>
+          <article class="process-step reveal"><span>02</span><h3>Фиксируем работу</h3><p>Состав, срок, цена и правки заранее появляются в договоре.</p></article>
+          <article class="process-step reveal"><span>03</span><h3>Собираю логику</h3><p>Изучаю продукт, язык клиента, конкурентов и текущий маршрут.</p></article>
+          <article class="process-step reveal"><span>04</span><h3>Делаю и согласовываю</h3><p>Показываю аргументированное направление, а не двадцать случайных вариантов.</p></article>
+          <article class="process-step reveal"><span>05</span><h3>Передаю и проверяю</h3><p>Объясняю использование и смотрю на данные после запуска, если они есть.</p></article>
+        </div>
+      </section>
+
+      <section class="about section-shell" id="about">
+        <div class="about-visual reveal">
+          <div class="travel-card travel-card-one"><span>насмотренность</span></div>
+          <div class="about-monogram">N</div>
+          <div class="travel-card travel-card-two"><span>системность</span></div>
+          <div class="about-script">taste<br />meets system</div>
+        </div>
+        <div class="about-copy reveal reveal-delay-1">
+          <p class="eyebrow"><span></span> Обо мне</p>
+          <h2>Я Настасья. И я правда замечаю, <em>когда бренд заставляет человека лишний раз думать</em></h2>
+          <p>
+            Большинство моей аудитории сначала знало меня по путешествиям. Они научили смотреть не только на
+            красивую картинку, а на весь опыт: понятно ли, удобно ли, хочется ли доверять.
+          </p>
+          <p>
+            Потом к этой насмотренности добавились сайты, маркетинговая логика, AI-инструменты и монтаж. Так
+            появилась моя работа — собирать из разрозненных кусочков один понятный digital-образ.
+          </p>
+          <div class="about-note">
+            <span>AI NOTE</span>
+            <p>AI ускоряет работу. Стратегия, вкус, финальные решения и ответственность всё равно мои.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="telegram-band" id="telegram">
+        <div class="section-shell telegram-layout reveal">
+          <div class="telegram-copy">
+            <p class="eyebrow light"><span></span> Можно сначала присмотреться</p>
+            <h2>Полные разборы и backstage — в Telegram</h2>
+            <p>
+              Там показываю логику проектов, шаблоны и наблюдения, которые не помещаются в короткий Reels.
+              Без ежедневного «купи до полуночи».
+            </p>
+            <a class="button button-light" href="https://t.me/" target="_blank" rel="noreferrer">Перейти в Telegram <span>↗</span></a>
+          </div>
+          <div class="telegram-preview" aria-label="Пример Telegram-канала">
+            <div class="telegram-head"><span>N</span><div><strong>Настасья — digital под заявки</strong><small>разборы · AI · процессы</small></div></div>
+            <div class="telegram-post"><small>#разбор</small><p>Где обычно умирает интерес: первая фраза, доверие, цена и следующий шаг...</p></div>
+            <div class="telegram-post"><small>#AI</small><p>AI ускоряет систему. Если системы нет — ускоряет хрень.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="faq section-shell" id="faq">
+        <div class="section-heading compact reveal">
+          <p class="eyebrow"><span></span> Без мелкого шрифта</p>
+          <h2>Вопросы, которые <em>лучше обсудить заранее</em></h2>
+        </div>
+
+        <div class="faq-list reveal reveal-delay-1">
+          <details open>
+            <summary>Сайт гарантирует заявки? <span>+</span></summary>
+            <p>Нет. На продажи влияют продукт, трафик, цена и обработка обращений. Я отвечаю за ясность, доверие и маршрут до действия — и заранее определяю, что можно проверить.</p>
+          </details>
+          <details>
+            <summary>Можно заказать только дизайн? <span>+</span></summary>
+            <p>Если у вас уже есть проверенная структура и тексты — обсудим. Но красивый макет не исправит слабый оффер, и я не буду делать вид, что исправит.</p>
+          </details>
+          <details>
+            <summary>Как проходит оплата? <span>+</span></summary>
+            <p>Диагностика оплачивается до старта. Крупные проекты делятся на этапы. Стоимость, сроки и границы фиксируются в договоре.</p>
+          </details>
+          <details>
+            <summary>Что, если я не знаю, какой формат нужен? <span>+</span></summary>
+            <p>Это нормально. Пришлите ссылку и задачу. Я скажу, с чего разумнее начать, даже если ответ — «пока не покупать сайт».</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="audit section-shell" id="audit">
+        <div class="audit-copy reveal">
+          <p class="eyebrow light"><span></span> Начнём без лишнего риска</p>
+          <h2>Давайте сначала поймём, <em>что у вас действительно нужно чинить</em></h2>
+          <p>
+            Пришлите ссылку на сайт, профиль или Telegram. Посмотрю одну главную точку и скажу, какой следующий
+            шаг вижу. Без созвона ради созвона и попытки продать всё меню.
+          </p>
+          <div class="audit-points">
+            <span>01. Одна главная проблема</span>
+            <span>02. Почему она мешает</span>
+            <span>03. Что делать первым</span>
+          </div>
+        </div>
+
+        <form class="audit-form reveal reveal-delay-1" data-audit-form>
+          <label>
+            <span>Как вас зовут?</span>
+            <input type="text" name="name" autocomplete="name" placeholder="Имя" required />
+          </label>
+          <label>
+            <span>Ссылка на проект</span>
+            <input type="url" name="project" placeholder="https://" required />
+          </label>
+          <label>
+            <span>Что продаёте и кому?</span>
+            <textarea name="offer" rows="3" placeholder="Пара нормальных предложений, без официальной биографии" required></textarea>
+          </label>
+          <label>
+            <span>Что сейчас бесит больше всего?</span>
+            <select name="problem" required>
+              <option value="" selected disabled>Выберите вариант</option>
+              <option>Не могу объяснить ценность</option>
+              <option>Выгляжу дешевле своего уровня</option>
+              <option>Есть сайт, но мало обращений</option>
+              <option>Нет связки Instagram и Telegram</option>
+              <option>Пока не понимаю</option>
+            </select>
+          </label>
+          <label>
+            <span>Куда ответить?</span>
+            <input type="text" name="contact" placeholder="@username в Telegram или Instagram" required />
+          </label>
+          <label class="consent">
+            <input type="checkbox" name="consent" required />
+            <span>Согласен(на) на обработку данных для ответа на запрос</span>
+          </label>
+          <button class="button button-light form-submit" type="submit">Получить мини-разбор <span>↗</span></button>
+          <p class="form-note">Обычно отвечаю в течение 1–2 рабочих дней. Телепатию в пакет пока не добавила.</p>
+        </form>
+
+        <div class="form-success" data-form-success hidden>
+          <span>ГОТОВО</span>
+          <h3>Получила. Можно выдохнуть — заявка никуда не улетела.</h3>
+          <p>Это демонстрационная версия сайта: форма работает визуально, но перед публикацией её нужно подключить к вашему Telegram или CRM.</p>
+          <button class="button button-light" type="button" data-form-reset>Отправить ещё одну</button>
+        </div>
+      </section>
+
+      <section class="education section-shell reveal">
+        <div>
+          <p class="eyebrow"><span></span> Для будущих учеников</p>
+          <h2>Хотите не заказать, а научиться?</h2>
+        </div>
+        <p>
+          Собираю лист ожидания практикума про первый экран с AI. Без обещания стать дорогим дизайнером за пять
+          дней. На выходе — один внятный экран и понимание, что можно делегировать AI, а что придётся сделать головой.
+        </p>
+        <a class="button button-outline" href="https://t.me/?text=%D0%A1%D0%A2%D0%90%D0%A0%D0%A2" target="_blank" rel="noreferrer">Оставить слово СТАРТ <span>↗</span></a>
+      </section>
+    </main>
+
+    <footer class="site-footer section-shell">
+      <div class="footer-brand"><span class="brand-mark">N</span><div><strong>Настасья</strong><small>digital-упаковка под заявки</small></div></div>
+      <div class="footer-links"><a href="#services">Форматы</a><a href="#faq">FAQ</a><a href="#audit">Разбор</a></div>
+      <div class="footer-meta"><span>© 2026</span><span>Сделано с AI, но не вместо головы</span></div>
+    </footer>
+
+    <a class="mobile-sticky" href="#audit">РАЗБОР <span>↗</span></a>
+  </body>
+</html>
