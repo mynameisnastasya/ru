@@ -48,32 +48,30 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
-      - name: Remove fragile reveal hiding
+      - name: Force all content visible
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-
-          marker = 'document.documentElement.classList.add("js");'
-          replacement = 'document.documentElement.classList.remove("js");'
-
-          for html in Path('_site').rglob('*.html'):
-              text = html.read_text(encoding='utf-8')
-              text = text.replace(marker, replacement)
-              html.write_text(text, encoding='utf-8')
-          PY
-
           while IFS= read -r -d '' css; do
             cat >> "$css" <<'CSS'
 
-          /* Publication safety: primary content must always render above backgrounds. */
+          /* GitHub Pages emergency visibility fix. */
           html.js .reveal,
           html.js .reveal.is-visible,
           .reveal,
-          .reveal.is-visible {
+          .reveal.is-visible,
+          main,
+          main *,
+          .hero,
+          .hero *,
+          section,
+          article {
             opacity: 1 !important;
             visibility: visible !important;
+          }
+
+          html.js .reveal,
+          .reveal {
             transform: none !important;
           }
 
@@ -83,19 +81,10 @@ jobs:
           .hero-visual,
           .hero-foot {
             position: relative;
-            z-index: 3;
-            visibility: visible !important;
-            opacity: 1 !important;
+            z-index: 5;
           }
           CSS
           done < <(find _site -type f -name '*.css' -print0)
-
-      - name: Verify visible content safeguards
-        shell: bash
-        run: |
-          set -euo pipefail
-          ! grep -R -F 'document.documentElement.classList.add("js");' _site --include='*.html'
-          grep -R -F 'visibility: visible !important' _site --include='*.css' >/dev/null
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
