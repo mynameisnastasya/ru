@@ -1,0 +1,1 @@
+Verify the repaired five-page GitHub Pages build.
