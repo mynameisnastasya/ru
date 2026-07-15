@@ -1,0 +1,37 @@
+name: Diagnose Pages archive
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect archive
+        shell: bash
+        run: |
+          set -u
+          git clone -q --depth=1 --branch main "https://github.com/${{ github.repository }}.git" repo
+          cd repo
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          parts = sorted(Path('site').glob('site.tar.xz.hex.part-*'))
+          print('PART_COUNT', len(parts))
+          print('PART_NAMES', [p.name for p in parts])
+          try:
+              data = bytes.fromhex(''.join(p.read_text().strip() for p in parts))
+          except Exception as exc:
+              print('HEX_ERROR', repr(exc))
+              raise
+          Path('/tmp/site.tar.xz').write_bytes(data)
+          print('ARCHIVE_BYTES', len(data))
+          print('ARCHIVE_SHA256', hashlib.sha256(data).hexdigest())
+          PY
+          echo 'TAR_LIST_BEGIN'
+          tar -tJf /tmp/site.tar.xz | head -40
+          echo 'TAR_LIST_END'
