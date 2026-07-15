@@ -1,0 +1,1 @@
+Re-run live GitHub Pages verification after enabling Pages.
