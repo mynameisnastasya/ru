@@ -48,35 +48,94 @@ jobs:
           test -f _site/versions/04-shader-forest/index.html
           test -f _site/versions/05-3d-tactile/index.html
 
-      - name: Inject inline visibility repair
+      - name: Validate assets and animations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import re
+
+          versions = [
+              Path('_site/versions/01-aurora-botanical'),
+              Path('_site/versions/02-spotlight-atelier'),
+              Path('_site/versions/03-editorial-cut'),
+              Path('_site/versions/04-shader-forest'),
+              Path('_site/versions/05-3d-tactile'),
+          ]
+
+          class Assets(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if tag == 'link' and attrs.get('rel') == 'stylesheet' and attrs.get('href'):
+                      self.refs.append(attrs['href'])
+                  if tag == 'script' and attrs.get('src'):
+                      self.refs.append(attrs['src'])
+
+          for root in versions:
+              html = root / 'index.html'
+              parser = Assets()
+              parser.feed(html.read_text(encoding='utf-8'))
+              local_refs = [r.split('?', 1)[0] for r in parser.refs if not re.match(r'^(?:https?:)?//', r)]
+              missing = [(root / r).resolve() for r in local_refs if not (root / r).resolve().exists()]
+              if missing:
+                  raise SystemExit(f'{root.name}: missing assets: {missing}')
+
+              css_files = list(root.rglob('*.css'))
+              js_files = list(root.rglob('*.js'))
+              if not css_files:
+                  raise SystemExit(f'{root.name}: no CSS files')
+              if not js_files:
+                  raise SystemExit(f'{root.name}: no JavaScript files')
+
+              css = '\n'.join(p.read_text(encoding='utf-8') for p in css_files)
+              keyframes = len(re.findall(r'@(?:-webkit-)?keyframes\s+[\w-]+', css))
+              transitions = len(re.findall(r'\btransition(?:-property)?\s*:', css))
+              if keyframes + transitions == 0:
+                  raise SystemExit(f'{root.name}: no CSS animations or transitions found')
+              print(f'{root.name}: CSS={len(css_files)}, JS={len(js_files)}, keyframes={keyframes}, transitions={transitions}')
+          PY
+
+          while IFS= read -r -d '' js; do
+            node --check "$js"
+          done < <(find _site/versions -type f -name '*.js' -print0)
+
+      - name: Add animation-safe visibility fallback
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
 
-          inline = '''
-          <style id="pages-visible-content-fix">
-            html, body, main, section, article, .hero, .hero-copy, .hero-visual, .hero-foot,
-            .reveal, .reveal.is-visible, main *, .hero * {
-              opacity: 1 !important;
-              visibility: visible !important;
-            }
-            .reveal, html.js .reveal {
-              transform: none !important;
-            }
-            main, .hero, .hero-copy, .hero-visual, .hero-foot {
-              position: relative !important;
-              z-index: 10 !important;
-            }
-          </style>
+          fallback = '''
+          <script id="animation-visibility-fallback">
+            window.addEventListener("DOMContentLoaded", function () {
+              window.setTimeout(function () {
+                var targets = document.querySelectorAll(".reveal");
+                var hero = document.querySelector(".hero-copy, main h1, main");
+                var hidden = hero && (getComputedStyle(hero).opacity === "0" || getComputedStyle(hero).visibility === "hidden");
+                if (hidden) {
+                  document.documentElement.classList.remove("js");
+                  targets.forEach(function (el) {
+                    el.classList.add("is-visible");
+                    el.style.opacity = "1";
+                    el.style.visibility = "visible";
+                    el.style.transform = "none";
+                  });
+                }
+              }, 1500);
+            });
+          </script>
           '''
 
           for html in Path('_site').rglob('*.html'):
               text = html.read_text(encoding='utf-8')
-              text = text.replace('document.documentElement.classList.add("js");', 'document.documentElement.classList.remove("js");')
-              if 'pages-visible-content-fix' not in text:
-                  text = text.replace('</head>', inline + '\n</head>', 1)
+              if 'animation-visibility-fallback' not in text:
+                  text = text.replace('</body>', fallback + '\n</body>', 1)
               html.write_text(text, encoding='utf-8')
           PY
 
