@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Пять визуальных версий сайта">
+  <title>Версии сайта</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080a0f;--card:#111522;--text:#f5f7ff;--muted:#aab2c8;--line:#252c3d}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 15% 0,#273252 0,transparent 35%),radial-gradient(circle at 90% 100%,#243b30 0,transparent 30%),var(--bg);color:var(--text)}
+    main{width:min(1180px,calc(100% - 32px));margin:auto;padding:72px 0}header{max-width:760px;margin-bottom:38px}.eyebrow{letter-spacing:.16em;text-transform:uppercase;color:#a5b7ff;font-size:.78rem;font-weight:700}h1{font-size:clamp(2.6rem,8vw,6.4rem);line-height:.92;margin:.35em 0 .22em;letter-spacing:-.055em}p{color:var(--muted);font-size:1.08rem;line-height:1.65}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.card{display:flex;min-height:230px;flex-direction:column;justify-content:space-between;padding:24px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));text-decoration:none;color:inherit;transition:.25s ease;overflow:hidden;position:relative}.card:before{content:"";position:absolute;inset:auto -20% -55% 35%;height:180px;border-radius:50%;background:var(--glow);filter:blur(28px);opacity:.42}.card:hover{transform:translateY(-6px);border-color:#65739c;box-shadow:0 24px 70px rgba(0,0,0,.35)}.num{font:700 .78rem/1 monospace;color:var(--muted)}h2{font-size:1.55rem;margin:0 0 8px}.card p{font-size:.92rem;margin:0}.arrow{font-size:1.6rem;align-self:flex-end;position:relative}
+    footer{margin-top:32px;color:#788198;font-size:.85rem}@media(max-width:560px){main{padding:42px 0}.card{min-height:190px}}
+  </style>
+</head>
+<body>
+<main>
+  <header><div class="eyebrow">Design collection · 2026</div><h1>Пять версий одного сайта</h1><p>Открой каждую концепцию отдельно. Все варианты адаптивные и работают прямо в браузере.</p></header>
+  <section class="grid" aria-label="Версии сайта">
+    <a class="card" style="--glow:#71e6b5" href="01-aurora-botanical/"><span class="num">01</span><div><h2>Aurora Botanical</h2><p>Мягкая природная эстетика и северное сияние.</p></div><span class="arrow">↗</span></a>
+    <a class="card" style="--glow:#ffb45c" href="02-spotlight-atelier/"><span class="num">02</span><div><h2>Spotlight Atelier</h2><p>Театральный свет и атмосфера мастерской.</p></div><span class="arrow">↗</span></a>
+    <a class="card" style="--glow:#ff5577" href="03-editorial-cut/"><span class="num">03</span><div><h2>Editorial Cut</h2><p>Смелая журнальная композиция.</p></div><span class="arrow">↗</span></a>
+    <a class="card" style="--glow:#67d987" href="04-shader-forest/"><span class="num">04</span><div><h2>Shader Forest</h2><p>Иммерсивный цифровой лес.</p></div><span class="arrow">↗</span></a>
+    <a class="card" style="--glow:#8d72ff" href="05-3d-tactile/"><span class="num">05</span><div><h2>3D Tactile</h2><p>Объёмная и тактильная веб-эстетика.</p></div><span class="arrow">↗</span></a>
+  </section>
+  <footer>Выбери направление — каждая карточка ведёт на отдельную версию.</footer>
+</main>
+</body>
+</html>
