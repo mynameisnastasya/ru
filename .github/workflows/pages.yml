@@ -1,4 +1,4 @@
-name: Deploy site to Pages
+name: Deploy static site to Pages
 
 on:
   push:
@@ -22,15 +22,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Rebuild static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          python3 - <<'PY'
+          from pathlib import Path
+          parts = sorted(Path('site').glob('site.tar.xz.hex.part-*'))
+          if len(parts) != 12:
+              raise SystemExit(f'Expected 12 archive parts, found {len(parts)}')
+          hex_data = ''.join(part.read_text().strip() for part in parts)
+          Path('/tmp/site.tar.xz').write_bytes(bytes.fromhex(hex_data))
+          PY
+          echo "f94e9173e9e29e1b7a733e1b719d22ea25d46b7b76e681fd1abf5e5455a68bb3  /tmp/site.tar.xz" | sha256sum --check -
+          tar -xJf /tmp/site.tar.xz -C _site
+          test -f _site/index.html
+          test -f _site/versions/01-aurora-botanical/index.html
+          test -f _site/versions/02-spotlight-atelier/index.html
+          test -f _site/versions/03-editorial-cut/index.html
+          test -f _site/versions/04-shader-forest/index.html
+          test -f _site/versions/05-3d-tactile/index.html
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: .
-      - name: Deploy
+          path: _site
+
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
