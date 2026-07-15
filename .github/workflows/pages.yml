@@ -68,3 +68,29 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-live:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all public links
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://mynameisnastasya.github.io/ru"
+          urls=(
+            "$base/"
+            "$base/versions/01-aurora-botanical/"
+            "$base/versions/02-spotlight-atelier/"
+            "$base/versions/03-editorial-cut/"
+            "$base/versions/04-shader-forest/"
+            "$base/versions/05-3d-tactile/"
+          )
+          for url in "${urls[@]}"; do
+            echo "Checking $url"
+            curl --fail --silent --show-error --location \
+              --retry 12 --retry-delay 10 --retry-all-errors \
+              --output /tmp/page.html "$url"
+            grep -qi '<!doctype html' /tmp/page.html
+          done
