@@ -62,6 +62,13 @@ jobs:
           find _site -name '.DS_Store' -delete
           find _site -type d -name '__MACOSX' -prune -exec rm -rf {} + || true
 
+      - name: Rewrite all five site versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile publish/rewrite_site_v2.py
+          python3 publish/rewrite_site_v2.py _site
+
       - name: Validate complete publication
         shell: bash
         run: |
@@ -76,6 +83,14 @@ jobs:
             versions/03-editorial-cut/index.html
             versions/04-shader-forest/index.html
             versions/05-3d-tactile/index.html
+            legal/privacy.html
+            legal/personal-data-consent.html
+            legal/terms.html
+            legal/offer.html
+            legal/payment-refund.html
+            legal/details.html
+            legal/marketing-consent.html
+            legal/cookies.html
           )
           for file in "${required[@]}"; do
             test -s "_site/$file" || { echo "Missing or empty: $file"; exit 1; }
@@ -89,16 +104,109 @@ jobs:
           done < <(find _site -type f -name '*.js' -print0)
 
           python3 - <<'PY'
+          from html.parser import HTMLParser
           from pathlib import Path
           import re
 
-          for root in sorted(Path('_site/versions').iterdir()):
+          site = Path('_site').resolve()
+          versions = sorted((site / 'versions').iterdir())
+          expected = {
+              '01-aurora-botanical',
+              '02-spotlight-atelier',
+              '03-editorial-cut',
+              '04-shader-forest',
+              '05-3d-tactile',
+          }
+          if {p.name for p in versions if p.is_dir()} != expected:
+              raise SystemExit('The five expected versions were not produced')
+
+          forbidden = re.compile(
+              r'искусственн|нейросет|генераци.{0,20}(?:ии|ai)|chatgpt|midjourney|claude|'
+              r'(?<![а-яёa-z])ии(?![а-яёa-z])|(?<![а-z])ai(?![a-z])|'
+              r'react|tailwind|aceternity|magicui|kokonut|framer|figma|tilda|webflow|gsap',
+              re.IGNORECASE,
+          )
+          money = re.compile(r'\d[\d\s]*(?:₽|руб\.?)(?![а-яё])', re.IGNORECASE)
+
+          class Refs(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  for key in ('href', 'src'):
+                      value = attrs.get(key)
+                      if value:
+                          self.refs.append(value)
+
+          required_phrases = (
+              'Как проходит работа',
+              'Знакомство с проектом',
+              'Три индивидуальных направления',
+              'Выбор и доработка',
+              'Запуск сайта',
+              'Работа по договору',
+              'Поддержка сайта',
+              'Разработка индивидуального сайта — от [УКАЗАТЬ СТОИМОСТЬ]',
+              'В течение двух рабочих дней',
+              'Обсудить проект',
+              'Отправить материалы',
+              'Узнать стоимость',
+          )
+
+          for root in versions:
+              html_path = root / 'index.html'
+              html = html_path.read_text(encoding='utf-8')
               css = (root / 'styles.css').read_text(encoding='utf-8')
+              js = (root / 'script.js').read_text(encoding='utf-8')
+              source = '\n'.join((html, css, js))
+
+              match = forbidden.search(source)
+              if match:
+                  raise SystemExit(f'{root.name}: forbidden wording remains: {match.group(0)!r}')
+              if money.search(html):
+                  raise SystemExit(f'{root.name}: invented numeric price found')
+              if html.count('process-step') != 6:
+                  raise SystemExit(f'{root.name}: expected exactly six process steps')
+              if html.count('[УКАЗАТЬ СТОИМОСТЬ]') < 4:
+                  raise SystemExit(f'{root.name}: editable price placeholders are incomplete')
+              if not all(phrase in html for phrase in required_phrases):
+                  missing = [phrase for phrase in required_phrases if phrase not in html]
+                  raise SystemExit(f'{root.name}: missing required content: {missing}')
+              if not re.search(r'<form\b.*?</form>', html, re.S | re.I):
+                  raise SystemExit(f'{root.name}: project form missing')
+              for form in re.findall(r'<form\b.*?</form>', html, re.S | re.I):
+                  if not re.search(r'<input\b[^>]*type=["\']checkbox["\'][^>]*required', form, re.I):
+                      raise SystemExit(f'{root.name}: required consent checkbox missing')
+                  if 'privacy.html' not in form or 'personal-data-consent.html' not in form:
+                      raise SystemExit(f'{root.name}: legal links beside form are incomplete')
+              if html.count('../../legal/') < 8:
+                  raise SystemExit(f'{root.name}: footer legal links are incomplete')
               if not re.search(r'@(?:-webkit-)?keyframes|\btransition\s*:', css):
                   raise SystemExit(f'{root.name}: animations not found')
-              for asset in ('dark-leaves.jpg', 'forest-texture.jpg', 'leaf-macro.jpg'):
-                  if asset in css and not (Path('_site/assets') / asset).exists():
-                      raise SystemExit(f'{root.name}: missing {asset}')
+
+              parser = Refs()
+              parser.feed(html)
+              for ref in parser.refs:
+                  clean = ref.split('#', 1)[0].split('?', 1)[0]
+                  if not clean or clean.startswith(('http://', 'https://', '//', 'mailto:', 'tel:', 'data:')):
+                      continue
+                  target = (root / clean).resolve()
+                  try:
+                      target.relative_to(site)
+                  except ValueError:
+                      raise SystemExit(f'{root.name}: unsafe local reference: {ref}')
+                  if not target.exists():
+                      raise SystemExit(f'{root.name}: missing local reference: {ref}')
+
+          for legal in (site / 'legal').glob('*.html'):
+              text = legal.read_text(encoding='utf-8')
+              if '[ЗАПОЛНИТЬ]' not in text and '[ПРОВЕРИТЬ И ЗАПОЛНИТЬ]' not in text:
+                  raise SystemExit(f'{legal.name}: legal placeholder missing')
+              if 'Заготовка, а не готовый юридический документ' not in text:
+                  raise SystemExit(f'{legal.name}: legal disclaimer missing')
+
+          print('Validated five rewritten versions, forms, prices, legal pages and local links')
           PY
 
       - name: Add animation visibility fallback
