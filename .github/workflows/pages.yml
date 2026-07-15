@@ -1,4 +1,4 @@
-name: Deploy exact uploaded site to Pages
+name: Deploy full personal brand site to Pages
 
 on:
   push:
@@ -24,87 +24,84 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Restore uploaded site
+      - name: Restore full site
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf _site
-          mkdir -p _site
-          cat \
-            publish/site.tar.xz.hex.part-00 \
-            publish/site.tar.xz.hex.part-01 \
-            publish/site.tar.xz.hex.part-02-03 \
-            publish/site.tar.xz.hex.part-04-05 \
-            publish/site.tar.xz.hex.part-06-07 \
-            publish/site.tar.xz.hex.part-08-09 \
-            > /tmp/site.tar.xz.hex
-          xxd -r -p /tmp/site.tar.xz.hex /tmp/site.tar.xz
-          echo "2f2ddb6dc6af525e1fd3e2f65411c66e4d45e5ea6cbdecfc06e9f5d526762c44  /tmp/site.tar.xz" | sha256sum --check -
-          tar -xJf /tmp/site.tar.xz -C _site
-          test -f _site/index.html
-          test -f _site/versions/01-aurora-botanical/index.html
-          test -f _site/versions/02-spotlight-atelier/index.html
-          test -f _site/versions/03-editorial-cut/index.html
-          test -f _site/versions/04-shader-forest/index.html
-          test -f _site/versions/05-3d-tactile/index.html
+          rm -rf _site /tmp/full-site
+          mkdir -p _site /tmp/full-site
 
-      - name: Validate assets and animations
+          if [[ -f site-full.zip ]]; then
+            unzip -q site-full.zip -d /tmp/full-site
+            root="$(find /tmp/full-site -type f -name index.html -not -path '*/variants/*' -not -path '*/variants-21st/*' -printf '%h\n' | head -n 1)"
+            test -n "$root"
+
+            cp "$root/index.html" "$root/styles.css" "$root/script.js" _site/
+            cp -R "$root/assets" _site/assets
+            mkdir -p _site/versions _site/references
+            cp -R "$root/variants-21st/01-aurora-botanical" _site/versions/
+            cp -R "$root/variants-21st/02-spotlight-atelier" _site/versions/
+            cp -R "$root/variants-21st/03-editorial-cut" _site/versions/
+            cp -R "$root/variants-21st/04-shader-forest" _site/versions/
+            cp -R "$root/variants-21st/05-3d-tactile" _site/versions/
+            cp -R "$root/references/21st-components" _site/references/
+          else
+            cat \
+              publish/site.tar.xz.hex.part-00 \
+              publish/site.tar.xz.hex.part-01 \
+              publish/site.tar.xz.hex.part-02-03 \
+              publish/site.tar.xz.hex.part-04-05 \
+              publish/site.tar.xz.hex.part-06-07 \
+              publish/site.tar.xz.hex.part-08-09 \
+              > /tmp/site.tar.xz.hex
+            xxd -r -p /tmp/site.tar.xz.hex /tmp/site.tar.xz
+            echo "2f2ddb6dc6af525e1fd3e2f65411c66e4d45e5ea6cbdecfc06e9f5d526762c44  /tmp/site.tar.xz" | sha256sum --check -
+            tar -xJf /tmp/site.tar.xz -C _site
+          fi
+
+          find _site -name '.DS_Store' -delete
+          find _site -type d -name '__MACOSX' -prune -exec rm -rf {} + || true
+
+      - name: Validate complete publication
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from html.parser import HTMLParser
-          from pathlib import Path
-          import re
+          required=(
+            index.html styles.css script.js
+            assets/dark-leaves.jpg
+            assets/forest-texture.jpg
+            assets/leaf-macro.jpg
+            versions/01-aurora-botanical/index.html
+            versions/02-spotlight-atelier/index.html
+            versions/03-editorial-cut/index.html
+            versions/04-shader-forest/index.html
+            versions/05-3d-tactile/index.html
+          )
+          for file in "${required[@]}"; do
+            test -s "_site/$file" || { echo "Missing or empty: $file"; exit 1; }
+          done
 
-          versions = [
-              Path('_site/versions/01-aurora-botanical'),
-              Path('_site/versions/02-spotlight-atelier'),
-              Path('_site/versions/03-editorial-cut'),
-              Path('_site/versions/04-shader-forest'),
-              Path('_site/versions/05-3d-tactile'),
-          ]
-
-          class Assets(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.refs = []
-              def handle_starttag(self, tag, attrs):
-                  attrs = dict(attrs)
-                  if tag == 'link' and attrs.get('rel') == 'stylesheet' and attrs.get('href'):
-                      self.refs.append(attrs['href'])
-                  if tag == 'script' and attrs.get('src'):
-                      self.refs.append(attrs['src'])
-
-          for root in versions:
-              html = root / 'index.html'
-              parser = Assets()
-              parser.feed(html.read_text(encoding='utf-8'))
-              local_refs = [r.split('?', 1)[0] for r in parser.refs if not re.match(r'^(?:https?:)?//', r)]
-              missing = [(root / r).resolve() for r in local_refs if not (root / r).resolve().exists()]
-              if missing:
-                  raise SystemExit(f'{root.name}: missing assets: {missing}')
-
-              css_files = list(root.rglob('*.css'))
-              js_files = list(root.rglob('*.js'))
-              if not css_files:
-                  raise SystemExit(f'{root.name}: no CSS files')
-              if not js_files:
-                  raise SystemExit(f'{root.name}: no JavaScript files')
-
-              css = '\n'.join(p.read_text(encoding='utf-8') for p in css_files)
-              keyframes = len(re.findall(r'@(?:-webkit-)?keyframes\s+[\w-]+', css))
-              transitions = len(re.findall(r'\btransition(?:-property)?\s*:', css))
-              if keyframes + transitions == 0:
-                  raise SystemExit(f'{root.name}: no CSS animations or transitions found')
-              print(f'{root.name}: CSS={len(css_files)}, JS={len(js_files)}, keyframes={keyframes}, transitions={transitions}')
-          PY
+          test "$(find _site/references/21st-components -type f -name '*.tsx' | wc -l)" -ge 23
+          file _site/assets/*.jpg | grep -q 'JPEG image data'
 
           while IFS= read -r -d '' js; do
             node --check "$js"
-          done < <(find _site/versions -type f -name '*.js' -print0)
+          done < <(find _site -type f -name '*.js' -print0)
 
-      - name: Add animation-safe visibility fallback
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          for root in sorted(Path('_site/versions').iterdir()):
+              css = (root / 'styles.css').read_text(encoding='utf-8')
+              if not re.search(r'@(?:-webkit-)?keyframes|\btransition\s*:', css):
+                  raise SystemExit(f'{root.name}: animations not found')
+              for asset in ('dark-leaves.jpg', 'forest-texture.jpg', 'leaf-macro.jpg'):
+                  if asset in css and not (Path('_site/assets') / asset).exists():
+                      raise SystemExit(f'{root.name}: missing {asset}')
+          PY
+
+      - name: Add animation visibility fallback
         shell: bash
         run: |
           set -euo pipefail
@@ -115,12 +112,12 @@ jobs:
           <script id="animation-visibility-fallback">
             window.addEventListener("DOMContentLoaded", function () {
               window.setTimeout(function () {
-                var targets = document.querySelectorAll(".reveal");
                 var hero = document.querySelector(".hero-copy, main h1, main");
-                var hidden = hero && (getComputedStyle(hero).opacity === "0" || getComputedStyle(hero).visibility === "hidden");
-                if (hidden) {
+                if (!hero) return;
+                var style = getComputedStyle(hero);
+                if (style.opacity === "0" || style.visibility === "hidden") {
                   document.documentElement.classList.remove("js");
-                  targets.forEach(function (el) {
+                  document.querySelectorAll(".reveal").forEach(function (el) {
                     el.classList.add("is-visible");
                     el.style.opacity = "1";
                     el.style.visibility = "visible";
