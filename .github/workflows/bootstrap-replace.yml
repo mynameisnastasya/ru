@@ -53,19 +53,23 @@ jobs:
           test -s out/index.html
           cp -a out /tmp/site-out
 
-      - name: Replace repository contents
+      - name: Prepare clean replacement branch
         shell: bash
         run: |
           set -euo pipefail
+          cp .github/workflows/bootstrap-replace.yml /tmp/bootstrap-replace.yml
+          rm -rf /tmp/site-src/only-stais-studio/.github
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a /tmp/site-src/only-stais-studio/. .
+          mkdir -p .github/workflows
+          cp /tmp/bootstrap-replace.yml .github/workflows/bootstrap-replace.yml
           rm -rf node_modules .next out
           rm -f package-lock.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Replace site with Only Stais Studio"
-          git push origin HEAD:main
+          git push --force origin HEAD:refs/heads/agent/built-site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
