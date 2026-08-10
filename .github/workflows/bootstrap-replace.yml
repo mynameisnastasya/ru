@@ -1,4 +1,4 @@
-name: Replace site and deploy
+name: Deploy Next.js site to Pages
 
 on:
   push:
@@ -6,22 +6,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
 concurrency:
-  group: bootstrap-replace-site
-  cancel-in-progress: false
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  replace:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -29,53 +26,27 @@ jobs:
         with:
           node-version: 22
 
-      - name: Configure Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Reconstruct replacement source
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat .bootstrap/site.b64.part-* | base64 --decode > /tmp/site.zip
-          echo "41f7e43b0f78b774c3852715e2e5736ff1af8a8268cd9435a2beb0849cc2af5e  /tmp/site.zip" | sha256sum --check -
-          rm -rf /tmp/site-src /tmp/site-out
-          mkdir -p /tmp/site-src
-          unzip -q /tmp/site.zip -d /tmp/site-src
-          test -f /tmp/site-src/only-stais-studio/package.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
 
-      - name: Validate replacement build
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd /tmp/site-src/only-stais-studio
-          npm install --no-audit --no-fund
-          npm run build
-          test -s out/index.html
-          cp -a out /tmp/site-out
-
-      - name: Prepare clean replacement branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp .github/workflows/bootstrap-replace.yml /tmp/bootstrap-replace.yml
-          rm -rf /tmp/site-src/only-stais-studio/.github
-          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -a /tmp/site-src/only-stais-studio/. .
-          mkdir -p .github/workflows
-          cp /tmp/bootstrap-replace.yml .github/workflows/bootstrap-replace.yml
-          rm -rf node_modules .next out
-          rm -f package-lock.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Replace site with Only Stais Studio"
-          git push --force origin HEAD:refs/heads/agent/built-site
+      - name: Build static site
+        run: npm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: /tmp/site-out
+          path: ./out
 
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
