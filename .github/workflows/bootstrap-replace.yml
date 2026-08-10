@@ -1,0 +1,77 @@
+name: Replace site and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: bootstrap-replace-site
+  cancel-in-progress: false
+
+jobs:
+  replace:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Reconstruct replacement source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .bootstrap/site.b64.part-* | base64 --decode > /tmp/site.zip
+          echo "41f7e43b0f78b774c3852715e2e5736ff1af8a8268cd9435a2beb0849cc2af5e  /tmp/site.zip" | sha256sum --check -
+          rm -rf /tmp/site-src /tmp/site-out
+          mkdir -p /tmp/site-src
+          unzip -q /tmp/site.zip -d /tmp/site-src
+          test -f /tmp/site-src/only-stais-studio/package.json
+
+      - name: Validate replacement build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/site-src/only-stais-studio
+          npm install --no-audit --no-fund
+          npm run build
+          test -s out/index.html
+          cp -a out /tmp/site-out
+
+      - name: Replace repository contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/site-src/only-stais-studio/. .
+          rm -rf node_modules .next out
+          rm -f package-lock.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Replace site with Only Stais Studio"
+          git push origin HEAD:main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/site-out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
