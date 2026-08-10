@@ -1,1 +1,0 @@
-Publish all five site versions with animation and asset validation.
