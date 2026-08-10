@@ -1,36 +1,19 @@
-# Сайт личного бренда Настасьи
+# NASTASYA / ONLY STAIS
 
-Рабочая статическая версия лендинга. Сайт адаптивный и не требует сборщика.
+Founder-led creative studio website built around **Controlled Escape**: the brand outgrows a rigid editorial template and turns that constraint into its proof stage.
 
-## Запуск
-
-Откройте `index.html` напрямую или запустите локальный сервер в этой папке:
+## Commands
 
 ```bash
-python3 -m http.server 4173
+npm install
+npm run dev
+npm run lint
+npm run typecheck
+npm run test
+npm run build
 ```
 
-После этого страница доступна по адресу `http://127.0.0.1:4173`.
+## Content integrity
 
-## Перед публикацией
+All displayed cases are explicitly labelled concept cases. No client results, testimonials, awards or founder photography are fabricated. Replace the founder media placeholder with licensed real photography before public launch.
 
-- заменить монограмму на реальные фото и видео Настасьи;
-- поставить фактические ссылки Instagram и Telegram;
-- подключить форму к Telegram, email или CRM;
-- добавить настоящие кейсы и отзывы;
-- адаптировать политику конфиденциальности и согласие;
-- подключить аналитику и UTM-метки;
-- проверить цены и реквизиты;
-- купить/подключить домен и хостинг.
-
-## Визуальное направление
-
-Тёмный ботанический editorial: глубокий лесной зелёный, молочная бумага, крупная антиква, курсивные акценты, фотоколлажи и тонкая журнальная сетка. Pinterest-референсы сохранены в папке `references`, но макеты не копируются один в один.
-
-Временные ботанические фотографии используются по Unsplash License:
-
-- Eugene Golovesov — `dark-leaves.jpg`;
-- Francesco Ungaro — `leaf-macro.jpg`;
-- malwina nogaj — `forest-texture.jpg`.
-
-Перед публикацией главный визуал лучше заменить на оригинальную фотосессию Настасьи в этой же цветовой и световой стилистике.
