@@ -19,16 +19,16 @@ type PublicOrder = {
 
 const labels: Record<string, string> = {
   AWAITING_PAYMENT: "Ждём оплату",
-  PAID: "Оплачено",
+  PAID: "Приняли",
   NEEDS_CLARIFICATION: "Нужно уточнение",
-  CONFIRMED: "Подтверждено",
-  ASSEMBLY: "Собираем подарок",
-  QUALITY_CHECK: "Проверяем перед отправкой",
-  READY: "Готово к передаче курьеру",
-  COURIER_ASSIGNED: "Курьер назначен",
-  OUT_FOR_DELIVERY: "Подарок в пути",
-  DELIVERED: "Доставлено",
-  CANCELED: "Отменено",
+  CONFIRMED: "Приняли",
+  ASSEMBLY: "Собираем",
+  QUALITY_CHECK: "Проверяем",
+  READY: "Готовим к отправке",
+  COURIER_ASSIGNED: "Передаём курьеру",
+  OUT_FOR_DELIVERY: "Уже едет",
+  DELIVERED: "Доставили",
+  CANCELED: "Заказ отменён",
   REFUNDED: "Возврат завершён",
 };
 
@@ -46,50 +46,56 @@ export default function WinkOrderStatus() {
         token = last?.public_token || "";
       } catch {}
     }
-    if (!token) {
-      setError("Нет безопасной ссылки на заказ.");
-      setLoading(false);
-      return;
-    }
 
     let cancelled = false;
     const load = async () => {
+      if (!token) {
+        if (!cancelled) {
+          setError("Нет безопасной ссылки на заказ.");
+          setLoading(false);
+        }
+        return;
+      }
       try {
         const response = await fetch(`${API_URL}/api/orders/public/${encodeURIComponent(token)}`);
         const data = await response.json().catch(() => null);
         if (!response.ok) throw new Error(data?.error?.message || "Не удалось загрузить заказ.");
-        if (!cancelled) setOrder(data.order as PublicOrder);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Не удалось загрузить заказ.");
+        if (!cancelled) {
+          setOrder(data.order as PublicOrder);
+          setError("");
+        }
+      } catch (reason) {
+        if (!cancelled) setError(reason instanceof Error ? reason.message : "Не удалось загрузить заказ.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
+
     void load();
     const timer = window.setInterval(load, 30_000);
     return () => { cancelled = true; window.clearInterval(timer); };
   }, []);
 
   return (
-    <main style={{ minHeight: "100vh", background: "#f7f3ef", color: "#171615", padding: "24px 16px 80px" }}>
+    <main style={{ minHeight: "100vh", background: "#F7F3EE", color: "#242222", padding: "24px 16px 80px" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <a href="../" style={{ color: "inherit", textDecoration: "none", fontWeight: 700, fontSize: 32, letterSpacing: "-.05em" }}>WINK<span style={{ color: "#e9cdd2" }}>.</span></a>
+        <a href="../" style={{ color: "inherit", textDecoration: "none", fontWeight: 700, fontSize: 32, letterSpacing: "-.05em" }}>WINK</a>
         <div style={{ marginTop: 72 }}>
-          <p style={{ textTransform: "uppercase", letterSpacing: ".14em", fontSize: 10, opacity: .55 }}>Order tracking</p>
-          {loading && <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(42px,8vw,72px)", fontWeight: 400 }}>Смотрим, где твой подарок…</h1>}
+          <p style={{ textTransform: "uppercase", letterSpacing: ".14em", fontSize: 10, opacity: .55 }}>Статус заказа</p>
+          {loading && <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(42px,8vw,72px)", fontWeight: 400 }}>Смотрим, где подарок…</h1>}
           {error && !loading && <><h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(42px,8vw,72px)", fontWeight: 400 }}>Не нашли заказ.</h1><p>{error}</p></>}
           {order && !loading && <>
             <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(48px,9vw,84px)", lineHeight: .95, fontWeight: 400, marginBottom: 16 }}>{labels[order.status] || order.status}.</h1>
             <p style={{ fontSize: 15, opacity: .65 }}>#{order.number} · {order.delivery_date}{order.delivery_slot ? ` · ${order.delivery_slot}` : ""}</p>
-            <div style={{ marginTop: 48, background: "#fffdf9", borderRadius: 28, padding: 24 }}>
-              <p style={{ marginTop: 0, textTransform: "uppercase", letterSpacing: ".12em", fontSize: 10, opacity: .5 }}>Gift</p>
+            <div style={{ marginTop: 48, background: "#FFFDFC", borderRadius: 20, padding: 24, border: "1px solid rgba(36,34,34,.1)" }}>
+              <p style={{ marginTop: 0, textTransform: "uppercase", letterSpacing: ".12em", fontSize: 10, opacity: .5 }}>Ваш WINK</p>
               {order.items.map((item, index) => {
                 const c = item.configuration || {};
                 const details = [c.palette, c.number ? `цифры ${c.number}` : "", ...(c.addons || [])].filter(Boolean).join(" · ");
-                return <div key={`${item.name}-${index}`} style={{ padding: "18px 0", borderTop: index ? "1px solid rgba(23,22,21,.1)" : "none" }}><strong>{item.quantity}× {item.name}</strong>{item.subtitle && <div style={{ marginTop: 5, opacity: .6 }}>{item.subtitle}</div>}{details && <div style={{ marginTop: 5, fontSize: 13, opacity: .65 }}>{details}</div>}</div>;
+                return <div key={`${item.name}-${index}`} style={{ padding: "18px 0", borderTop: index ? "1px solid rgba(36,34,34,.1)" : "none" }}><strong>{item.quantity}× {item.name}</strong>{item.subtitle && <div style={{ marginTop: 5, opacity: .6 }}>{item.subtitle}</div>}{details && <div style={{ marginTop: 5, fontSize: 13, opacity: .65 }}>{details}</div>}</div>;
               })}
             </div>
-            <p style={{ marginTop: 24, fontSize: 13, opacity: .55 }}>В этой ссылке специально нет телефонов, полного адреса и личного текста подарка. Статус обновляется автоматически.</p>
+            <p style={{ marginTop: 24, fontSize: 13, opacity: .55 }}>Здесь нет телефонов, полного адреса и личного текста подарка. Статус обновляется автоматически.</p>
           </>}
         </div>
       </div>
