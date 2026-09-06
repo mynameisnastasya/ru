@@ -6,21 +6,21 @@ import "@fontsource/inter/cyrillic-600.css";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
-import "@fontsource/ibm-plex-mono/cyrillic-400.css";
-import "@fontsource/ibm-plex-mono/cyrillic-500.css";
-import "@fontsource/ibm-plex-mono/latin-400.css";
-import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NASTASYA / ONLY STAIS — сайты вне шаблонов",
-  description:
-    "Founder-led creative web studio: стратегия, арт-дирекшн, signature interaction, разработка и запуск.",
+  title: "WINK — gifts that make a moment",
+  description: "Премиальные подарочные композиции: готовые WINK-сеты, персонализация, цифры, оформление комнаты и gift-first доставка.",
+  openGraph: {
+    title: "WINK — gifts that make a moment",
+    description: "Подарок, который невозможно не сфотографировать.",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A090B",
-  colorScheme: "dark light",
+  themeColor: "#F6F3EE",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
