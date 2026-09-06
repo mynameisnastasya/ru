@@ -117,6 +117,6 @@ export default function DashboardPage() {
       <div className={`${styles.card} ${health.telegram_last_failure && (!health.telegram_last_success || health.telegram_last_failure > health.telegram_last_success) ? styles.bad : styles.good}`}><span>Telegram</span><strong>{health.telegram_last_success ? "OK" : "—"}</strong><small>success {stamp(health.telegram_last_success)} · fail {stamp(health.telegram_last_failure)}</small></div>
       <div className={`${styles.card} ${paymentProblems ? styles.bad : styles.good}`}><span>Payment errors</span><strong>{paymentProblems}</strong><small>Технические ошибки платежного контура</small></div>
       <div className={`${styles.card} ${lowStock ? styles.warn : styles.good}`}><span>Low stock</span><strong>{lowStock}</strong><small>Позиции на/ниже reorder point</small></div>
-    </section>
+    </div></section>
   </div></main>;
 }
