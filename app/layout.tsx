@@ -28,7 +28,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ru">
       <body>
-        <style>{`a[href$="/account"]{display:none!important}`}</style>
         <WinkAnalytics2026 />
         {children}
       </body>
