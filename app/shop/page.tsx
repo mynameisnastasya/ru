@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import WinkRouteExperience from "@/components/WinkRouteExperience";
+import WinkCatalog2026 from "@/components/WinkCatalog2026";
 
-export const metadata: Metadata = { title: "Shop — WINK", description: "Все актуальные композиции WINK: AIR, BIRTHDAY, LOVE, HEARTS, MESSAGE и BABY REVEAL." };
-export default function ShopPage(){ return <WinkRouteExperience mode="shop"/>; }
+export const metadata: Metadata = {
+  title: "Каталог — WINK",
+  description: "Выберите красивое: curated-каталог WINK по человеку, поводу, формату, палитре и бюджету.",
+};
+
+export default function ShopPage(){
+  return <WinkCatalog2026 />;
+}
