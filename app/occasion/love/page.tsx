@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import WinkRouteExperience from "@/components/WinkRouteExperience";
+import WinkCuratedRoute2026 from "@/components/WinkCuratedRoute2026";
 
-export const metadata: Metadata = { title: "Love — WINK", description: "Романтические подарки WINK: LOVE, HEARTS и MESSAGE без лишнего каталожного шума." };
-export default function LovePage(){ return <WinkRouteExperience mode="love"/>; }
+export const metadata: Metadata = {
+  title: "Любовь — WINK",
+  description: "Романтические WINK-решения: сердца, композиции и личные слова без лишнего каталожного шума.",
+};
+
+export default function LovePage(){
+  return <WinkCuratedRoute2026 mode="love"/>;
+}
