@@ -6,6 +6,7 @@ import "@fontsource/inter/cyrillic-600.css";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
+import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F6F3EE",
+  themeColor: "#F7F3EE",
   colorScheme: "light",
 };
 
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="ru">
       <body>
         <style>{`a[href$="/account"]{display:none!important}`}</style>
+        <WinkAnalytics2026 />
         {children}
       </body>
     </html>
