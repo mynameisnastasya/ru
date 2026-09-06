@@ -9,11 +9,11 @@ import "@fontsource/inter/latin-600.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WINK — gifts that make a moment",
-  description: "Премиальные подарочные композиции: готовые WINK-сеты, персонализация, цифры, оформление комнаты и gift-first доставка.",
+  title: "WINK — когда надо красиво поздравить",
+  description: "Современный бренд подарков и красивых поздравлений. Выберите повод и настроение — WINK соберёт красивое решение без сложного выбора.",
   openGraph: {
-    title: "WINK — gifts that make a moment",
-    description: "Подарок, который невозможно не сфотографировать.",
+    title: "WINK — когда надо красиво поздравить",
+    description: "Меньше выбора. Больше вкуса. Меньше хлопот. Больше эмоции.",
     type: "website",
   },
 };
