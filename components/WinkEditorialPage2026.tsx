@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import WinkPageFrame2026 from "@/components/WinkPageFrame2026";
 
