@@ -84,7 +84,7 @@ export default function WinkCheckout2026() {
           date,
           slot,
           address: address.trim(),
-          courierNote: leaveAtDoor ? "Оставить у двери, если условия заказа и адрес позволяют." : "",
+          courierComment: leaveAtDoor ? "Оставить у двери, если условия заказа и адрес позволяют." : "",
         },
         items: cart.map(line => ({ productId: line.productId, qty: line.qty, config: line.config })),
         source: "wink-site-2026",
