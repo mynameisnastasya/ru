@@ -8,6 +8,7 @@ import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
 import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
 import "./globals.css";
+import "./wink-cleanup.css";
 
 export const metadata: Metadata = {
   title: "WINK — когда надо красиво поздравить",
