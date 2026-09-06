@@ -27,7 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ru">
       <body>
-        <style>{`a[href$="/search"],a[href$="/favorites"],a[href$="/account"]{display:none!important}`}</style>
+        <style>{`a[href$="/account"]{display:none!important}`}</style>
         {children}
       </body>
     </html>
