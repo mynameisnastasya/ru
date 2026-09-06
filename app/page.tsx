@@ -1,12 +1,10 @@
-import WinkBackendBridge from "@/components/WinkBackendBridge";
-import WinkExperience from "@/components/WinkExperience";
 import WinkOrderShortcut from "@/components/WinkOrderShortcut";
+import WinkStorefrontV4 from "@/components/WinkStorefrontV4";
 
 export default function Home() {
   return (
     <>
-      <WinkExperience />
-      <WinkBackendBridge />
+      <WinkStorefrontV4 />
       <WinkOrderShortcut />
     </>
   );
