@@ -5,3 +5,12 @@ coverage
 *.tsbuildinfo
 *.log
 .DS_Store
+
+# WINK server-side secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.neon/
+.vercel/
