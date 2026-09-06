@@ -26,7 +26,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>
+        <style>{`a[href$="/search"],a[href$="/favorites"],a[href$="/account"]{display:none!important}`}</style>
+        {children}
+      </body>
     </html>
   );
 }
