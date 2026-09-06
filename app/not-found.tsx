@@ -1,0 +1,3 @@
+import Link from "next/link";
+
+export default function NotFound(){return <main className="wink404"><div><span>404</span><h1>Здесь ничего нет.</h1><p>Но красивое точно есть в каталоге.</p><Link href="/shop">В каталог</Link></div><style>{`.wink404{min-height:100svh;background:#F7F3EE;color:#242222;display:grid;place-items:center;padding:24px;font-family:Inter,Arial,sans-serif}.wink404>div{text-align:center}.wink404 span{font-size:11px;letter-spacing:.15em}.wink404 h1{font-size:clamp(42px,6vw,74px);letter-spacing:-.055em;margin:16px 0 10px}.wink404 p{color:#746c68;font-size:17px}.wink404 a{display:inline-flex;margin-top:20px;min-height:54px;align-items:center;background:#242222;color:white;text-decoration:none;padding:0 22px;border-radius:13px}`}</style></main>}
