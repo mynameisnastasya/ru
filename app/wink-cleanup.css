@@ -1,0 +1,4 @@
+/* Transitional cleanup while the 2026 storefront is consolidated around one shell. */
+.wh26-mobileNav {
+  display: none !important;
+}
