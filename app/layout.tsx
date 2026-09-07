@@ -11,6 +11,7 @@ import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
 import "./globals.css";
 import "./wink-cleanup.css";
 import "./wink-storefront.css";
+import "./wink-editorial.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,

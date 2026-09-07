@@ -48,18 +48,20 @@ export default function WinkPageFrame2026({
   return (
     <div className="wk-shell wps26">
       {WINK_DEMO && (
-        <div className="wk-announcement" role="note">
-          ДЕМО · Заказы не отправляются, оплаты нет.
+        <div className="wk-demo-notice" role="note">
+          Демо · Заказы и оплата отключены.
           <span>Дополнения, цены на них и остатки — тестовые.</span>
         </div>
       )}
       <a className="wk-skip" href="#main-content">
         Перейти к содержимому
       </a>
-      <div className="wk-announcement">
-        Красивые поздравления с доставкой по Кемерову{" "}
-        <span>Собираем с заботой о вашем моменте</span>
-      </div>
+      {!WINK_DEMO && (
+        <div className="wk-announcement">
+          Красивые поздравления с доставкой по Кемерову{" "}
+          <span>Собираем с заботой о вашем моменте</span>
+        </div>
+      )}
       <header className="wk-header">
         <Link href="/" className="wk-wordmark" aria-label="WINK — главная">
           WINK<span>;</span>
