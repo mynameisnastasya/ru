@@ -126,17 +126,17 @@ export default function WinkHome2026() {
   }
   return (
     <main className="wk-home">
-      <section className="wk-hero">
+      <section className="wk-hero wk-editorial-hero">
         <div className="wk-hero-copy">
-          <p className="wk-eyebrow">WINK · Шары в Кемерово</p>
+          <p className="wk-eyebrow">Красиво поздравить · Кемерово</p>
           <h1>
-            Для ваших
+            Дарите
             <br />
-            самых <em>своих.</em>
+            <em>это чувство.</em>
           </h1>
           <p className="wk-hero-intro">
-            Готовые композиции, красивые сочетания и несколько слов от вас.
-            Чтобы человеку стало очень хорошо.
+            То самое «это всё для меня?». Воздушные композиции для людей,
+            которые вам особенно дороги.
           </p>
           <p className="wk-start-price">
             Композиции от{" "}
@@ -146,33 +146,28 @@ export default function WinkHome2026() {
           </p>
           <div className="wk-actions">
             <Link className="wk-button" href="/shop">
-              Выбрать композицию <ShopIcon name="arrow" />
+              Найти свой WINK <ShopIcon name="arrow" />
             </Link>
             <button className="wk-text-button" onClick={startFinder}>
               Помочь с выбором
             </button>
           </div>
           <span className="wk-hero-note">
-            Палитра — на ваш вкус. Доставка — по согласованию.
+            Вы выбираете повод. Мы помогаем сделать красиво.
           </span>
         </div>
         <figure className="wk-hero-image">
           <Image
             src={IMAGES.air}
-            alt="Визуализация воздушной композиции: розовые, молочные и серебряные шары в светлой комнате"
+            alt="Визуализация воздушных композиций в залитой утренним светом комнате"
             width={1536}
             height={1024}
             priority
             unoptimized
-            sizes="(max-width: 700px) 100vw, 55vw"
+            sizes="100vw"
           />
           <figcaption>
-            <span>
-              Маленький жест.
-              <br />
-              <em>Большое «люблю».</em>
-            </span>
-            <small>Визуализация WINK</small>
+            <small>Визуализация настроения · WINK</small>
           </figcaption>
         </figure>
       </section>
@@ -184,9 +179,11 @@ export default function WinkHome2026() {
       <section className="wk-section" id="selection">
         <div className="wk-section-heading">
           <div>
-            <p className="wk-eyebrow">Начните с этих</p>
+            <p className="wk-eyebrow">The WINK edit / 01</p>
             <h2>
-              Красиво уже <em>придумали.</em>
+              Маленькая коллекция.
+              <br />
+              <em>Большие чувства.</em>
             </h2>
           </div>
           <Link href="/shop" className="wk-text-link">
