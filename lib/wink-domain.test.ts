@@ -17,7 +17,7 @@ describe("WINK launch catalog", () => {
     );
   });
 
-  it("keeps the approved eight v4 palettes", () => {
+  it("keeps the approved eight v6 palettes", () => {
     expect(WINK_PALETTES).toEqual([
       "MILK",
       "PINK_MILK",
@@ -31,10 +31,10 @@ describe("WINK launch catalog", () => {
   });
 
   it("keeps direct reference prices in integer minor units", () => {
-    expect(findComposition("air16")?.directPriceMinor).toBe(349000);
-    expect(findComposition("birthday30-2")?.directPriceMinor).toBe(729000);
-    expect(findComposition("message16")?.directPriceMinor).toBe(509000);
-    expect(findComposition("baby-reveal-solo")?.directPriceMinor).toBe(339000);
+    expect(findComposition("air16")?.directPriceMinor).toBe(450000);
+    expect(findComposition("birthday30-2")?.directPriceMinor).toBe(990000);
+    expect(findComposition("message16")?.directPriceMinor).toBe(650000);
+    expect(findComposition("baby-reveal-solo")?.directPriceMinor).toBe(350000);
   });
 });
 
@@ -43,23 +43,39 @@ describe("personalization validation", () => {
     const one = findComposition("birthday16-1")!;
     const two = findComposition("birthday30-2")!;
     expect(validatePersonalization(one, { number: "5" })).toEqual([]);
-    expect(validatePersonalization(one, { number: "25" })).toContain("number_must_have_1_digits");
+    expect(validatePersonalization(one, { number: "25" })).toContain(
+      "number_must_have_1_digits",
+    );
     expect(validatePersonalization(two, { number: "25" })).toEqual([]);
-    expect(validatePersonalization(two, { number: "5" })).toContain("number_must_have_2_digits");
+    expect(validatePersonalization(two, { number: "5" })).toContain(
+      "number_must_have_2_digits",
+    );
   });
 
   it("requires MESSAGE text and caps it at 40 chars / three lines", () => {
     const message = findComposition("message16")!;
-    expect(validatePersonalization(message, { inscription: "Ане\n25" })).toEqual([]);
-    expect(validatePersonalization(message, { inscription: "" })).toContain("inscription_required");
-    expect(validatePersonalization(message, { inscription: "x".repeat(41) })).toContain("inscription_too_long");
-    expect(validatePersonalization(message, { inscription: "1\n2\n3\n4" })).toContain("inscription_too_many_lines");
+    expect(
+      validatePersonalization(message, { inscription: "Ане\n25" }),
+    ).toEqual([]);
+    expect(validatePersonalization(message, { inscription: "" })).toContain(
+      "inscription_required",
+    );
+    expect(
+      validatePersonalization(message, { inscription: "x".repeat(41) }),
+    ).toContain("inscription_too_long");
+    expect(
+      validatePersonalization(message, { inscription: "1\n2\n3\n4" }),
+    ).toContain("inscription_too_many_lines");
   });
 
   it("requires the secret result for BABY REVEAL", () => {
     const reveal = findComposition("baby-reveal16")!;
-    expect(validatePersonalization(reveal, { revealResult: "girl" })).toEqual([]);
-    expect(validatePersonalization(reveal, {})).toContain("reveal_result_required");
+    expect(validatePersonalization(reveal, { revealResult: "girl" })).toEqual(
+      [],
+    );
+    expect(validatePersonalization(reveal, {})).toContain(
+      "reveal_result_required",
+    );
   });
 });
 
@@ -70,8 +86,16 @@ describe("launch addons", () => {
   });
 
   it("prices bows by the 16/30 latex base and excludes LOVE", () => {
-    expect(bowsAddonFor(findComposition("air16")!)).toEqual({ code: "BOWS_16", count: 8, priceDeltaMinor: 40000 });
-    expect(bowsAddonFor(findComposition("message30")!)).toEqual({ code: "BOWS_30", count: 14, priceDeltaMinor: 60000 });
+    expect(bowsAddonFor(findComposition("air16")!)).toEqual({
+      code: "BOWS_16",
+      count: 8,
+      priceDeltaMinor: 50000,
+    });
+    expect(bowsAddonFor(findComposition("message30")!)).toEqual({
+      code: "BOWS_30",
+      count: 14,
+      priceDeltaMinor: 80000,
+    });
     expect(bowsAddonFor(findComposition("love16")!)).toBeNull();
   });
 });

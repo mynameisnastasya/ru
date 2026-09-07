@@ -1,68 +1,273 @@
 "use client";
-
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import WinkPageFrame2026 from "@/components/WinkPageFrame2026";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import WinkPageFrame2026 from "./WinkPageFrame2026";
+import { ProductCard, ShopDialog } from "./WinkShopUI";
+import {
+  FAMILY_NAMES,
+  PALETTES,
+  budgetMatches,
+  displayPrice,
+  kemerovoDate,
+  paletteIds,
+  saveDelivery,
+  validDeliveryDate,
+} from "@/lib/wink-shop";
+import { useWinkCatalog } from "@/lib/use-wink-catalog";
 
-const API_URL="https://br-billowing-hat-aydxhiyj-winkapi.compute.c-5.us-east-2.aws.neon.tech";
-const DELIVERY_INTENT_KEY="wink-delivery-intent";
-const HERO="https://images.pexels.com/photos/30277077/pexels-photo-30277077.jpeg?auto=compress&cs=tinysrgb&w=1500";
-const PINK="https://images.pexels.com/photos/31840152/pexels-photo-31840152.jpeg?auto=compress&cs=tinysrgb&w=1500";
-const NUMBER="https://images.pexels.com/photos/31840097/pexels-photo-31840097.jpeg?auto=compress&cs=tinysrgb&w=1500";
-const NIGHT="https://images.pexels.com/photos/31840156/pexels-photo-31840156.jpeg?auto=compress&cs=tinysrgb&w=1500";
-
-type Config=Record<string,unknown>;
-type Variant={palette_id:string|null};
-type Product={id:string;slug:string;name:string;subtitle:string;base_price_minor:number;bestseller?:boolean;config:Config;variants:Variant[]};
-type Catalog={products:Product[]};
-type FilterKey="recipient"|"occasion"|"format"|"palette"|"budget"|"when";
-
-type Filters={recipient:string;occasion:string;format:string;palette:string;budget:string;when:string};
-const EMPTY:Filters={recipient:"Все",occasion:"Все",format:"Все",palette:"Все",budget:"Все",when:"Не важно"};
-const FALLBACK:Product[]=[
- ["air16","AIR","16 шаров",349000,{latex_count:16}],["air30","AIR","30 шаров",559000,{latex_count:30}],
- ["birthday16-1","BIRTHDAY","16 шаров + 1 цифра",439000,{latex_count:16,digit_count:1}],["birthday16-2","BIRTHDAY","16 шаров + 2 цифры",519000,{latex_count:16,digit_count:2}],["birthday30-1","BIRTHDAY","30 шаров + 1 цифра",659000,{latex_count:30,digit_count:1}],["birthday30-2","BIRTHDAY","30 шаров + 2 цифры",729000,{latex_count:30,digit_count:2}],
- ["love16","LOVE","16 шаров + 2 сердца",429000,{latex_count:16,heart_count:2}],["love30","LOVE","30 шаров + 4 сердца",689000,{latex_count:30,heart_count:4}],
- ["hearts7","HEARTS","7 сердец",279000,{heart_count:7}],["hearts14","HEARTS","14 сердец",479000,{heart_count:14}],
- ["message16","MESSAGE","16 шаров + личная надпись",509000,{latex_count:16}],["message30","MESSAGE","30 шаров + личная надпись",729000,{latex_count:30}],
- ["baby-reveal-solo","BABY REVEAL","Шар-сюрприз",339000,{}],["baby-reveal16","BABY REVEAL","Шар-сюрприз + 16 шаров",629000,{latex_count:16}],
-].map(([slug,name,subtitle,price,config])=>({id:String(slug),slug:String(slug),name:String(name),subtitle:String(subtitle),base_price_minor:Number(price),config:config as Config,variants:[]}));
-
-const FILTERS:{key:FilterKey;label:string;values:string[]}[]=[
- {key:"recipient",label:"Кому",values:["Все","Для неё","Для него","Ребёнку","Маме","Подруге"]},
- {key:"occasion",label:"Повод",values:["Все","День рождения","Любовь","Без повода","Baby reveal"]},
- {key:"format",label:"Формат",values:["Все","Шары","Цифры","Сердца","Надпись","Сюрприз"]},
- {key:"palette",label:"Палитра",values:["Все","Розовый + chrome","Milk","Graphite","Frost","Cherry"]},
- {key:"budget",label:"Бюджет",values:["Все","до 5 000 ₽","5–7 000 ₽","7 000 ₽+"]},
- {key:"when",label:"Когда нужно",values:["Не важно","Сегодня — запрос","Завтра","На этой неделе","Выбрать дату"]},
-];
-
-function money(v:number){return `${new Intl.NumberFormat("ru-RU").format(Math.round(v/100))} ₽`;}
-function imageFor(p:Product){if(p.name==="BIRTHDAY")return NUMBER;if(p.name==="LOVE"||p.name==="HEARTS")return PINK;if(p.name==="MESSAGE"||p.name==="BABY REVEAL")return NIGHT;return HERO;}
-function num(c:Config,k:string){const v=c[k];return typeof v==="number"?v:Number(v||0)}
-function palettes(p:Product){return [...new Set((p.variants||[]).map(v=>v.palette_id).filter(Boolean))] as string[]}
-function recipientMatch(p:Product,value:string){if(value==="Все")return true;if(value==="Ребёнку")return ["BIRTHDAY","AIR","MESSAGE","BABY REVEAL"].includes(p.name);if(value==="Для него")return ["AIR","BIRTHDAY","MESSAGE"].includes(p.name);if(value==="Для неё"||value==="Подруге"||value==="Маме")return ["LOVE","HEARTS","MESSAGE","BIRTHDAY","AIR"].includes(p.name);return true}
-function occasionMatch(p:Product,value:string){if(value==="Все")return true;if(value==="День рождения")return ["BIRTHDAY","AIR","MESSAGE"].includes(p.name);if(value==="Любовь")return ["LOVE","HEARTS","MESSAGE"].includes(p.name);if(value==="Без повода")return ["AIR","LOVE","HEARTS","MESSAGE"].includes(p.name);if(value==="Baby reveal")return p.name==="BABY REVEAL";return true}
-function formatMatch(p:Product,value:string){if(value==="Все")return true;return ({Шары:"AIR",Цифры:"BIRTHDAY",Сердца:"HEARTS",Надпись:"MESSAGE",Сюрприз:"BABY REVEAL"} as Record<string,string>)[value]===p.name||(value==="Сердца"&&p.name==="LOVE")}
-function paletteMatch(p:Product,value:string){if(value==="Все")return true;const ids=palettes(p);if(p.name==="HEARTS")return ["Розовый + chrome","Graphite"].includes(value);if(!ids.length)return true;if(value==="Розовый + chrome")return ids.includes("PINK_CHROME")||ids.includes("PINK_MILK");if(value==="Milk")return ids.includes("MILK")||ids.includes("NUDE_GOLD");if(value==="Graphite")return ids.includes("BLACK_GOLD")||ids.includes("BLACK_CHROME");if(value==="Frost")return ids.includes("FROST");if(value==="Cherry")return ids.includes("CHERRY_MILK");return true}
-function budgetMatch(p:Product,value:string){if(value==="Все")return true;if(value==="до 5 000 ₽")return p.base_price_minor<=500000;if(value==="5–7 000 ₽")return p.base_price_minor>500000&&p.base_price_minor<=700000;if(value==="7 000 ₽+")return p.base_price_minor>700000;return true}
-
-export default function WinkCatalog2026(){
- const [products,setProducts]=useState<Product[]>(FALLBACK);const [filters,setFilters]=useState<Filters>(EMPTY);const [sort,setSort]=useState("Популярное");const [mobileFilters,setMobileFilters]=useState(false);const [date,setDate]=useState("");
- useEffect(()=>{let active=true;fetch(`${API_URL}/api/catalog`).then(r=>{if(!r.ok)throw new Error();return r.json() as Promise<Catalog>}).then(data=>{if(active&&data.products?.length)setProducts(data.products)}).catch(()=>undefined);return()=>{active=false}},[]);
- const result=useMemo(()=>{let list=products.filter(p=>recipientMatch(p,filters.recipient)&&occasionMatch(p,filters.occasion)&&formatMatch(p,filters.format)&&paletteMatch(p,filters.palette)&&budgetMatch(p,filters.budget));list=[...list].sort((a,b)=>{if(sort==="До 5 000 ₽")return a.base_price_minor-b.base_price_minor;if(sort==="Больше вау")return (num(b.config,"latex_count")+num(b.config,"heart_count")*2)-(num(a.config,"latex_count")+num(a.config,"heart_count")*2)||b.base_price_minor-a.base_price_minor;if(sort==="Сначала новые")return b.slug.localeCompare(a.slug);return Number(b.bestseller||false)-Number(a.bestseller||false)||a.base_price_minor-b.base_price_minor});return list},[products,filters,sort]);
- function setFilter(key:FilterKey,value:string){setFilters(current=>({...current,[key]:value}));if(key==="when"){try{window.localStorage.setItem(DELIVERY_INTENT_KEY,JSON.stringify({mode:value,date:value==="Выбрать дату"?date:""}))}catch{}}}
- const activeCount=Object.entries(filters).filter(([key,value])=>value!==(key==="when"?"Не важно":"Все")).length;
- return <WinkPageFrame2026><main className="wcat">
-  <section className="wcat-hero"><p>Каталог WINK</p><h1>Выберите красивое.</h1><span>Не склад из сотен вариантов. 14 производимых композиций, внутри которых меняются палитра и личные детали.</span><div><Link href="/for-her">Для неё</Link><Link href="/for-him">Для него</Link><Link href="/kids">Детям</Link><Link href="/room">Комната</Link><Link href="/#finder">Пока не знаю</Link></div></section>
-  <section className="wcat-controls"><button className="wcat-mobileFilter" onClick={()=>setMobileFilters(true)}>Фильтры {activeCount?`· ${activeCount}`:""}</button><div className="wcat-filterBar">{FILTERS.map(filter=><label key={filter.key}><span>{filter.label}</span><select value={filters[filter.key]} onChange={e=>setFilter(filter.key,e.target.value)}>{filter.values.map(value=><option key={value}>{value}</option>)}</select></label>)}</div>{filters.when==="Выбрать дату"&&<div className="wcat-date"><label>Дата<input type="date" value={date} onChange={e=>{setDate(e.target.value);try{window.localStorage.setItem(DELIVERY_INTENT_KEY,JSON.stringify({mode:"Выбрать дату",date:e.target.value}))}catch{}}}/></label><span>Это пожелание. Реальная доступность подтверждается перед оплатой.</span></div>}<div className="wcat-sort"><span>{result.length} вариантов</span><label>Сортировка<select value={sort} onChange={e=>setSort(e.target.value)}><option>Популярное</option><option>Сначала новые</option><option>До 5 000 ₽</option><option>Больше вау</option></select></label></div></section>
-  <section className="wcat-grid">{result.map(product=><Link href={`/product/${product.slug}`} key={product.slug} className="wcat-card"><figure><img src={imageFor(product)} alt={product.subtitle}/><button type="button" aria-label="Добавить в избранное" onClick={event=>{event.preventDefault();try{const key="wink-favorites";const list=JSON.parse(window.localStorage.getItem(key)||"[]") as string[];if(!list.includes(product.slug))window.localStorage.setItem(key,JSON.stringify([...list,product.slug]))}catch{}}}>♡</button></figure><div><small>{product.name}</small><h2>{product.subtitle}</h2><p>{num(product.config,"latex_count")>=30?"Больше вау":num(product.config,"latex_count")>=16?"Как на фото":"Акцент"}</p><strong>{money(product.base_price_minor)}</strong></div></Link>)}{!result.length&&<div className="wcat-empty"><h2>Слишком много условий.</h2><p>Не будем показывать случайный товар ради результата. Сбросьте один фильтр или дайте WINK подобрать три варианта.</p><button onClick={()=>setFilters(EMPTY)}>Сбросить фильтры</button><Link href="/#finder">Подберите мне →</Link></div>}</section>
-  <section className="wcat-note"><h2>Когда нужно — важный фильтр. Но не повод врать.</h2><p>Пока delivery capacity не настроена, «сегодня» и «завтра» сохраняются как запрос. После запуска зон и слотов каталог сможет показывать только реально доступные композиции.</p></section>
-  {mobileFilters&&<div className="wcat-sheet"><button className="wcat-backdrop" onClick={()=>setMobileFilters(false)} aria-label="Закрыть"/><aside><header><b>Фильтры</b><button onClick={()=>setMobileFilters(false)}>×</button></header>{FILTERS.map(filter=><label key={filter.key}><span>{filter.label}</span><select value={filters[filter.key]} onChange={e=>setFilter(filter.key,e.target.value)}>{filter.values.map(value=><option key={value}>{value}</option>)}</select></label>)}<button className="wcat-apply" onClick={()=>setMobileFilters(false)}>Показать {result.length}</button></aside></div>}
- </main><style jsx global>{`
- .wcat{--milk:#F7F3EE;--white:#FFFDFC;--graphite:#242222;--blush:#E5C8CE;--cocoa:#5A403E;--line:rgba(36,34,34,.13);min-height:80vh;background:var(--milk);color:var(--graphite);font-family:Inter,Arial,sans-serif}.wcat *{box-sizing:border-box}.wcat a{color:inherit;text-decoration:none}.wcat-hero{padding:95px max(64px,calc((100vw - 1400px)/2)) 64px;background:var(--white)}.wcat-hero>p{text-transform:uppercase;letter-spacing:.15em;font-size:10px}.wcat-hero h1{font-size:clamp(50px,5.6vw,78px);letter-spacing:-.06em;line-height:.95;margin:14px 0}.wcat-hero>span{display:block;max-width:720px;color:#746c68;font-size:17px;line-height:1.6}.wcat-hero>div{display:flex;gap:7px;flex-wrap:wrap;margin-top:30px}.wcat-hero>div a{border:1px solid var(--line);padding:10px 13px;border-radius:999px;font-size:12px}.wcat-controls{padding:30px max(64px,calc((100vw - 1400px)/2)) 16px}.wcat-filterBar{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.wcat-filterBar label,.wcat-date label{display:flex;flex-direction:column;gap:6px}.wcat-filterBar span,.wcat-date label>span{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#807670}.wcat select,.wcat-date input{border:1px solid var(--line);background:var(--white);min-height:46px;padding:0 10px;font:inherit;font-size:11px}.wcat-date{margin-top:8px;padding:12px;background:var(--blush);display:flex;align-items:end;gap:18px}.wcat-date input{min-width:180px}.wcat-date>span{font-size:10px;color:#655e5a;padding-bottom:10px}.wcat-sort{display:flex;justify-content:space-between;align-items:center;padding:20px 0 8px;border-bottom:1px solid var(--line);font-size:11px}.wcat-sort label{display:flex;align-items:center;gap:8px}.wcat-sort select{min-height:38px}.wcat-grid{padding:18px max(64px,calc((100vw - 1400px)/2)) 110px;display:grid;grid-template-columns:repeat(4,1fr);gap:42px 12px}.wcat-card figure{margin:0;aspect-ratio:4/5;position:relative;overflow:hidden;background:#e7ddd6}.wcat-card img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.8);transition:transform .45s}.wcat-card:hover img{transform:scale(1.025)}.wcat-card figure button{position:absolute;right:10px;top:10px;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,253,252,.94);font-size:21px;cursor:pointer}.wcat-card>div{padding:13px 2px}.wcat-card small{font-size:9px;letter-spacing:.08em;color:#817873}.wcat-card h2{font-size:19px;margin:5px 0 4px;line-height:1.25}.wcat-card p{font-size:10px;color:#817873;margin:0 0 9px}.wcat-card strong{font-size:14px}.wcat-empty{grid-column:1/-1;background:var(--white);padding:60px;max-width:760px}.wcat-empty h2{font-size:34px;margin:0}.wcat-empty p{color:#746c68;line-height:1.6}.wcat-empty button,.wcat-empty a{border:0;background:none;border-bottom:1px solid currentColor;padding:4px 0;margin-right:20px;cursor:pointer}.wcat-note{background:var(--blush);padding:80px max(64px,calc((100vw - 1400px)/2))}.wcat-note h2{font-size:38px;letter-spacing:-.045em;max-width:760px;margin:0}.wcat-note p{max-width:760px;color:#655e5a;line-height:1.65}.wcat-mobileFilter{display:none}.wcat-sheet{display:none}
- @media(max-width:1050px){.wcat-hero,.wcat-controls,.wcat-grid,.wcat-note{padding-left:28px;padding-right:28px}.wcat-filterBar{grid-template-columns:repeat(3,1fr)}.wcat-grid{grid-template-columns:repeat(3,1fr)}}
- @media(max-width:720px){.wcat-hero{padding:60px 18px 42px}.wcat-hero h1{font-size:44px}.wcat-hero>span{font-size:16px}.wcat-controls{padding:18px}.wcat-filterBar{display:none}.wcat-mobileFilter{display:block;width:100%;min-height:48px;border:1px solid var(--line);background:var(--white)}.wcat-date{display:block}.wcat-date label{margin-bottom:8px}.wcat-sort{padding-top:14px}.wcat-sort label>span{display:none}.wcat-grid{padding:10px 18px 75px;grid-template-columns:1fr 1fr;gap:28px 8px}.wcat-card h2{font-size:16px}.wcat-note{padding:60px 18px}.wcat-note h2{font-size:30px}.wcat-sheet{display:block;position:fixed;inset:0;z-index:120}.wcat-backdrop{position:absolute;inset:0;border:0;background:rgba(25,22,21,.45)}.wcat-sheet aside{position:absolute;left:0;right:0;bottom:0;max-height:88svh;overflow:auto;background:var(--milk);padding:18px;border-radius:18px 18px 0 0}.wcat-sheet header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.wcat-sheet header b{font-size:22px}.wcat-sheet header button{border:0;background:transparent;font-size:27px}.wcat-sheet label{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}.wcat-sheet label span{font-size:10px;text-transform:uppercase;letter-spacing:.1em}.wcat-sheet select{width:100%}.wcat-apply{width:100%;height:54px;border:0;background:var(--graphite);color:white;border-radius:12px;margin-top:8px}}
- @media(max-width:430px){.wcat-grid{grid-template-columns:1fr 1fr}.wcat-card figure{aspect-ratio:4/5}}
- `}</style></WinkPageFrame2026>
+export default function WinkCatalog2026() {
+  const { catalog, status } = useWinkCatalog();
+  const query = useSearchParams();
+  const router = useRouter();
+  const path = usePathname();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [dateError, setDateError] = useState("");
+  const format = query.get("format") || "";
+  const palette = PALETTES[query.get("palette") || ""]
+    ? query.get("palette")!
+    : "";
+  const budget = query.get("budget") || "";
+  const recipient = query.get("recipient") || "";
+  const sort = query.get("sort") || "selection";
+  const date = query.get("date") || "";
+  useEffect(() => {
+    if (date && validDeliveryDate(date)) {
+      try {
+        saveDelivery({ date });
+      } catch {}
+    }
+  }, [date]);
+  function update(key: string, value: string) {
+    const next = new URLSearchParams(query.toString());
+    if (value) next.set(key, value);
+    else next.delete(key);
+    router.replace(path + (next.size ? "?" + next.toString() : ""), {
+      scroll: false,
+    });
+  }
+  function chooseDate(value: string) {
+    setDateError("");
+    if (value && !validDeliveryDate(value)) {
+      setDateError("Выберите сегодняшнюю или будущую дату.");
+      return;
+    }
+    update("date", value);
+    try {
+      saveDelivery({ date: value });
+    } catch {
+      setDateError(
+        "Не удалось сохранить дату. Её можно указать при оформлении.",
+      );
+    }
+  }
+  const products = useMemo(
+    () =>
+      catalog.products
+        .filter(
+          (p) =>
+            (!format || p.name === format) &&
+            budgetMatches(displayPrice(p, palette), budget) &&
+            (!palette ||
+              (p.name !== "HEARTS" && paletteIds(p).includes(palette))) &&
+            (recipient === "him" || recipient === "kids"
+              ? ["AIR", "BIRTHDAY", "MESSAGE"].includes(p.name)
+              : true),
+        )
+        .sort((a, b) =>
+          sort === "asc"
+            ? displayPrice(a, palette) - displayPrice(b, palette)
+            : sort === "desc"
+              ? displayPrice(b, palette) - displayPrice(a, palette)
+              : 0,
+        ),
+    [catalog.products, format, palette, budget, recipient, sort],
+  );
+  const filterCount = [format, palette, budget, date, recipient].filter(
+    Boolean,
+  ).length;
+  function fields() {
+    return (
+      <>
+        <label className="wk-field">
+          Формат
+          <select
+            value={format}
+            onChange={(e) => update("format", e.target.value)}
+          >
+            <option value="">Все композиции</option>
+            {Object.entries(FAMILY_NAMES).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="wk-field">
+          Палитра
+          <select
+            value={palette}
+            onChange={(e) => update("palette", e.target.value)}
+          >
+            <option value="">Все сочетания</option>
+            {Object.entries(PALETTES).map(([value, p]) => (
+              <option key={value} value={value}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="wk-field">
+          Бюджет на набор
+          <select
+            value={budget}
+            onChange={(e) => update("budget", e.target.value)}
+          >
+            <option value="">Любой</option>
+            <option value="5000">До 5 000 ₽</option>
+            <option value="7500">До 7 500 ₽</option>
+          </select>
+        </label>
+        <label className="wk-field">
+          Желаемая дата
+          <input
+            type="date"
+            min={kemerovoDate()}
+            value={date}
+            onChange={(e) => chooseDate(e.target.value)}
+          />
+        </label>
+      </>
+    );
+  }
+  return (
+    <WinkPageFrame2026>
+      <main>
+        <section className="wk-catalog-head">
+          <p className="wk-eyebrow">Коллекция WINK · Кемерово</p>
+          <h1>Выберите красивое.</h1>
+          <p>
+            Готовые наборы для ваших людей. Откройте композицию, выберите
+            палитру и добавьте личную деталь.
+          </p>
+          <div className="wk-chips">
+            {[
+              ["", "Все"],
+              ["BIRTHDAY", "День рождения"],
+              ["HEARTS", "Сердца"],
+              ["AIR", "Воздушные сеты"],
+              ["MESSAGE", "С надписью"],
+            ].map(([value, label]) => (
+              <button
+                key={label}
+                aria-pressed={format === value}
+                className={format === value ? "active" : ""}
+                onClick={() => update("format", value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+        <section className="wk-catalog-controls" aria-label="Фильтры каталога">
+          {fields()}
+          <button
+            className="wk-button secondary wk-catalog-filter-toggle"
+            onClick={() => setFiltersOpen(true)}
+          >
+            Фильтры{filterCount ? ` · ${filterCount}` : ""}
+          </button>
+          {filterCount > 0 && (
+            <button
+              className="wk-text-button"
+              onClick={() => {
+                router.replace(path, { scroll: false });
+                setDateError("");
+                try {
+                  saveDelivery({ date: "", mode: "" });
+                } catch {}
+              }}
+            >
+              Сбросить
+            </button>
+          )}
+        </section>
+        <div className="wk-catalog-toolbar">
+          <span aria-live="polite">{products.length} вариантов</span>
+          <label>
+            Порядок{" "}
+            <select
+              value={sort}
+              onChange={(e) => update("sort", e.target.value)}
+            >
+              <option value="selection">Подборка WINK</option>
+              <option value="asc">Сначала дешевле</option>
+              <option value="desc">Сначала дороже</option>
+            </select>
+          </label>
+        </div>
+        <section className="wk-section wk-catalog-grid">
+          {dateError && (
+            <p className="wk-error" role="alert">
+              {dateError}
+            </p>
+          )}
+          {date && (
+            <p className="wk-status-note">
+              Желаемая дата: {date.split("-").reverse().join(".")}. Возможность
+              и стоимость доставки согласуем до оплаты.
+            </p>
+          )}
+          <div className="wk-grid">
+            {products.map((p) => (
+              <ProductCard
+                key={p.slug}
+                product={p}
+                palette={palette || undefined}
+              />
+            ))}
+          </div>
+          {!products.length && (
+            <div className="wk-empty">
+              <h2>Попробуем чуть иначе?</h2>
+              <p>
+                С таким сочетанием условий наборов пока нет. Уберите один фильтр
+                — или доверьтесь нашему подбору.
+              </p>
+              <button
+                className="wk-button"
+                onClick={() => router.replace(path, { scroll: false })}
+              >
+                Сбросить фильтры
+              </button>
+              <Link className="wk-button secondary" href="/#finder">
+                Помочь с выбором
+              </Link>
+            </div>
+          )}
+          <p className="wk-image-note">
+            Визуализации передают настроение коллекций. Точный состав и
+            доступные цвета указаны в карточке набора. Доставка оплачивается
+            отдельно.
+          </p>
+          {status === "reference" && (
+            <p className="wk-status-note">
+              Показываем базовые цены. Актуальную стоимость и доступность
+              подтвердим при оформлении.
+            </p>
+          )}
+        </section>
+        <ShopDialog
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          title="Ваши пожелания"
+        >
+          {fields()}
+          <button className="wk-button" onClick={() => setFiltersOpen(false)}>
+            Показать варианты · {products.length}
+          </button>
+        </ShopDialog>
+      </main>
+    </WinkPageFrame2026>
+  );
 }

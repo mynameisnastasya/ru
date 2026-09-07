@@ -1,104 +1,184 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const API_URL = "https://br-billowing-hat-aydxhiyj-winkapi.compute.c-5.us-east-2.aws.neon.tech";
-
+import WinkPageFrame2026 from "./WinkPageFrame2026";
+import { API_URL, CONTACT_URL, PALETTES } from "@/lib/wink-shop";
+import { WINK_DEMO } from "@/lib/wink-mode";
 type PublicOrder = {
   number: string;
   status: string;
   delivery_date: string;
   delivery_slot?: string | null;
-  items: Array<{
+  items: {
     name: string;
     subtitle?: string | null;
     quantity: number;
-    configuration?: { palette?: string; number?: string | null; addons?: string[] };
-  }>;
+    configuration?: {
+      palette?: string;
+      number?: string | null;
+      addons?: string[];
+    };
+  }[];
 };
-
 const labels: Record<string, string> = {
-  AWAITING_PAYMENT: "Ждём оплату",
-  PAID: "Приняли",
-  NEEDS_CLARIFICATION: "Нужно уточнение",
-  CONFIRMED: "Приняли",
+  AWAITING_PAYMENT: "Ожидает оплаты",
+  PAID: "Оплачен",
+  NEEDS_CLARIFICATION: "Уточняем детали",
+  CONFIRMED: "Подтверждён",
   ASSEMBLY: "Собираем",
   QUALITY_CHECK: "Проверяем",
   READY: "Готовим к отправке",
   COURIER_ASSIGNED: "Передаём курьеру",
   OUT_FOR_DELIVERY: "Уже едет",
-  DELIVERED: "Доставили",
-  CANCELED: "Заказ отменён",
+  DELIVERED: "Доставлен",
+  CANCELED: "Отменён",
   REFUNDED: "Возврат завершён",
 };
-
 export default function WinkOrderStatus() {
   const [order, setOrder] = useState<PublicOrder | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    let token = params.get("token") || "";
+    if (WINK_DEMO) {
+      setError(
+        "В деморежиме реальные заявки не создаются. Проверьте выбор и оформление в корзине.",
+      );
+      setLoading(false);
+      return;
+    }
+    let token = new URLSearchParams(window.location.search).get("token") || "";
     if (!token) {
       try {
-        const last = JSON.parse(window.localStorage.getItem("wink-last-order") || "null");
-        token = last?.public_token || "";
+        const last = JSON.parse(
+          window.localStorage.getItem("wink-last-order") || "null",
+        );
+        if (typeof last?.public_token === "string") token = last.public_token;
       } catch {}
     }
-
-    let cancelled = false;
+    let active = true;
+    const controller = new AbortController();
     const load = async () => {
       if (!token) {
-        if (!cancelled) {
-          setError("Нет безопасной ссылки на заказ.");
-          setLoading(false);
-        }
+        setError("Откройте ссылку, полученную после оформления заявки.");
+        setLoading(false);
         return;
       }
       try {
-        const response = await fetch(`${API_URL}/api/orders/public/${encodeURIComponent(token)}`);
+        const response = await fetch(
+          `${API_URL}/api/orders/public/${encodeURIComponent(token)}`,
+          {
+            cache: "no-store",
+            signal: AbortSignal.any([
+              controller.signal,
+              AbortSignal.timeout(10000),
+            ]),
+          },
+        );
         const data = await response.json().catch(() => null);
-        if (!response.ok) throw new Error(data?.error?.message || "Не удалось загрузить заказ.");
-        if (!cancelled) {
-          setOrder(data.order as PublicOrder);
+        const next = data?.order;
+        if (
+          !response.ok ||
+          !next ||
+          typeof next.number !== "string" ||
+          typeof next.status !== "string" ||
+          typeof next.delivery_date !== "string" ||
+          !Array.isArray(next.items) ||
+          !next.items.every(
+            (item: PublicOrder["items"][number]) =>
+              item &&
+              typeof item.name === "string" &&
+              Number.isInteger(item.quantity),
+          )
+        )
+          throw new Error(
+            "Не удалось обновить статус. Попробуйте позже или напишите нам номер заявки.",
+          );
+        if (active) {
+          setOrder(next);
           setError("");
         }
-      } catch (reason) {
-        if (!cancelled) setError(reason instanceof Error ? reason.message : "Не удалось загрузить заказ.");
+      } catch {
+        if (active)
+          setError(
+            "Не удалось обновить статус. Попробуйте позже или напишите нам номер заявки.",
+          );
       } finally {
-        if (!cancelled) setLoading(false);
+        if (active) setLoading(false);
       }
     };
-
     void load();
-    const timer = window.setInterval(load, 30_000);
-    return () => { cancelled = true; window.clearInterval(timer); };
+    const timer = token ? window.setInterval(load, 30000) : undefined;
+    return () => {
+      active = false;
+      controller.abort();
+      window.clearInterval(timer);
+    };
   }, []);
-
   return (
-    <main style={{ minHeight: "100vh", background: "#F7F3EE", color: "#242222", padding: "24px 16px 80px" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <a href="../" style={{ color: "inherit", textDecoration: "none", fontWeight: 700, fontSize: 32, letterSpacing: "-.05em" }}>WINK</a>
-        <div style={{ marginTop: 72 }}>
-          <p style={{ textTransform: "uppercase", letterSpacing: ".14em", fontSize: 10, opacity: .55 }}>Статус заказа</p>
-          {loading && <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(42px,8vw,72px)", fontWeight: 400 }}>Смотрим, где подарок…</h1>}
-          {error && !loading && <><h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(42px,8vw,72px)", fontWeight: 400 }}>Не нашли заказ.</h1><p>{error}</p></>}
-          {order && !loading && <>
-            <h1 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(48px,9vw,84px)", lineHeight: .95, fontWeight: 400, marginBottom: 16 }}>{labels[order.status] || order.status}.</h1>
-            <p style={{ fontSize: 15, opacity: .65 }}>#{order.number} · {order.delivery_date}{order.delivery_slot ? ` · ${order.delivery_slot}` : ""}</p>
-            <div style={{ marginTop: 48, background: "#FFFDFC", borderRadius: 20, padding: 24, border: "1px solid rgba(36,34,34,.1)" }}>
-              <p style={{ marginTop: 0, textTransform: "uppercase", letterSpacing: ".12em", fontSize: 10, opacity: .5 }}>Ваш WINK</p>
-              {order.items.map((item, index) => {
-                const c = item.configuration || {};
-                const details = [c.palette, c.number ? `цифры ${c.number}` : "", ...(c.addons || [])].filter(Boolean).join(" · ");
-                return <div key={`${item.name}-${index}`} style={{ padding: "18px 0", borderTop: index ? "1px solid rgba(36,34,34,.1)" : "none" }}><strong>{item.quantity}× {item.name}</strong>{item.subtitle && <div style={{ marginTop: 5, opacity: .6 }}>{item.subtitle}</div>}{details && <div style={{ marginTop: 5, fontSize: 13, opacity: .65 }}>{details}</div>}</div>;
-              })}
+    <WinkPageFrame2026>
+      <main className="wk-section wk-order-status">
+        <p className="wk-eyebrow">Статус вашего WINK</p>
+        {loading ? (
+          <h1>Смотрим, где подарок…</h1>
+        ) : (
+          <>
+            <h1>
+              {order
+                ? labels[order.status] || "Уточняем детали"
+                : "Найдём вашу заявку."}
+            </h1>
+            {error && (
+              <p className="wk-error" role="alert">
+                {error}
+              </p>
+            )}
+            {order && (
+              <>
+                <p>
+                  Заявка № {order.number} · Желаемая дата:{" "}
+                  {order.delivery_date.split("-").reverse().join(".")}
+                  {order.delivery_slot ? " · " + order.delivery_slot : ""}
+                </p>
+                <div className="wk-status-items">
+                  {order.items.map((item, i) => {
+                    const config = item.configuration || {};
+                    return (
+                      <article key={i}>
+                        <h2>
+                          {item.quantity} × {item.subtitle || item.name}
+                        </h2>
+                        <p>
+                          {[
+                            PALETTES[config.palette || ""]?.name,
+                            config.number ? "Цифры: " + config.number : "",
+                            Array.isArray(config.addons) && config.addons.length
+                              ? "С бантами"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      </article>
+                    );
+                  })}
+                </div>
+                <p className="wk-status-note">
+                  Статус обновляется автоматически. Детали и подтверждённое
+                  время доставки можно уточнить у нас.
+                </p>
+              </>
+            )}
+            <div className="wk-actions">
+              <a className="wk-button" href={CONTACT_URL}>
+                Написать WINK
+              </a>
+              <Link className="wk-text-link" href="/shop">
+                Все композиции →
+              </Link>
             </div>
-            <p style={{ marginTop: 24, fontSize: 13, opacity: .55 }}>Здесь нет телефонов, полного адреса и личного текста подарка. Статус обновляется автоматически.</p>
-          </>}
-        </div>
-      </div>
-    </main>
+          </>
+        )}
+      </main>
+    </WinkPageFrame2026>
   );
 }

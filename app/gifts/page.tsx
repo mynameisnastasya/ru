@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import WinkLanding2026 from "@/components/WinkLanding2026";
+import WinkGifts2026 from "@/components/WinkGifts2026";
 
-export const metadata: Metadata = { title: "Подарки — WINK", description: "WINK Gifts: открытки, фотографии, цветы и будущие подарочные категории вокруг красивого момента." };
-export default function Page(){ return <WinkLanding2026 mode="gifts"/>; }
+export const metadata: Metadata = {
+  title: "Подарки — WINK",
+  description:
+    "Личные детали для поздравления: надпись на шаре, текст открытки и банты для композиций WINK.",
+};
+export default function Page() {
+  return <WinkGifts2026 />;
+}
