@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS=--import=./scripts/runtime-shim.mjs next dev",
+    "dev": "NODE_OPTIONS=--import=./scripts/runtime-shim.mjs node scripts/dev.mjs",
     "build": "NODE_OPTIONS=--import=./scripts/runtime-shim.mjs next build --webpack",
     "start": "NODE_OPTIONS=--import=./scripts/runtime-shim.mjs next start",
     "lint": "eslint .",

@@ -1,34 +1,190 @@
+"use client";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { CONTACT_URL, SHOP_EVENT, money, readCart } from "@/lib/wink-shop";
+import { ShopDialog, ShopIcon } from "./WinkShopUI";
+import WinkOrderShortcut from "./WinkOrderShortcut";
 
-function Icon({ type }: { type: "home" | "search" | "heart" | "bag" | "menu" }) {
-  return <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    {type === "home" && <><path d="m4 10 8-6 8 6"/><path d="M6 9.5V21h12V9.5"/></>}
-    {type === "search" && <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></>}
-    {type === "heart" && <path d="M20.3 5.7a5 5 0 0 0-7.1 0L12 6.9l-1.2-1.2a5 5 0 1 0-7.1 7.1L12 21l8.3-8.2a5 5 0 0 0 0-7.1Z"/>}
-    {type === "bag" && <><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></>}
-    {type === "menu" && <><path d="M4 8h16"/><path d="M4 16h16"/></>}
-  </svg>;
-}
-
-export default function WinkPageFrame2026({ children }: { children: ReactNode }) {
-  return <div className="wps26">
-    <header className="wps26-header">
-      <Link href="/" className="wps26-logo">WINK</Link>
-      <nav><Link href="/shop">Каталог</Link><Link href="/occasion/birthday">Поводы</Link><Link href="/gifts">Подарки</Link><Link href="/room">Оформление</Link><Link href="/about">О нас</Link></nav>
-      <div className="wps26-tools">
-        <Link href="/search" aria-label="Поиск"><Icon type="search"/></Link>
-        <Link href="/favorites" aria-label="Избранное"><Icon type="heart"/></Link>
-        <Link href="/checkout" aria-label="Корзина"><Icon type="bag"/></Link>
-        <details><summary aria-label="Меню"><Icon type="menu"/></summary><div className="wps26-mobilePanel"><div><Link href="/">WINK</Link><span>Закрыть ×</span></div><nav><Link href="/shop">Каталог</Link><Link href="/for-her">Для неё</Link><Link href="/for-him">Для него</Link><Link href="/kids">Детям</Link><Link href="/room">Оформление комнаты</Link><Link href="/gifts">Подарки</Link></nav><footer><Link href="/delivery">Доставка и оплата</Link><Link href="/faq">FAQ</Link><span>Instagram · Telegram</span></footer></div></details>
+export default function WinkPageFrame2026({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const path = usePathname().replace(/\/$/, "") || "/";
+  const [menu, setMenu] = useState(false);
+  const [count, setCount] = useState(0);
+  const [total, setTotal] = useState(0);
+  useEffect(() => {
+    const sync = () => {
+      try {
+        setTotal(
+          readCart().reduce(
+            (sum, line) => sum + line.qty * line.unitPriceMinor,
+            0,
+          ),
+        );
+        setCount(readCart().reduce((sum, line) => sum + line.qty, 0));
+      } catch {
+        setCount(0);
+      }
+    };
+    sync();
+    window.addEventListener(SHOP_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(SHOP_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  const navigation = [
+    ["/shop", "Композиции"],
+    ["/occasion/birthday", "День рождения"],
+    ["/room", "Для комнаты"],
+    ["/gifts", "Подарки"],
+    ["/delivery", "Доставка"],
+  ];
+  return (
+    <div className="wk-shell wps26">
+      <a className="wk-skip" href="#main-content">
+        Перейти к содержимому
+      </a>
+      <div className="wk-announcement">
+        Красивые поздравления с доставкой по Кемерову{" "}
+        <span>Собираем с заботой о вашем моменте</span>
       </div>
-    </header>
-    {children}
-    <footer className="wps26-footer"><div className="wps26-footerBrand"><b>WINK</b><p>Когда хочется сделать красиво.</p></div><div><h4>Каталог</h4><Link href="/shop">Все композиции</Link><Link href="/for-her">Для неё</Link><Link href="/for-him">Для него</Link><Link href="/kids">Детям</Link></div><div><h4>Поводы</h4><Link href="/occasion/birthday">День рождения</Link><Link href="/occasion/love">Любовь</Link><Link href="/room">Оформление комнаты</Link><Link href="/gifts">Подарки</Link></div><div><h4>Помощь</h4><Link href="/delivery">Доставка и оплата</Link><Link href="/faq">FAQ</Link><Link href="/about">О WINK</Link><Link href="/corporate">Корпоративным</Link></div><div className="wps26-footerBottom"><span>WINK · Кемерово</span><span>Telegram · Instagram</span></div></footer>
-    <nav className="wps26-bottomNav" aria-label="Мобильная навигация"><Link href="/"><Icon type="home"/><span>Главная</span></Link><Link href="/shop"><Icon type="search"/><span>Каталог</span></Link><Link href="/favorites"><Icon type="heart"/><span>Избранное</span></Link><Link href="/checkout"><Icon type="bag"/><span>Корзина</span></Link></nav>
-    <style jsx global>{`
-      .wps26{--milk:#F7F3EE;--white:#FFFDFC;--graphite:#242222;--blush:#E5C8CE;--taupe:#B7A9A2;--cocoa:#5A403E;--line:rgba(36,34,34,.13);min-height:100vh;background:var(--milk);color:var(--graphite);font-family:Inter,Arial,sans-serif}.wps26 *{box-sizing:border-box}.wps26 a{color:inherit;text-decoration:none}.wps26-header{height:74px;position:sticky;top:0;z-index:90;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 max(28px,calc((100vw - 1400px)/2));background:rgba(247,243,238,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.wps26-logo{font:400 34px/1 "Instrument Serif",Georgia,serif;letter-spacing:-.035em}.wps26-header>nav{display:flex;gap:28px;font-size:12px}.wps26-tools{justify-self:end;display:flex;gap:13px;align-items:center}.wps26-tools>a,.wps26-tools>details>summary{display:grid;place-items:center;width:30px;height:34px;padding:5px;cursor:pointer}.wps26 svg{width:20px;height:20px}.wps26-tools details{display:none}.wps26-tools summary{list-style:none}.wps26-tools summary::-webkit-details-marker{display:none}.wps26-mobilePanel{position:fixed;inset:0;background:var(--milk);padding:18px;display:flex;flex-direction:column}.wps26-mobilePanel>div{display:flex;justify-content:space-between;align-items:center}.wps26-mobilePanel>div>a{font:400 31px "Instrument Serif",Georgia,serif}.wps26-mobilePanel>div span{font-size:12px;color:#756c67}.wps26-mobilePanel nav{display:flex;flex-direction:column;margin-top:48px}.wps26-mobilePanel nav a{font-size:30px;letter-spacing:-.035em;padding:11px 0;border-bottom:1px solid var(--line)}.wps26-mobilePanel footer{margin-top:auto;display:flex;flex-direction:column;gap:12px;font-size:13px}.wps26-mobilePanel footer span{color:#7d746f}.wps26-footer{background:var(--cocoa);color:white;padding:80px max(64px,calc((100vw - 1400px)/2)) 34px;display:grid;grid-template-columns:2fr repeat(3,1fr);gap:50px}.wps26-footerBrand b{font:400 58px/1 "Instrument Serif",Georgia,serif}.wps26-footerBrand p{font-size:19px;color:#e5d8d2}.wps26-footer h4{font-size:11px;text-transform:uppercase;letter-spacing:.13em;margin:0 0 18px;color:#cfbeb7}.wps26-footer>div:not(.wps26-footerBrand):not(.wps26-footerBottom){display:flex;flex-direction:column;gap:10px}.wps26-footer a{font-size:13px;color:#f0e9e5}.wps26-footerBottom{grid-column:1/-1;display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.17);padding-top:24px;margin-top:20px;font-size:11px;color:#d0c2bc}.wps26-bottomNav{display:none}
-      @media(max-width:900px){.wps26{padding-bottom:66px}.wps26-header{height:62px;padding:0 16px;grid-template-columns:1fr auto}.wps26-header>nav{display:none}.wps26-logo{font-size:30px}.wps26-tools>a:nth-child(2){display:none}.wps26-tools details{display:block}.wps26-footer{padding:62px 18px 92px;grid-template-columns:1fr 1fr;gap:35px}.wps26-footerBrand{grid-column:1/-1}.wps26-footerBottom{display:block}.wps26-footerBottom span{display:block;margin-top:5px}.wps26-bottomNav{position:fixed;left:0;right:0;bottom:0;z-index:100;height:66px;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,253,252,.97);backdrop-filter:blur(20px);border-top:1px solid var(--line);padding-bottom:max(4px,env(safe-area-inset-bottom))}.wps26-bottomNav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9px}.wps26-bottomNav svg{width:18px;height:18px}}
-    `}</style>
-  </div>;
+      <header className="wk-header">
+        <Link href="/" className="wk-wordmark" aria-label="WINK — главная">
+          WINK<span>;</span>
+        </Link>
+        <nav aria-label="Основная навигация">
+          {navigation.map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={path === href ? "page" : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <div className="wk-header-tools">
+          <Link className="wk-icon-button" href="/search" aria-label="Поиск">
+            <ShopIcon name="search" />
+          </Link>
+          <Link
+            className="wk-icon-button wk-desktop-heart"
+            href="/favorites"
+            aria-label="Избранное"
+          >
+            <ShopIcon name="heart" />
+          </Link>
+          <Link
+            className="wk-icon-button wk-bag"
+            href="/checkout"
+            aria-label={`Корзина, товаров: ${count}`}
+          >
+            <ShopIcon name="bag" />
+            {count > 0 && <span>{count}</span>}
+          </Link>
+          <button
+            className="wk-icon-button wk-menu-toggle"
+            onClick={() => setMenu(true)}
+            aria-label="Открыть меню"
+            aria-expanded={menu}
+          >
+            <ShopIcon name="menu" />
+          </button>
+        </div>
+      </header>
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
+      <footer className="wk-footer">
+        <div>
+          <Link href="/" className="wk-wordmark">
+            WINK<span>;</span>
+          </Link>
+          <p>
+            Когда хочется
+            <br />
+            сделать красиво.
+          </p>
+          <span>Шары и поздравления · Кемерово</span>
+        </div>
+        <div>
+          <h2>Выбрать</h2>
+          <Link href="/shop">Все композиции</Link>
+          <Link href="/for-her">Для неё</Link>
+          <Link href="/for-him">Для него</Link>
+          <Link href="/kids">Детям</Link>
+          <Link href="/build">Собрать свой набор</Link>
+        </div>
+        <div>
+          <h2>Остаёмся рядом</h2>
+          <Link href="/delivery">Доставка и оплата</Link>
+          <Link href="/faq">Вопросы и ответы</Link>
+          <Link href="/about">О WINK</Link>
+          <Link href="/account">Важные даты</Link>
+          <WinkOrderShortcut />
+          <Link href="/corporate">Для компаний</Link>
+        </div>
+        <div className="wk-footer-contact">
+          <h2>Поможем выбрать</h2>
+          <p>Напишите, кого поздравляем и когда. Подскажем, с чего начать.</p>
+          <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
+            Написать в Telegram <ShopIcon name="arrow" />
+          </a>
+        </div>
+        <div className="wk-footer-bottom">
+          <span>WINK · С любовью к деталям</span>
+          <Link href="/favorites">Сохранённые композиции</Link>
+        </div>
+      </footer>
+      {!path.replace(/\/$/, "").endsWith("/checkout") && (
+        <nav className="wk-bottom-nav" aria-label="Мобильная навигация">
+          {[
+            ["/", "Главная", "home"],
+            ["/shop", "Каталог", "search"],
+            ["/favorites", "Избранное", "heart"],
+            ["/checkout", count ? money(total) : "Корзина", "bag"],
+          ].map(([href, label, icon]) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={path === href ? "page" : undefined}
+            >
+              <ShopIcon name={icon as "home" | "search" | "heart" | "bag"} />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
+      )}
+      <ShopDialog open={menu} onClose={() => setMenu(false)} title="WINK">
+        <nav className="wk-mobile-links">
+          {[
+            ...navigation,
+            ["/for-her", "Для неё"],
+            ["/for-him", "Для него"],
+            ["/kids", "Детям"],
+            ["/build", "Собрать свой"],
+            ["/account", "Важные даты"],
+          ].map(([href, label]) => (
+            <Link key={href} href={href} onClick={() => setMenu(false)}>
+              {label}
+              <ShopIcon name="arrow" />
+            </Link>
+          ))}
+        </nav>
+        <a
+          className="wk-button"
+          href={CONTACT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Помочь с выбором
+        </a>
+      </ShopDialog>
+    </div>
+  );
 }

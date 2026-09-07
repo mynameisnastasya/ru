@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   basePath: isGitHubPages ? "/ru" : "",
   assetPrefix: isGitHubPages ? "/ru/" : undefined,
+  env: { NEXT_PUBLIC_BASE_PATH: isGitHubPages ? "/ru" : "" },
+  allowedDevOrigins: ["terminal.local"],
 };
 
 export default nextConfig;
