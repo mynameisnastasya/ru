@@ -1,3 +1,4 @@
+import { WINK_DEMO } from "./wink-mode";
 import {
   WINK_COMPOSITIONS,
   WINK_PALETTES,
@@ -8,9 +9,11 @@ import {
 
 export const API_URL =
   "https://br-billowing-hat-aydxhiyj-winkapi.compute.c-5.us-east-2.aws.neon.tech";
-export const CART_KEY = "wink-v4-cart";
+export const CART_KEY = WINK_DEMO ? "wink-demo-v1-cart" : "wink-v4-cart";
 export const FAVORITES_KEY = "wink-favorites";
-export const DELIVERY_KEY = "wink-delivery-intent";
+export const DELIVERY_KEY = WINK_DEMO
+  ? "wink-demo-delivery-intent"
+  : "wink-delivery-intent";
 export const SHOP_EVENT = "wink-shop-change";
 export const CONTACT_URL = "https://t.me/mytango1337";
 // getRandomValues also supports non-HTTPS local previews; these IDs are not tracking tokens.

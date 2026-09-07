@@ -179,7 +179,7 @@ export function AddonCards({
                 />
               ) : (
                 <span className="wk-addon-wordmark">
-                  WINK<span>для ваших слов</span>
+                  WINK<span>Фото скоро появится</span>
                 </span>
               )}
             </button>

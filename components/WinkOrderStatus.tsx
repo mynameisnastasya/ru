@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import WinkPageFrame2026 from "./WinkPageFrame2026";
 import { API_URL, CONTACT_URL, PALETTES } from "@/lib/wink-shop";
+import { WINK_DEMO } from "@/lib/wink-mode";
 type PublicOrder = {
   number: string;
   status: string;
@@ -38,6 +39,13 @@ export default function WinkOrderStatus() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    if (WINK_DEMO) {
+      setError(
+        "В деморежиме реальные заявки не создаются. Проверьте выбор и оформление в корзине.",
+      );
+      setLoading(false);
+      return;
+    }
     let token = new URLSearchParams(window.location.search).get("token") || "";
     if (!token) {
       try {

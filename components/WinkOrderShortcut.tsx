@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { SHOP_EVENT, isConfirmedOrder } from "@/lib/wink-shop";
+import { WINK_DEMO } from "@/lib/wink-mode";
 function subscribe(listener: () => void) {
   window.addEventListener("storage", listener);
   window.addEventListener(SHOP_EVENT, listener);
@@ -13,6 +14,7 @@ function subscribe(listener: () => void) {
   };
 }
 function snapshot() {
+  if (WINK_DEMO) return null;
   try {
     return window.localStorage.getItem("wink-last-order");
   } catch {

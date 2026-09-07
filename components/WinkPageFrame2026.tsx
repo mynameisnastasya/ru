@@ -5,6 +5,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { CONTACT_URL, SHOP_EVENT, money, readCart } from "@/lib/wink-shop";
 import { ShopDialog, ShopIcon } from "./WinkShopUI";
 import WinkOrderShortcut from "./WinkOrderShortcut";
+import { WINK_DEMO } from "@/lib/wink-mode";
 
 export default function WinkPageFrame2026({
   children,
@@ -46,6 +47,12 @@ export default function WinkPageFrame2026({
   ];
   return (
     <div className="wk-shell wps26">
+      {WINK_DEMO && (
+        <div className="wk-announcement" role="note">
+          ДЕМО · Заказы не отправляются, оплаты нет.
+          <span>Дополнения, цены на них и остатки — тестовые.</span>
+        </div>
+      )}
       <a className="wk-skip" href="#main-content">
         Перейти к содержимому
       </a>

@@ -30,6 +30,7 @@ import {
 import { validateAddonCart } from "@/lib/wink-addon-cart";
 import { SHOP_EVENT } from "@/lib/wink-shop";
 import { AddonRecommendations, addonEvent } from "./WinkAddons";
+import { WINK_DEMO } from "@/lib/wink-mode";
 const IDEM_KEY = "wink-v4-idempotency";
 type Order = { number: string; public_token: string; status?: string };
 const initial = {
@@ -58,6 +59,7 @@ export default function WinkCheckout2026() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
+  const [demoReceipt, setDemoReceipt] = useState<CartLine[] | null>(null);
   const pending = useRef(false);
   const retry = useRef<{ fingerprint: string; key: string } | null>(null);
   useEffect(() => {
@@ -154,15 +156,18 @@ export default function WinkCheckout2026() {
     pending.current = true;
     setSubmitting(true);
     try {
-      const catalogResponse = await fetch(`${API_URL}/api/catalog`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!catalogResponse.ok)
-        throw new Error(
-          "Не удалось проверить стоимость заказа. Попробуйте ещё раз или напишите нам.",
-        );
-      const catalog = parseCatalog(await catalogResponse.json());
+      let catalog = mainCatalog;
+      if (!WINK_DEMO) {
+        const catalogResponse = await fetch(`${API_URL}/api/catalog`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!catalogResponse.ok)
+          throw new Error(
+            "Не удалось проверить стоимость заказа. Попробуйте ещё раз или напишите нам.",
+          );
+        catalog = parseCatalog(await catalogResponse.json());
+      }
       const latest = readCart();
       if (JSON.stringify(latest) !== JSON.stringify(cart)) {
         setCart(latest);
@@ -172,15 +177,17 @@ export default function WinkCheckout2026() {
       }
       let freshAddons = addonCatalog;
       if (cart.some((l) => l.addon)) {
-        const response = await fetch(`${API_URL}/api/addons`, {
-          cache: "no-store",
-          signal: AbortSignal.timeout(10000),
-        });
-        if (!response.ok)
-          throw new Error(
-            "Не удалось проверить дополнения. Корзина сохранена. Попробуйте ещё раз.",
-          );
-        freshAddons = (await response.json()) as AddonCatalog;
+        if (!WINK_DEMO) {
+          const response = await fetch(`${API_URL}/api/addons`, {
+            cache: "no-store",
+            signal: AbortSignal.timeout(10000),
+          });
+          if (!response.ok)
+            throw new Error(
+              "Не удалось проверить дополнения. Корзина сохранена. Попробуйте ещё раз.",
+            );
+          freshAddons = (await response.json()) as AddonCatalog;
+        }
         if (
           freshAddons.version !== 1 ||
           !freshAddons.checkout_enabled ||
@@ -238,6 +245,12 @@ export default function WinkCheckout2026() {
         throw new Error(
           "Стоимость композиции обновилась. Проверьте новую сумму и отправьте заявку ещё раз.",
         );
+      }
+      if (WINK_DEMO) {
+        // Keep the preview entirely local; no order ID, token, payment,
+        // customer-data persistence, inventory mutation or purchase event.
+        setDemoReceipt(structuredClone(priced));
+        return;
       }
       let utm: Record<string, string | null> = {};
       try {
@@ -353,6 +366,63 @@ export default function WinkCheckout2026() {
         </main>
       </WinkPageFrame2026>
     );
+  if (demoReceipt)
+    return (
+      <WinkPageFrame2026>
+        <main className="wk-success">
+          <p className="wk-eyebrow">Демонстрация оформления</p>
+          <h1>
+            Тест пройден.
+            <br />
+            Заказ не отправлен.
+          </h1>
+          <p>
+            Состав и персонализация проверены. Деньги не списывались, товары не
+            резервировались, WINK не получил заявку. Ваши контактные данные
+            никуда не отправлены.
+          </p>
+          {demoReceipt.map((line) => (
+            <article className="wk-cart-line" key={line.lineId}>
+              <div>
+                <h3>
+                  {line.subtitle} × {line.qty}
+                </h3>
+                <p>{configText(line.config)}</p>
+                {line.addon && (
+                  <>
+                    <p>{line.addon.sku}</p>
+                    <p>
+                      {Object.values(line.addon.personalization).join(" · ")}
+                    </p>
+                    <p>
+                      {line.addon.components
+                        .map((c) => `${c.name} × ${c.quantity}`)
+                        .join(" · ")}
+                    </p>
+                  </>
+                )}
+              </div>
+              <strong>{money(line.unitPriceMinor * line.qty)}</strong>
+            </article>
+          ))}
+          <p>
+            Тестовая сумма товаров:{" "}
+            <strong>
+              {money(
+                demoReceipt.reduce(
+                  (sum, line) => sum + line.unitPriceMinor * line.qty,
+                  0,
+                ),
+              )}
+            </strong>
+            . Доставка не рассчитана.
+          </p>
+          <button className="wk-button" onClick={() => setDemoReceipt(null)}>
+            Вернуться к тестовой корзине
+          </button>
+        </main>
+      </WinkPageFrame2026>
+    );
   if (order)
     return (
       <WinkPageFrame2026>
@@ -425,6 +495,31 @@ export default function WinkCheckout2026() {
     <WinkPageFrame2026>
       <main className="wk-checkout">
         <div className="wk-checkout-head">
+          {WINK_DEMO && (
+            <p className="wk-status-note">
+              Это проверка оформления, не покупка. Не вводите настоящие
+              контакты.{" "}
+              <button
+                type="button"
+                className="wk-text-button"
+                onClick={() =>
+                  setFields({
+                    ...initial,
+                    gift: false,
+                    customerName: "Тестовый покупатель",
+                    customerPhone: "+7 000 000-00-00",
+                    address: "Тестовая улица, дом 1",
+                    date: kemerovoDate(
+                      new Date(),
+                      Math.max(1, requirements.days),
+                    ),
+                  })
+                }
+              >
+                Заполнить тестовыми данными
+              </button>
+            </p>
+          )}
           <p className="wk-eyebrow">Корзина / Оформление</p>
           <h1>Осталось самое личное.</h1>
           <p>
@@ -655,8 +750,9 @@ export default function WinkCheckout2026() {
               </section>
             </fieldset>
             <p className="wk-status-note">
-              Сейчас отправляем заявку. Детали доставки и способ оплаты
-              согласуем после подтверждения заказа.
+              {WINK_DEMO
+                ? "Проверка проходит только в браузере. Тестовая корзина сохранится; реальная заявка не будет создана."
+                : "Сейчас отправляем заявку. Детали доставки и способ оплаты согласуем после подтверждения заказа."}
             </p>
             {error && (
               <div className="wk-error" role="alert">
@@ -677,8 +773,10 @@ export default function WinkCheckout2026() {
               disabled={submitting}
             >
               {submitting
-                ? "Проверяем и отправляем…"
-                : `Отправить заявку · ${money(total)}`}
+                ? WINK_DEMO
+                  ? "Проверяем…"
+                  : "Проверяем и отправляем…"
+                : `${WINK_DEMO ? "Проверить оформление" : "Отправить заявку"} · ${money(total)}`}
             </button>
           </div>
           <aside className="wk-order-summary">

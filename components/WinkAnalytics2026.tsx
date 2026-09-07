@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { API_URL } from "@/lib/wink-shop";
+import { WINK_DEMO } from "@/lib/wink-mode";
 export type WinkEvent = {
   event: string;
   path?: string;
@@ -14,7 +15,7 @@ declare global {
   }
 }
 export function trackWink(event: WinkEvent) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || WINK_DEMO) return;
   const payload = { ...event, path: event.path || window.location.pathname };
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push(payload);
@@ -26,6 +27,7 @@ function slug(path: string) {
 export default function WinkAnalytics2026() {
   const pathname = usePathname();
   useEffect(() => {
+    if (WINK_DEMO) return;
     const params = new URLSearchParams(window.location.search);
     const attribution = Object.fromEntries(
       ["source", "medium", "campaign", "content", "term"]
@@ -50,6 +52,7 @@ export default function WinkAnalytics2026() {
     trackWink({ event, product_slug: slug(pathname), ...attribution });
   }, [pathname]);
   useEffect(() => {
+    if (WINK_DEMO) return;
     const onClick = (e: MouseEvent) => {
       if (!(e.target instanceof Element)) return;
       const link = e.target.closest("a");

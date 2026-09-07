@@ -31,6 +31,12 @@ photographs. They must be replaced/supplemented with real product proof at launc
 
 ## Release boundary
 
+Temporary demo mode is now enabled by default for review without the missing
+API. See `DEMO_MODE.md`: synthetic add-ons, isolated local cart, and explicitly
+unsent checkout confirmation. No payments, inventory writes, notifications or
+commerce analytics occur in this storefront mode. The live-release gate below
+still applies when building with `NEXT_PUBLIC_WINK_DEMO=false`.
+
 This branch is a reviewable implementation, **not an already deployed release**.
 The original running API source is missing from GitHub. Do not merge the static
 front end independently of the v6 migration and API integration. The extension
