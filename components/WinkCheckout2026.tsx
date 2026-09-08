@@ -31,24 +31,14 @@ import { validateAddonCart } from "@/lib/wink-addon-cart";
 import { SHOP_EVENT } from "@/lib/wink-shop";
 import { AddonRecommendations, addonEvent } from "./WinkAddons";
 import { WINK_DEMO } from "@/lib/wink-mode";
+import {
+  INITIAL_CHECKOUT_FIELDS as initial,
+  clearCheckoutDraft,
+  readCheckoutDraft,
+  saveCheckoutDraft,
+} from "@/lib/wink-checkout-draft";
 const IDEM_KEY = "wink-v4-idempotency";
 type Order = { number: string; public_token: string; status?: string };
-const initial = {
-  gift: true,
-  surprise: true,
-  anonymous: false,
-  recipientName: "",
-  recipientPhone: "",
-  senderName: "",
-  message: "",
-  address: "",
-  date: "",
-  slot: "Удобное время согласуем",
-  exactTime: "",
-  leaveAtDoor: false,
-  customerName: "",
-  customerPhone: "",
-};
 
 export default function WinkCheckout2026() {
   const { catalog: addonCatalog } = useWinkAddons();
@@ -66,11 +56,13 @@ export default function WinkCheckout2026() {
     try {
       setCart(readCart());
       const intent = readDelivery();
-      setFields((current) => ({
-        ...current,
-        date: intent.date && validDeliveryDate(intent.date) ? intent.date : "",
-        address: intent.address || "",
-      }));
+      const draft = readCheckoutDraft(WINK_DEMO);
+      const date = draft ? draft.date : intent.date;
+      setFields({
+        ...(draft || initial),
+        date: date && validDeliveryDate(date) ? date : "",
+        address: draft ? draft.address : intent.address || "",
+      });
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -93,6 +85,11 @@ export default function WinkCheckout2026() {
       window.removeEventListener("storage", sync);
     };
   }, []);
+  useEffect(() => {
+    if (ready && !order && !demoReceipt) {
+      saveCheckoutDraft(WINK_DEMO, fields);
+    }
+  }, [ready, fields, order, demoReceipt]);
   const total = useMemo(
     () => cart.reduce((sum, line) => sum + line.unitPriceMinor * line.qty, 0),
     [cart],
@@ -250,6 +247,8 @@ export default function WinkCheckout2026() {
         // Keep the preview entirely local; no order ID, token, payment,
         // customer-data persistence, inventory mutation or purchase event.
         setDemoReceipt(structuredClone(priced));
+        clearCheckoutDraft(WINK_DEMO);
+        setFields({ ...initial });
         return;
       }
       let utm: Record<string, string | null> = {};
@@ -332,6 +331,8 @@ export default function WinkCheckout2026() {
           "Не получили подтверждение заказа. Корзина сохранена. Повторите отправку или уточните статус у нас.",
         );
       setOrder(data.order);
+      clearCheckoutDraft(WINK_DEMO);
+      setFields({ ...initial });
       setCart([]);
       try {
         writeCart([]);

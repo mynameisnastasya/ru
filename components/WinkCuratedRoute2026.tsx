@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import WinkPageFrame2026 from "./WinkPageFrame2026";
 import { ProductCard } from "./WinkShopUI";
@@ -7,6 +8,7 @@ import { useWinkCatalog } from "@/lib/use-wink-catalog";
 import {
   CONTACT_URL,
   FAMILY_NAMES,
+  IMAGES,
   Product,
   displayPrice,
   money,
@@ -71,19 +73,47 @@ export default function WinkCuratedRoute2026({ mode }: { mode: Mode }) {
   return (
     <WinkPageFrame2026>
       <main>
-        <section className="wk-catalog-head">
-          <p className="wk-eyebrow">{eyebrow} · WINK</p>
-          <h1>{title}</h1>
-          <p>{intro}</p>
+        <section
+          className={`wk-catalog-head ${mode !== "build" ? "wk-collection-hero" : ""}`}
+        >
+          <div>
+            <p className="wk-eyebrow">{eyebrow} · WINK</p>
+            <h1>{title}</h1>
+            <p>{intro}</p>
+            {mode !== "build" && (
+              <div className="wk-actions">
+                <Link className="wk-button" href="/#finder">
+                  Помочь с выбором
+                </Link>
+                <Link className="wk-text-link" href="/shop">
+                  Все композиции →
+                </Link>
+              </div>
+            )}
+          </div>
           {mode !== "build" && (
-            <div className="wk-actions">
-              <Link className="wk-button" href="/#finder">
-                Помочь с выбором
-              </Link>
-              <Link className="wk-text-link" href="/shop">
-                Все композиции →
-              </Link>
-            </div>
+            <figure>
+              <Image
+                src={
+                  mode === "kids"
+                    ? IMAGES.kids
+                    : mode === "for-him"
+                      ? IMAGES.forHim
+                      : mode === "for-her"
+                        ? IMAGES.arrival
+                        : mode === "love"
+                          ? IMAGES.love
+                          : IMAGES.birthday
+                }
+                alt={`Вдохновение WINK: ${eyebrow}`}
+                width={1000}
+                height={1250}
+                priority
+                unoptimized
+                sizes="(max-width: 700px) 100vw, 45vw"
+              />
+              <figcaption>Идея оформления · визуализация</figcaption>
+            </figure>
           )}
         </section>
         {mode === "build" ? (

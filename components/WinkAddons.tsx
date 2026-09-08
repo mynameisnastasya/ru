@@ -26,6 +26,7 @@ import {
   writeCart,
 } from "@/lib/wink-shop";
 import { ShopDialog } from "./WinkShopUI";
+import { WINK_DEMO } from "@/lib/wink-mode";
 export function addonEvent(name: string, a: Addon, main?: string) {
   window.dispatchEvent(
     new CustomEvent("wink-addon-event", {
@@ -159,6 +160,11 @@ export function AddonCards({
   }
   return (
     <>
+      {WINK_DEMO && (
+        <p className="wk-image-note wk-addon-image-note">
+          Визуализации демо-подарков. Цены и наличие тестовые.
+        </p>
+      )}
       <div className="wk-addon-grid">
         {items.map((a) => (
           <article key={a.id} className="wk-addon-card">

@@ -5,7 +5,6 @@ import { useMemo, useRef, useState } from "react";
 import {
   CONTACT_URL,
   IMAGES,
-  PALETTES,
   budgetMatches,
   displayPrice,
   paletteIds,
@@ -15,12 +14,20 @@ import {
 import { useWinkCatalog } from "@/lib/use-wink-catalog";
 import { rankFinderCandidates } from "@/lib/wink-finder";
 import { ProductCard, ShopIcon } from "./WinkShopUI";
+import WinkPaletteScene from "./WinkPaletteScene";
 
 export default function WinkHome2026() {
   const { catalog } = useWinkCatalog();
   const [occasion, setOccasion] = useState("Все");
   const [answers, setAnswers] = useState<string[]>([]);
   const finderHeading = useRef<HTMLHeadingElement>(null);
+  const questionHeading = useRef<HTMLHeadingElement>(null);
+  function answer(next: string[]) {
+    setAnswers(next);
+    requestAnimationFrame(() =>
+      questionHeading.current?.focus({ preventScroll: true }),
+    );
+  }
   const questions = [
     {
       title: "Кого порадуем?",
@@ -99,7 +106,7 @@ export default function WinkHome2026() {
       2,
     ).map((r) => r.item);
   }, [catalog.products, answers]);
-  const preferred = ["air16", "birthday16-2", "hearts7", "message16"];
+  const preferred = ["air16", "birthday16-2", "hearts7"];
   const selection =
     occasion === "Все"
       ? preferred
@@ -113,12 +120,14 @@ export default function WinkHome2026() {
                 ? ["LOVE", "HEARTS"].includes(p.name)
                 : p.name === "AIR",
           )
-          .slice(0, 4);
+          .slice(0, 3);
   function startFinder() {
     setAnswers([]);
     window.requestAnimationFrame(() => {
       finderHeading.current?.scrollIntoView({
-        behavior: "smooth",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
         block: "center",
       });
       finderHeading.current?.focus({ preventScroll: true });
@@ -126,7 +135,7 @@ export default function WinkHome2026() {
   }
   return (
     <main className="wk-home">
-      <section className="wk-hero wk-editorial-hero">
+      <section className="wk-hero wk-gifting-hero">
         <div className="wk-hero-copy">
           <p className="wk-eyebrow">Красиво поздравить · Кемерово</p>
           <h1>
@@ -135,8 +144,9 @@ export default function WinkHome2026() {
             <em>это чувство.</em>
           </h1>
           <p className="wk-hero-intro">
-            То самое «это всё для меня?». Воздушные композиции для людей,
-            которые вам особенно дороги.
+            Воздушные композиции для того самого
+            <br className="wk-desktop-break" /> «Это всё для меня?» С доставкой
+            по Кемерову.
           </p>
           <p className="wk-start-price">
             Композиции от{" "}
@@ -146,30 +156,46 @@ export default function WinkHome2026() {
           </p>
           <div className="wk-actions">
             <Link className="wk-button" href="/shop">
-              Найти свой WINK <ShopIcon name="arrow" />
+              Выбрать композицию <ShopIcon name="arrow" />
             </Link>
             <button className="wk-text-button" onClick={startFinder}>
               Помочь с выбором
             </button>
           </div>
           <span className="wk-hero-note">
-            Вы выбираете повод. Мы помогаем сделать красиво.
+            Продуманные сочетания. Ничего случайного.
           </span>
         </div>
         <figure className="wk-hero-image">
           <Image
-            src={IMAGES.air}
-            alt="Визуализация воздушных композиций в залитой утренним светом комнате"
-            width={1536}
-            height={1024}
+            src={IMAGES.arrival}
+            alt="Визуализация: девушка открывает дверь и видит нежно-розовые воздушные композиции"
+            width={1000}
+            height={1250}
             priority
             unoptimized
-            sizes="100vw"
+            sizes="(max-width: 700px) 100vw, 52vw"
           />
           <figcaption>
-            <small>Визуализация настроения · WINK</small>
+            <small>Тот самый момент · визуализация WINK</small>
           </figcaption>
         </figure>
+        <Link
+          className="wk-hero-postcard"
+          href="/occasion/love"
+          aria-label="Посмотреть композиции с сердцами"
+        >
+          <Image
+            src={IMAGES.hearts}
+            alt=""
+            width={180}
+            height={240}
+            unoptimized
+          />
+          <span>
+            От всего <em>сердца.</em> <ShopIcon name="arrow" />
+          </span>
+        </Link>
       </section>
       <div className="wk-service-strip">
         <span>Готовые сочетания</span>
@@ -179,18 +205,18 @@ export default function WinkHome2026() {
       <section className="wk-section" id="selection">
         <div className="wk-section-heading">
           <div>
-            <p className="wk-eyebrow">The WINK edit / 01</p>
+            <p className="wk-eyebrow">Выбрано с чувством</p>
             <h2>
-              Маленькая коллекция.
+              Не тысяча вариантов.
               <br />
-              <em>Большие чувства.</em>
+              <em>Только ваши.</em>
             </h2>
           </div>
           <Link href="/shop" className="wk-text-link">
             Все композиции <ShopIcon name="arrow" />
           </Link>
         </div>
-        <div className="wk-chips" aria-label="Подборка по поводу">
+        <div className="wk-chips" role="group" aria-label="Подборка по поводу">
           {["Все", "День рождения", "С любовью", "Просто так"].map((value) => (
             <button
               type="button"
@@ -203,7 +229,7 @@ export default function WinkHome2026() {
             </button>
           ))}
         </div>
-        <div className="wk-grid" aria-live="polite">
+        <div className="wk-grid wk-edit-grid" aria-live="polite">
           {selection.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}
@@ -229,6 +255,10 @@ export default function WinkHome2026() {
         <div className="wk-finder-panel">
           <div
             className="wk-finder-progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={4}
+            aria-valuenow={answers.length}
             aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}
           >
             {questions.map((q, i) => (
@@ -241,12 +271,14 @@ export default function WinkHome2026() {
           {answers.length < 4 ? (
             <>
               <span className="wk-eyebrow">0{answers.length + 1} / 04</span>
-              <h3>{questions[answers.length].title}</h3>
+              <h3 ref={questionHeading} tabIndex={-1}>
+                {questions[answers.length].title}
+              </h3>
               <div className="wk-finder-choices">
                 {questions[answers.length].values.map(([value, label]) => (
                   <button
                     key={value}
-                    onClick={() => setAnswers([...answers, value])}
+                    onClick={() => answer([...answers, value])}
                   >
                     {label}
                     <ShopIcon name="arrow" />
@@ -256,7 +288,7 @@ export default function WinkHome2026() {
               {answers.length > 0 && (
                 <button
                   className="wk-text-button"
-                  onClick={() => setAnswers(answers.slice(0, -1))}
+                  onClick={() => answer(answers.slice(0, -1))}
                 >
                   Назад
                 </button>
@@ -264,13 +296,17 @@ export default function WinkHome2026() {
             </>
           ) : (
             <div aria-live="polite">
-              <h3>Вот с чего можно начать.</h3>
+              <h3 ref={questionHeading} tabIndex={-1}>
+                {recommendations.length
+                  ? "Вот ваш WINK."
+                  : "Найдём другой вариант."}
+              </h3>
               <p>
                 {recommendations.length
-                  ? `${recommendations.length} ${recommendations.length === 1 ? "вариант" : "варианта"} под ваш запрос. Посмотрите детали ниже.`
+                  ? `${recommendations.length} ${recommendations.length === 1 ? "вариант" : "варианта"} в вашем бюджете. Палитра уже выбрана; цифру или надпись добавите в карточке. Цвет фольгированных сердец выбирается отдельно.`
                   : "В этом бюджете подходящих наборов пока нет. Попробуйте другой бюджет или напишите нам."}
               </p>
-              <button className="wk-text-button" onClick={() => setAnswers([])}>
+              <button className="wk-text-button" onClick={() => answer([])}>
                 Подобрать заново
               </button>
               {!recommendations.length && (
@@ -289,34 +325,7 @@ export default function WinkHome2026() {
           </div>
         )}
       </section>
-      <section className="wk-section wk-palettes">
-        <div className="wk-section-heading">
-          <div>
-            <p className="wk-eyebrow">Один набор — разное настроение</p>
-            <h2>
-              Найдите <em>свои оттенки.</em>
-            </h2>
-          </div>
-          <p>Мы собрали сочетания. Вам осталось выбрать то самое.</p>
-        </div>
-        <div className="wk-palette-grid">
-          {["PINK_MILK", "PINK_CHROME", "MILK", "BLACK_CHROME"].map((id) => (
-            <Link
-              key={id}
-              href={`/shop/?palette=${id}`}
-              className="wk-palette-link"
-            >
-              <span className="wk-swatches">
-                {PALETTES[id].colors.map((c, i) => (
-                  <i key={i} style={{ background: c }} />
-                ))}
-              </span>
-              <span>{PALETTES[id].name}</span>
-              <ShopIcon name="arrow" />
-            </Link>
-          ))}
-        </div>
-      </section>
+      <WinkPaletteScene />
       <section className="wk-story">
         <figure>
           <Image
@@ -347,6 +356,62 @@ export default function WinkHome2026() {
             Хочется оформить всю комнату?
           </Link>
         </div>
+      </section>
+      <section
+        className="wk-section wk-occasion-edit"
+        aria-labelledby="occasion-title"
+      >
+        <div className="wk-section-heading">
+          <div>
+            <p className="wk-eyebrow">У каждого — свой повод</p>
+            <h2 id="occasion-title">
+              Для <em>ваших людей.</em>
+            </h2>
+          </div>
+          <p>Мы поможем попасть в настроение.</p>
+        </div>
+        <div className="wk-occasion-grid">
+          {[
+            {
+              href: "/for-her",
+              image: IMAGES.love,
+              title: "Для неё",
+              text: "Когда слова — это ещё не всё",
+            },
+            {
+              href: "/for-him",
+              image: IMAGES.forHim,
+              title: "Для него",
+              text: "Красивый жест в его характере",
+            },
+            {
+              href: "/kids",
+              image: IMAGES.kids,
+              title: "Маленьким мечтателям",
+              text: "Праздник, который больше тебя",
+            },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} className="wk-occasion-card">
+              <Image
+                src={item.image}
+                alt={`Вдохновение: ${item.title}`}
+                width={1000}
+                height={1250}
+                unoptimized
+                sizes="(max-width: 700px) 80vw, 33vw"
+              />
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                <ShopIcon name="arrow" />
+              </div>
+            </Link>
+          ))}
+        </div>
+        <p className="wk-image-note">
+          Идеи оформления, созданные с помощью ИИ. Доступные оттенки и состав
+          выбираются в карточке.
+        </p>
       </section>
       <section className="wk-section wk-how">
         <div className="wk-section-heading">

@@ -176,14 +176,29 @@ export const IMAGES = {
   air: asset("/images/wink-air.webp"),
   birthday: asset("/images/wink-birthday.webp"),
   hearts: asset("/images/wink-hearts.webp"),
+  arrival: asset("/images/campaign-arrival.webp"),
+  message: asset("/images/wink-message.webp"),
+  reveal: asset("/images/wink-reveal.webp"),
+  love: asset("/images/wink-love.webp"),
+  kids: asset("/images/campaign-kids.webp"),
+  forHim: asset("/images/campaign-for-him.webp"),
+  milk: asset("/images/palette-milk.webp"),
+  blackChrome: asset("/images/palette-black-chrome.webp"),
 };
 // These original illustrations convey the collection's mood, not an exact SKU or completed customer order.
 export function productImage(p: { name: string }) {
-  return p.name === "BIRTHDAY"
-    ? IMAGES.birthday
-    : ["LOVE", "HEARTS"].includes(p.name)
-      ? IMAGES.hearts
-      : IMAGES.air;
+  return (
+    (
+      {
+        AIR: IMAGES.air,
+        BIRTHDAY: IMAGES.birthday,
+        HEARTS: IMAGES.hearts,
+        LOVE: IMAGES.love,
+        MESSAGE: IMAGES.message,
+        "BABY REVEAL": IMAGES.reveal,
+      } as Record<string, string>
+    )[p.name] || IMAGES.air
+  );
 }
 export function paletteIds(p: Product) {
   if (p.name === "BABY REVEAL") return ["MILK"];

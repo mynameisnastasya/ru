@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WinkPageFrame2026 from "./WinkPageFrame2026";
-import { FavoriteButton } from "./WinkShopUI";
+import WinkProductGallery from "./WinkProductGallery";
 import { useWinkCatalog } from "@/lib/use-wink-catalog";
 import {
   createClientId,
@@ -19,7 +18,6 @@ import {
   paletteIds,
   personalizationErrors,
   priceFor,
-  productImage,
   readCart,
   readDelivery,
   saveDelivery,
@@ -41,9 +39,18 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
   const [date, setDate] = useState("");
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
+  const [invalidField, setInvalidField] = useState<
+    "number" | "inscription" | "reveal" | "date" | null
+  >(null);
+  const numberRef = useRef<HTMLInputElement>(null);
+  const inscriptionRef = useRef<HTMLTextAreaElement>(null);
+  const revealRef = useRef<HTMLButtonElement>(null);
+  const dateRef = useRef<HTMLInputElement>(null);
+  const dateDetailsRef = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     setAdded(false);
     setError("");
+    setInvalidField(null);
     let initial: LineConfig = {
       addons: [],
       palette: paletteParam || "PINK_MILK",
@@ -53,27 +60,28 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
       const line = editId
         ? readCart().find((l) => l.lineId === editId)
         : undefined;
+      if (line) initial = { ...line.config };
+    } catch {}
+    // An optional session draft must never prevent restoring a saved cart line.
+    let requestedDate = readDelivery().date;
+    try {
       const raw = window.sessionStorage.getItem("wink-product-draft");
       const draft = raw ? JSON.parse(raw) : null;
-      if (line) initial = { ...line.config };
       if (
         draft &&
         draft.targetSlug === slug &&
         draft.editId === editId &&
         draft.config &&
         Array.isArray(draft.config.addons)
-      )
+      ) {
         initial = { ...initial, ...draft.config };
-      if (paletteParam && PALETTES[paletteParam])
-        initial.palette = paletteParam;
-      const intent = readDelivery();
-      const requestedDate =
-        typeof draft?.date === "string" && draft.targetSlug === slug
-          ? draft.date
-          : intent.date;
-      if (requestedDate && validDeliveryDate(requestedDate))
-        setDate(requestedDate);
+        if (typeof draft.date === "string") requestedDate = draft.date;
+      }
     } catch {}
+    if (paletteParam && PALETTES[paletteParam]) initial.palette = paletteParam;
+    setDate(
+      requestedDate && validDeliveryDate(requestedDate) ? requestedDate : "",
+    );
     setChoice(initial);
   }, [slug, editId, paletteParam]);
   const product = catalog.products.find((p) => p.slug === slug);
@@ -120,6 +128,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     setChoice((current) => ({ ...current, ...value }));
     setAdded(false);
     setError("");
+    setInvalidField(null);
   }
   function preserveDraft(targetSlug: string) {
     const target = catalog.products.find((p) => p.slug === targetSlug);
@@ -139,13 +148,36 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     if (!product) return;
     setAdded(false);
     setError("");
+    setInvalidField(null);
     const errors = personalizationErrors(product, config);
     if (errors.length) {
       setError(errors[0]);
+      const field = product.config.number_required
+        ? "number"
+        : product.config.message_required
+          ? "inscription"
+          : product.config.reveal_result_required
+            ? "reveal"
+            : null;
+      setInvalidField(field);
+      const input =
+        field === "number"
+          ? numberRef.current
+          : field === "inscription"
+            ? inscriptionRef.current
+            : field === "reveal"
+              ? revealRef.current
+              : null;
+      input?.focus();
+      input?.scrollIntoView({ block: "center" });
       return;
     }
     if (date && !validDeliveryDate(date)) {
       setError("Выберите сегодняшнюю или будущую дату доставки.");
+      setInvalidField("date");
+      if (dateDetailsRef.current) dateDetailsRef.current.open = true;
+      dateRef.current?.focus();
+      dateRef.current?.scrollIntoView({ block: "center" });
       return;
     }
     try {
@@ -183,11 +215,9 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
           ? cart.map((old) => (old.lineId === existing.lineId ? line : old))
           : [...cart, line],
       );
-      if (date) {
-        try {
-          saveDelivery({ date });
-        } catch {}
-      }
+      try {
+        saveDelivery({ date });
+      } catch {}
       setAdded(true);
       try {
         window.sessionStorage.removeItem("wink-product-draft");
@@ -231,25 +261,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
           <span>{FAMILY_NAMES[product.name]}</span>
         </nav>
         <section className="wk-product-layout">
-          <div className="wk-product-gallery">
-            <figure>
-              <Image
-                src={productImage(product)}
-                alt={`Визуализация настроения коллекции «${FAMILY_NAMES[product.name]}»`}
-                width={1024}
-                height={1280}
-                priority
-                unoptimized
-                sizes="(max-width: 700px) 100vw, 55vw"
-              />
-              <FavoriteButton slug={slug} />
-            </figure>
-            <p className="wk-image-note">
-              Визуализация коллекции. Количество шаров, цвет и персонализация
-              определяются выбранным составом. Изображение не меняется при
-              выборе оттенков.
-            </p>
-          </div>
+          <WinkProductGallery key={slug} product={product} />
           <div className="wk-product-buy">
             <p className="wk-eyebrow">{product.name} · WINK</p>
             <h1>{FAMILY_NAMES[product.name]}</h1>
@@ -346,6 +358,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     ? "Какая цифра нужна?"
                     : "Какие две цифры нужны?"}
                   <input
+                    ref={numberRef}
                     inputMode="numeric"
                     value={choice.number || ""}
                     onChange={(e) =>
@@ -357,7 +370,8 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     }
                     maxLength={digits}
                     placeholder={digits === 1 ? "Например, 7" : "Например, 25"}
-                    aria-describedby="digit-help"
+                    aria-invalid={invalidField === "number"}
+                    aria-describedby={`digit-help${invalidField === "number" ? " product-error" : ""}`}
                   />
                   <span className="wk-status-note" id="digit-help">
                     Возраст или другая важная цифра.{" "}
@@ -371,11 +385,13 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                 <label className="wk-field">
                   Ваша надпись
                   <textarea
+                    ref={inscriptionRef}
                     value={choice.inscription || ""}
                     onChange={(e) => change({ inscription: e.target.value })}
                     maxLength={40}
                     placeholder="Маша, ты — космос!"
-                    aria-describedby="inscription-help"
+                    aria-invalid={invalidField === "inscription"}
+                    aria-describedby={`inscription-help${invalidField === "inscription" ? " product-error" : ""}`}
                   />
                   <span className="wk-status-note" id="inscription-help">
                     {(choice.inscription || "").length} из 40 символов · до трёх
@@ -393,6 +409,13 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     ].map(([value, label]) => (
                       <button
                         key={value}
+                        ref={value === "girl" ? revealRef : undefined}
+                        type="button"
+                        aria-describedby={
+                          invalidField === "reveal"
+                            ? "product-error"
+                            : undefined
+                        }
                         aria-pressed={choice.revealResult === value}
                         onClick={() =>
                           change({ revealResult: value as "girl" | "boy" })
@@ -428,17 +451,24 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                 </label>
               )}
             </div>
-            <details className="wk-option">
+            <details className="wk-option" ref={dateDetailsRef}>
               <summary>Уже знаете дату доставки?</summary>
               <label className="wk-field">
                 Желаемая дата
                 <input
+                  ref={dateRef}
                   type="date"
+                  aria-invalid={invalidField === "date"}
+                  aria-describedby={
+                    invalidField === "date" ? "product-error" : undefined
+                  }
                   min={kemerovoDate()}
                   value={date}
                   onChange={(e) => {
                     setDate(e.target.value);
                     setAdded(false);
+                    setError("");
+                    setInvalidField(null);
                   }}
                 />
               </label>
@@ -447,7 +477,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               </p>
             </details>
             {error && (
-              <p className="wk-error" role="alert">
+              <p className="wk-error" id="product-error" role="alert">
                 {error}
               </p>
             )}
