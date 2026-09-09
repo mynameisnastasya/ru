@@ -8,6 +8,7 @@ import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
 import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
+import WinkMotionRuntime from "@/components/WinkMotionRuntime";
 import "./globals.css";
 import "./wink-cleanup.css";
 import "./wink-storefront.css";
@@ -15,6 +16,7 @@ import "./wink-editorial.css";
 import "./wink-cinematic.css";
 import "./wink-cinematic-audit.css";
 import "./wink-motion-luxury.css";
+import "./wink-motion-runtime.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
@@ -40,6 +42,7 @@ export default function RootLayout({
     <html lang="ru">
       <body>
         <WinkAnalytics2026 />
+        <WinkMotionRuntime />
         {children}
       </body>
     </html>
