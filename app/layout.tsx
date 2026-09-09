@@ -14,6 +14,7 @@ import "./wink-storefront.css";
 import "./wink-editorial.css";
 import "./wink-cinematic.css";
 import "./wink-cinematic-audit.css";
+import "./wink-motion-luxury.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,

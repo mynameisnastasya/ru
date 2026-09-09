@@ -1,0 +1,507 @@
+/* WINK luxury motion pass — restrained, scroll-linked, composited where possible.
+   The page must still read perfectly with motion disabled or unsupported. */
+
+:root {
+  --wx-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --wx-motion-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --wx-motion-fast: 420ms;
+  --wx-motion-mid: 780ms;
+  --wx-motion-long: 1400ms;
+}
+
+.wx-home {
+  isolation: isolate;
+}
+
+/* High-end entry sequence: fewer elements, longer timing, deliberate cadence. */
+.wx-hero .wx-kicker,
+.wx-hero .wx-display,
+.wx-hero-copy,
+.wx-hero .wx-actions,
+.wx-hero-price {
+  animation: wx-hero-enter 1.15s var(--wx-motion-ease) both;
+}
+.wx-hero .wx-kicker { animation-delay: 90ms; }
+.wx-hero .wx-display { animation-delay: 160ms; }
+.wx-hero-copy { animation-delay: 280ms; }
+.wx-hero .wx-actions { animation-delay: 360ms; }
+.wx-hero-price { animation-delay: 430ms; }
+.wx-hero-media img {
+  animation: wx-hero-image-enter 1.8s var(--wx-motion-ease) both;
+}
+.wx-hero-iridescence {
+  will-change: transform, opacity;
+  animation: wx-iridescence-breathe 14s ease-in-out infinite alternate;
+}
+.wx-scroll-mark {
+  animation: wx-orbit 22s linear infinite;
+}
+
+@keyframes wx-hero-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+@keyframes wx-hero-image-enter {
+  from { transform: scale(1.08); filter: saturate(0.72) contrast(1.04) blur(2px); }
+  to { transform: scale(1); filter: saturate(0.88) contrast(1.02) blur(0); }
+}
+@keyframes wx-iridescence-breathe {
+  0% { transform: scale(1) translate3d(-1.5%, -1%, 0); opacity: 0.58; }
+  50% { transform: scale(1.055) translate3d(1%, 1.5%, 0); opacity: 0.78; }
+  100% { transform: scale(1.02) translate3d(2%, -1%, 0); opacity: 0.66; }
+}
+@keyframes wx-orbit { to { transform: rotate(360deg); } }
+
+/* Buttons feel physical without gimmicks. */
+.wx-pill,
+.wx-pill-dark,
+.wps26 .wk-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+.wx-pill::before,
+.wx-pill-dark::before,
+.wps26 .wk-button::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 18%, rgba(255,255,255,0.28) 44%, transparent 68%);
+  transform: translate3d(-125%, 0, 0) skewX(-16deg);
+  transition: transform 900ms var(--wx-motion-ease);
+  pointer-events: none;
+}
+.wx-pill:hover::before,
+.wx-pill-dark:hover::before,
+.wps26 .wk-button:hover::before {
+  transform: translate3d(125%, 0, 0) skewX(-16deg);
+}
+.wx-pill:active,
+.wx-pill-dark:active,
+.wps26 .wk-button:active {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 120ms;
+}
+
+.wx-text-link svg,
+.wx-palette-link svg,
+.wx-finder-choices svg,
+.wx-product-copy svg {
+  transition: transform var(--wx-motion-mid) var(--wx-motion-ease);
+}
+.wx-text-link:hover svg,
+.wx-palette-link:hover svg,
+.wx-finder-choices button:hover svg,
+.wx-product-copy a:hover svg {
+  transform: translate3d(7px, 0, 0);
+}
+
+/* Product imagery: slow optical zoom and a crisp reveal edge. */
+.wx-edit-grid .wk-product-visual,
+.wx-finder-results .wk-product-visual,
+.wps26 .wk-catalog-grid .wk-product-visual {
+  overflow: hidden;
+  transform: translateZ(0);
+}
+.wx-edit-grid .wk-product-visual img,
+.wx-finder-results .wk-product-visual img,
+.wps26 .wk-catalog-grid .wk-product-visual img {
+  transition:
+    transform 1.35s var(--wx-motion-ease),
+    filter 1.1s var(--wx-motion-ease);
+  will-change: transform;
+}
+@media (pointer: fine) {
+  .wx-edit-grid .wk-product-card:hover .wk-product-visual img,
+  .wx-finder-results .wk-product-card:hover .wk-product-visual img,
+  .wps26 .wk-catalog-grid .wk-product-card:hover .wk-product-visual img {
+    transform: scale(1.045);
+    filter: contrast(1.025);
+  }
+  .wx-edit-grid .wk-product-card {
+    transition: transform 900ms var(--wx-motion-ease);
+  }
+  .wx-edit-grid .wk-product-card:nth-child(2):hover,
+  .wx-edit-grid .wk-product-card:nth-child(3):hover {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+/* Finder: the panel behaves like a crafted object. */
+.wx-finder-panel {
+  transform-origin: 50% 12%;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.16);
+}
+.wx-finder-progress span {
+  transform-origin: 0 50%;
+  transition: background-color 500ms ease, transform 700ms var(--wx-motion-ease);
+}
+.wx-finder-progress span.active {
+  transform: scaleX(1);
+}
+.wx-finder-choices button {
+  position: relative;
+  overflow: hidden;
+}
+.wx-finder-choices button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(5,5,5,0.035), transparent 72%);
+  transform: translate3d(-102%, 0, 0);
+  transition: transform 650ms var(--wx-motion-ease);
+  pointer-events: none;
+}
+.wx-finder-choices button:hover::before {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Personalisation reads as a timeline: each rule draws itself as the copy arrives. */
+.wx-personal-step {
+  position: relative;
+  border-top-color: transparent;
+}
+.wx-personal-step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--wx-line);
+  transform-origin: 0 50%;
+}
+.wx-personal-step:last-of-type::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--wx-line);
+}
+.wx-palette-link {
+  transition:
+    padding var(--wx-motion-mid) var(--wx-motion-ease),
+    background-color var(--wx-motion-mid) var(--wx-motion-ease);
+}
+@media (pointer: fine) {
+  .wx-palette-link:hover {
+    background: #f2f2ee;
+  }
+  .wx-palette-link:nth-child(odd):hover { padding-left: 10px; }
+  .wx-palette-link:nth-child(even):hover { padding-left: 30px; }
+}
+
+/* Operational trust section uses movement only to clarify reading order. */
+.wx-order-row {
+  position: relative;
+  overflow: clip;
+}
+.wx-order-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--wx-black);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  opacity: 0.52;
+}
+
+/* FAQ has a quiet editorial response rather than accordion theatrics. */
+.wx-faq-list details p {
+  animation: wx-faq-copy 520ms var(--wx-motion-ease) both;
+}
+@keyframes wx-faq-copy {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.wx-faq-list summary span {
+  transform-origin: 50% 50%;
+}
+
+/* The ending moves in depth, not across the user's reading path. */
+.wx-closing::before,
+.wx-closing::after {
+  will-change: transform;
+}
+
+/* Scroll-linked choreography. Progressive enhancement only. */
+@supports (animation-timeline: view()) {
+  .wx-manifesto .wx-kicker,
+  .wx-manifesto .wx-title,
+  .wx-edit-head,
+  .wx-finder-intro,
+  .wx-personal-copy > .wx-kicker,
+  .wx-personal-copy > .wx-title,
+  .wx-order-head,
+  .wx-faq > div:first-child,
+  .wx-closing > .wx-kicker,
+  .wx-closing > .wx-display {
+    animation: wx-section-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 70%;
+  }
+
+  .wx-manifesto-visual figure:nth-child(1) {
+    animation: wx-photo-stage-a linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  .wx-manifesto-visual figure:nth-child(2) {
+    animation: wx-photo-stage-b linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  .wx-edit-grid .wk-product-card {
+    animation: wx-card-enter linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 58%;
+  }
+  .wx-edit-grid .wk-product-card:nth-child(2),
+  .wx-edit-grid .wk-product-card:nth-child(4) {
+    animation-name: wx-card-enter-alt;
+  }
+
+  .wx-finder-panel {
+    animation: wx-finder-object linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 62%;
+  }
+
+  .wx-personal-media img {
+    animation: wx-personal-depth linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  .wx-personal-step::before {
+    animation: wx-line-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 20% entry 68%;
+  }
+  .wx-personal-step > span,
+  .wx-personal-step > div {
+    animation: wx-copy-stage linear both;
+    animation-timeline: view();
+    animation-range: entry 20% entry 72%;
+  }
+
+  .wx-order-row::after {
+    animation: wx-line-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 12% entry 78%;
+  }
+  .wx-order-row > span,
+  .wx-order-row h3,
+  .wx-order-row p {
+    animation: wx-copy-stage linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 68%;
+  }
+
+  .wx-faq-list details {
+    animation: wx-copy-stage linear both;
+    animation-timeline: view();
+    animation-range: entry 12% entry 62%;
+  }
+
+  .wx-closing::before {
+    animation: wx-closing-orbit-a linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  .wx-closing::after {
+    animation: wx-closing-orbit-b linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  .wx-closing-bottom {
+    animation: wx-closing-copy linear both;
+    animation-timeline: view();
+    animation-range: entry 12% entry 74%;
+  }
+}
+
+@keyframes wx-section-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 38px, 0);
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+@keyframes wx-card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 54px, 0) scale(0.975);
+    clip-path: inset(8% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes wx-card-enter-alt {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 76px, 0) scale(0.97);
+    clip-path: inset(10% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes wx-photo-stage-a {
+  0% { transform: translate3d(0, 44px, 0) scale(0.96); clip-path: inset(7% 4% 8% 0); }
+  42% { transform: translate3d(0, 0, 0) scale(1); clip-path: inset(0 0 0 0); }
+  100% { transform: translate3d(0, -22px, 0) scale(1.02); clip-path: inset(0 0 0 0); }
+}
+@keyframes wx-photo-stage-b {
+  0% { transform: translate3d(28px, 90px, 0) rotate(2.2deg) scale(0.9); opacity: 0; }
+  42% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate3d(-12px, -26px, 0) rotate(-1deg) scale(1.025); opacity: 1; }
+}
+@keyframes wx-finder-object {
+  from { opacity: 0; transform: translate3d(0, 52px, 0) scale(0.955); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes wx-personal-depth {
+  from { transform: scale(1.08) translate3d(0, -2.2%, 0); }
+  to { transform: scale(1.02) translate3d(0, 2.4%, 0); }
+}
+@keyframes wx-copy-stage {
+  from { opacity: 0; transform: translate3d(0, 26px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes wx-line-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes wx-closing-orbit-a {
+  from { transform: translate3d(2vw, -3vw, 0) scale(0.9); }
+  to { transform: translate3d(-5vw, 5vw, 0) scale(1.12); }
+}
+@keyframes wx-closing-orbit-b {
+  from { transform: translate3d(-2vw, 4vw, 0) scale(1.12); }
+  to { transform: translate3d(4vw, -4vw, 0) scale(0.94); }
+}
+@keyframes wx-closing-copy {
+  from { opacity: 0; transform: translate3d(0, 30px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Small screens keep the same language, but never make the user wait for motion. */
+@media (max-width: 820px) {
+  .wx-hero .wx-kicker,
+  .wx-hero .wx-display,
+  .wx-hero-copy,
+  .wx-hero .wx-actions,
+  .wx-hero-price {
+    animation-duration: 900ms;
+  }
+  .wx-hero-iridescence {
+    animation-duration: 18s;
+  }
+  .wx-finder-panel {
+    box-shadow: 0 22px 56px rgba(0,0,0,0.14);
+  }
+  @supports (animation-timeline: view()) {
+    .wx-manifesto-visual figure:nth-child(1),
+    .wx-manifesto-visual figure:nth-child(2) {
+      animation-range: entry 0% entry 76%;
+    }
+    .wx-edit-grid .wk-product-card {
+      animation-range: entry 0% entry 48%;
+    }
+    .wx-personal-step > span,
+    .wx-personal-step > div,
+    .wx-order-row > span,
+    .wx-order-row h3,
+    .wx-order-row p {
+      animation-range: entry 8% entry 54%;
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .wx-finder-results .wk-product-visual img,
+  .wx-edit-grid .wk-product-visual img {
+    transition-duration: 800ms;
+  }
+  @supports (animation-timeline: view()) {
+    .wx-card-enter,
+    .wx-card-enter-alt {
+      clip-path: none;
+    }
+  }
+}
+
+/* Accessibility is non-negotiable: expensive motion means knowing when not to move. */
+@media (prefers-reduced-motion: reduce) {
+  .wx-hero .wx-kicker,
+  .wx-hero .wx-display,
+  .wx-hero-copy,
+  .wx-hero .wx-actions,
+  .wx-hero-price,
+  .wx-hero-media img,
+  .wx-hero-iridescence,
+  .wx-scroll-mark,
+  .wx-faq-list details p,
+  .wx-manifesto .wx-kicker,
+  .wx-manifesto .wx-title,
+  .wx-edit-head,
+  .wx-finder-intro,
+  .wx-personal-copy > .wx-kicker,
+  .wx-personal-copy > .wx-title,
+  .wx-order-head,
+  .wx-faq > div:first-child,
+  .wx-closing > .wx-kicker,
+  .wx-closing > .wx-display,
+  .wx-manifesto-visual figure,
+  .wx-edit-grid .wk-product-card,
+  .wx-finder-panel,
+  .wx-personal-media img,
+  .wx-personal-step::before,
+  .wx-personal-step > span,
+  .wx-personal-step > div,
+  .wx-order-row::after,
+  .wx-order-row > span,
+  .wx-order-row h3,
+  .wx-order-row p,
+  .wx-faq-list details,
+  .wx-closing::before,
+  .wx-closing::after,
+  .wx-closing-bottom {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+  }
+  .wx-pill::before,
+  .wx-pill-dark::before,
+  .wps26 .wk-button::before {
+    display: none;
+  }
+}
