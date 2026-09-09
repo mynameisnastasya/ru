@@ -52,21 +52,22 @@ export default function WinkMotionRuntime() {
   useEffect(() => {
     const root = document.querySelector<HTMLElement>(".wx-home");
     if (!root) return;
+    const motionRoot = root;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reduceMotion.matches) {
-      root.dataset.motionRuntime = "off";
+      motionRoot.dataset.motionRuntime = "off";
       return;
     }
 
     const sections: Record<MotionKey, Element | null> = {
-      manifesto: root.querySelector(".wx-manifesto"),
-      edit: root.querySelector(".wx-edit"),
-      finder: root.querySelector(".wx-finder"),
-      personal: root.querySelector(".wx-personal"),
-      order: root.querySelector(".wx-order"),
-      faq: root.querySelector(".wx-faq"),
-      closing: root.querySelector(".wx-closing"),
+      manifesto: motionRoot.querySelector(".wx-manifesto"),
+      edit: motionRoot.querySelector(".wx-edit"),
+      finder: motionRoot.querySelector(".wx-finder"),
+      personal: motionRoot.querySelector(".wx-personal"),
+      order: motionRoot.querySelector(".wx-order"),
+      faq: motionRoot.querySelector(".wx-faq"),
+      closing: motionRoot.querySelector(".wx-closing"),
     };
 
     const current = Object.fromEntries(KEYS.map((key) => [key, 0])) as Record<MotionKey, number>;
@@ -74,14 +75,14 @@ export default function WinkMotionRuntime() {
     let frame = 0;
     let mounted = true;
 
-    root.dataset.motionRuntime = "on";
+    motionRoot.dataset.motionRuntime = "on";
 
     function sample() {
       for (const key of KEYS) target[key] = sectionProgress(sections[key]);
     }
 
     function set(name: string, value: string) {
-      root.style.setProperty(name, value);
+      motionRoot.style.setProperty(name, value);
     }
 
     function paint() {
@@ -169,9 +170,9 @@ export default function WinkMotionRuntime() {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      delete root.dataset.motionRuntime;
-      for (const name of Array.from(root.style)) {
-        if (name.startsWith("--wx-rt-")) root.style.removeProperty(name);
+      delete motionRoot.dataset.motionRuntime;
+      for (const name of Array.from(motionRoot.style)) {
+        if (name.startsWith("--wx-rt-")) motionRoot.style.removeProperty(name);
       }
     };
   }, [pathname]);
