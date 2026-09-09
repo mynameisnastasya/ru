@@ -1,0 +1,205 @@
+/* Second-pass audit: extend the cinematic system across commerce routes and close responsive edge cases. */
+:root {
+  --wk-paper: #f7f7f3;
+  --wk-white: #ffffff;
+  --wk-ink: #050505;
+  --wk-muted: #6d6d6d;
+  --wk-rose: #050505;
+  --wk-blush: #ecece7;
+  --wk-line: #d8d8d2;
+  --wk-gutter: clamp(20px, 4.2vw, 72px);
+}
+
+body,
+.wk-shell {
+  background: var(--wk-paper);
+  color: var(--wk-ink);
+}
+
+/* Commerce routes keep their logic and gain the same monochrome editorial floor. */
+.wps26 .wk-catalog-head {
+  padding-top: clamp(58px, 7vw, 108px);
+  padding-bottom: 34px;
+  background: var(--wk-white);
+  border-bottom: 1px solid var(--wk-line);
+}
+.wps26 .wk-catalog-head h1,
+.wps26 .wk-product-buy h1,
+.wps26 .wk-checkout h1,
+.wps26 .wk-success h1,
+.wps26 .wk-empty h1,
+.wps26 .wk-empty h2 {
+  font-weight: 300;
+  letter-spacing: -0.055em;
+}
+.wps26 .wk-catalog-head h1 {
+  max-width: 11ch;
+  font-size: clamp(52px, 6.5vw, 92px);
+  line-height: 0.96;
+}
+.wps26 .wk-catalog-head > p:not(.wk-eyebrow) {
+  max-width: 560px;
+  color: var(--wk-muted);
+}
+.wps26 .wk-catalog-head .wk-chips {
+  margin-top: 34px;
+}
+.wps26 .wk-catalog-head .wk-chips button,
+.wps26 .wk-catalog-head .wk-chips a {
+  border-radius: 999px;
+  border-color: var(--wk-line);
+  background: transparent;
+}
+.wps26 .wk-catalog-head .wk-chips :is(button, a).active,
+.wps26 .wk-catalog-head .wk-chips :is(button, a)[aria-pressed="true"] {
+  background: var(--wk-black, #050505);
+  color: #fff;
+  border-color: #050505;
+}
+.wps26 .wk-catalog-controls {
+  padding-top: 26px;
+  padding-bottom: 26px;
+  background: var(--wk-paper);
+  border-bottom: 1px solid var(--wk-line);
+}
+.wps26 .wk-field input,
+.wps26 .wk-field select,
+.wps26 .wk-field textarea,
+.wps26 .wk-catalog-toolbar select {
+  border-radius: 0;
+  background: var(--wk-white);
+  border-color: var(--wk-line);
+}
+.wps26 .wk-catalog-toolbar {
+  background: var(--wk-paper);
+}
+.wps26 .wk-catalog-grid .wk-product-visual > a,
+.wps26 .wk-product-gallery figure {
+  background: #e8e8e3;
+}
+.wps26 .wk-product-copy .wk-eyebrow,
+.wps26 .wk-eyebrow {
+  color: var(--wk-muted);
+}
+.wps26 .wk-favorite {
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.wps26 .wk-breadcrumbs {
+  border-bottom: 1px solid var(--wk-line);
+  background: var(--wk-white);
+}
+.wps26 .wk-product-layout {
+  padding-top: clamp(24px, 4vw, 56px);
+}
+.wps26 .wk-product-buy h1 {
+  font-size: clamp(44px, 4.5vw, 72px);
+  line-height: 0.98;
+}
+.wps26 .wk-product-price {
+  font-weight: 400;
+}
+.wps26 .wk-option,
+.wps26 .wk-cart-line,
+.wps26 .wk-cart-total {
+  border-color: var(--wk-line);
+}
+.wps26 .wk-palette-options button,
+.wps26 .wk-sizes a,
+.wps26 .wk-quantity button {
+  border-radius: 0;
+  background: var(--wk-white);
+  border-color: var(--wk-line);
+  box-shadow: none;
+}
+.wps26 .wk-palette-options button[aria-pressed="true"],
+.wps26 .wk-sizes a.active {
+  border-color: var(--wk-ink);
+  background: var(--wk-ink);
+  color: var(--wk-white);
+  box-shadow: none;
+}
+.wps26 .wk-palette-options button[aria-pressed="true"] .wk-swatches i,
+.wps26 .wk-sizes a.active small {
+  color: inherit;
+}
+.wps26 .wk-product-included {
+  background: #ecece7;
+}
+.wps26 .wk-product-included li {
+  border-color: #cfcfc9;
+}
+
+.wps26 .wk-checkout {
+  padding-top: clamp(56px, 7vw, 104px);
+}
+.wps26 .wk-checkout h1 {
+  max-width: 10ch;
+  font-size: clamp(52px, 6vw, 88px);
+  line-height: 0.96;
+}
+.wps26 .wk-form-section,
+.wps26 .wk-order-summary {
+  border-color: var(--wk-line);
+  background: var(--wk-white);
+  box-shadow: none;
+}
+.wps26 .wk-form-section h2 {
+  font-weight: 400;
+}
+.wps26 .wk-form-section h2 > span {
+  color: var(--wk-muted);
+}
+.wps26 .wk-dialog {
+  border: 1px solid var(--wk-line);
+  background: var(--wk-white);
+  box-shadow: none;
+}
+.wps26 .wk-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* Secondary editorial routes inherit typography without a competing accent colour. */
+.wps26 :is(.wed26, .wcur26, .wland26, .wsearch26, .wfav26) {
+  --rose: #050505;
+  --pink: #ecece7;
+  --paper: #f7f7f3;
+  --ink: #050505;
+}
+.wps26 :is(.wed26-primary, .wed26-secondary) {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+/* Audit fix: at compact-tablet widths the two-column palette rail clipped its arrow. */
+@media (min-width: 821px) and (max-width: 920px) {
+  .wx-palette-rail {
+    grid-template-columns: 1fr;
+  }
+  .wx-palette-link:nth-child(odd),
+  .wx-palette-link:nth-child(even) {
+    padding-left: 0;
+    padding-right: 0;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .wps26 .wk-catalog-head {
+    padding: 54px 20px 28px;
+  }
+  .wps26 .wk-catalog-head h1,
+  .wps26 .wk-checkout h1 {
+    font-size: clamp(46px, 14vw, 68px);
+  }
+  .wps26 .wk-product-buy h1 {
+    font-size: clamp(38px, 11.5vw, 54px);
+  }
+  .wps26 .wk-product-layout {
+    padding-top: 16px;
+  }
+  .wx-closing {
+    padding-bottom: calc(118px + env(safe-area-inset-bottom));
+  }
+}
