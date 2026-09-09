@@ -22,51 +22,51 @@ const EASE = [0.19, 1, 0.22, 1] as const;
 
 const finderQuestions = [
   {
-    title: "Кого порадуем?",
+    title: "Кого поздравляем?",
     values: [
-      ["her", "Её"],
-      ["him", "Его"],
+      ["her", "Девушку"],
+      ["him", "Мужчину"],
       ["kids", "Ребёнка"],
       ["mom", "Маму"],
       ["friend", "Подругу"],
     ],
   },
   {
-    title: "По какому поводу?",
+    title: "Что за момент?",
     values: [
       ["birthday", "День рождения"],
-      ["love", "Сказать «люблю»"],
-      ["any", "Просто так"],
+      ["love", "Хочу сказать «люблю»"],
+      ["any", "Без повода"],
       ["baby", "Узнать пол малыша"],
     ],
   },
   {
-    title: "Какое настроение?",
+    title: "Как должно ощущаться?",
     values: [
-      ["PINK_MILK", "Нежное"],
+      ["PINK_MILK", "Нежно"],
       ["PINK_CHROME", "С блеском"],
-      ["MILK", "Спокойное"],
-      ["BLACK_CHROME", "Контрастное"],
+      ["MILK", "Спокойно"],
+      ["BLACK_CHROME", "Контрастно"],
     ],
   },
   {
-    title: "Сколько потратим на композицию?",
+    title: "В какой бюджет остаёмся?",
     values: [
       ["5000", "До 5 000 ₽"],
       ["7500", "До 7 500 ₽"],
-      ["any", "Посмотрю все цены"],
+      ["any", "Покажите все цены"],
     ],
   },
 ] as const;
 
 const faq = [
   [
-    "Можно выбрать свою цифру?",
-    "Да. В композициях с цифрами укажите нужный возраст. Для одной и двух цифр есть отдельные составы и цены.",
+    "Не знаю, что выбрать. Вы правда поможете?",
+    "Да. Ответьте на четыре вопроса — быстрый WINK MATCH оставит до двух подходящих решений. Если хочется живого совета, напишите нам повод, дату и бюджет.",
   ],
   [
     "Что входит в цену?",
-    "Точный состав указан в карточке набора: шары, цифры или другие акценты, ленты, грузики и упаковка. Доставка считается отдельно.",
+    "Точный состав указан в карточке: шары, цифры или другие акценты, ленты, грузики и упаковка. Стандартная палитра цену не меняет. Доставка считается отдельно.",
   ],
   [
     "Можно сделать сюрприз?",
@@ -74,7 +74,7 @@ const faq = [
   ],
   [
     "Когда оплачивать?",
-    "Сначала согласуем состав, доступную дату, доставку и способ оплаты. До подтверждения дата остаётся пожеланием.",
+    "После того как подтвердим состав, доступную дату, доставку и итоговую сумму. До подтверждения дата остаётся пожеланием.",
   ],
 ] as const;
 
@@ -190,28 +190,28 @@ export default function WinkHome2026() {
           className="wx-hero-inner"
           style={reducedMotion ? undefined : { y: heroCopyY, opacity: heroCopyOpacity }}
         >
-          <p className="wx-kicker">Воздушные композиции · Кемерово</p>
+          <p className="wx-kicker">WINK · красивые поздравления · Кемерово</p>
           <h1 className="wx-display" id="wx-hero-title">
-            Подарок, который видно из дверей.
+            Когда надо красиво поздравить.
           </h1>
           <div className="wx-hero-bottom">
             <div>
               <p className="wx-hero-copy">
-                Вы называете повод, человека и бюджет. WINK помогает выбрать
-                композицию, добавить личную деталь и привезти её готовой к вашему
-                моменту.
+                Вы рассказываете, кого поздравляем и на какой бюджет ориентируемся.
+                WINK сужает выбор до нескольких красивых решений, помогает с личной
+                деталью и согласует доставку к вашему моменту.
               </p>
               <div className="wx-actions">
                 <Link className="wx-pill-dark" href="/shop">
-                  Выбрать композицию <ShopIcon name="arrow" />
+                  Смотреть готовые решения <ShopIcon name="arrow" />
                 </Link>
                 <button className="wx-pill-dark" type="button" onClick={startFinder}>
-                  Подобрать за 4 ответа
+                  Получить 2 варианта
                 </button>
               </div>
               {startPrice > 0 && (
                 <span className="wx-hero-price">
-                  Композиции от <strong>{money(startPrice)}</strong> · доставка отдельно
+                  Готовые решения от <strong>{money(startPrice)}</strong> · доставка отдельно
                 </span>
               )}
             </div>
@@ -224,7 +224,7 @@ export default function WinkHome2026() {
 
       <section className="wx-manifesto" aria-labelledby="wx-manifesto-title">
         <div className="wx-manifesto-copy">
-          <p className="wx-kicker">Не каталог ради каталога</p>
+          <p className="wx-kicker">Красивый результат без сложного выбора</p>
           <motion.h2
             className="wx-title"
             id="wx-manifesto-title"
@@ -233,36 +233,36 @@ export default function WinkHome2026() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 1, ease: EASE }}
           >
-            Меньше выбора. Больше точного попадания.
+            Вы не обязаны становиться дизайнером, чтобы хорошо поздравить.
           </motion.h2>
           <div className="wx-principles">
             <article className="wx-principle">
               <span>01</span>
               <div>
-                <h3>Не знаете, что выбрать? Покажем два варианта, а не двести.</h3>
+                <h3>Мы уже убрали всё лишнее.</h3>
                 <p>
-                  Подбор начинается с человека, повода и бюджета — не с названий
-                  шаров и бесконечного каталога.
+                  В WINK не попадает всё, что можно купить. Только готовые сочетания,
+                  в которых формы, масштаб и цвет уже работают вместе.
                 </p>
               </div>
             </article>
             <article className="wx-principle">
               <span>02</span>
               <div>
-                <h3>Нужна личная деталь? Она добавляется до корзины.</h3>
+                <h3>Сначала человек. Потом композиция.</h3>
                 <p>
-                  Цифра, надпись, палитра и доступные дополнения видны там, где
-                  конкретная композиция их поддерживает.
+                  Повод, человек, бюджет и нужный эффект важнее названий шаров.
+                  Поэтому подбор начинается с контекста, а не с каталога.
                 </p>
               </div>
             </article>
             <article className="wx-principle">
               <span>03</span>
               <div>
-                <h3>Сюрприз остаётся сюрпризом.</h3>
+                <h3>Сюрприз — получателю. Не вам.</h3>
                 <p>
-                  В оформлении можно отметить «не звонить получателю». Дату,
-                  доставку и оплату сначала согласуем с вами.
+                  До оплаты согласуем доступную дату, доставку и итоговую сумму.
+                  Если получателю нельзя звонить — общаемся с вами.
                 </p>
               </div>
             </article>
@@ -277,7 +277,7 @@ export default function WinkHome2026() {
               unoptimized
               sizes="(max-width: 820px) 100vw, 45vw"
             />
-            <figcaption className="wx-visual-caption">Для слов без длинной речи</figcaption>
+            <figcaption className="wx-visual-caption">Красивый жест без перебора</figcaption>
           </figure>
           <figure>
             <Image
@@ -287,7 +287,7 @@ export default function WinkHome2026() {
               unoptimized
               sizes="(max-width: 820px) 44vw, 22vw"
             />
-            <figcaption className="wx-visual-caption">Для того самого утра</figcaption>
+            <figcaption className="wx-visual-caption">Чтобы к утру всё было готово</figcaption>
           </figure>
         </div>
       </section>
@@ -295,18 +295,18 @@ export default function WinkHome2026() {
       <section className="wx-edit" aria-labelledby="wx-edit-title">
         <div className="wx-edit-head">
           <div>
-            <p className="wx-kicker">The WINK edit / 01</p>
+            <p className="wx-kicker">Готовые решения / 01</p>
             <h2 className="wx-title" id="wx-edit-title">
-              С чего стоит начать.
+              Начните не с шаров. Начните с повода.
             </h2>
           </div>
           <div className="wx-edit-side">
             <p>
-              Небольшая подборка понятных форматов. Откройте композицию — там
-              будет точный состав, цена и доступная персонализация.
+              В каждом формате уже зафиксированы состав и цена. Вам остаётся выбрать
+              масштаб, палитру и личную деталь — если она нужна.
             </p>
             <Link href="/shop" className="wx-text-link">
-              Смотреть весь каталог <ShopIcon name="arrow" />
+              Все готовые решения <ShopIcon name="arrow" />
             </Link>
           </div>
         </div>
@@ -328,20 +328,21 @@ export default function WinkHome2026() {
           ))}
         </div>
         <p className="wx-edit-note">
-          Визуализации передают настроение коллекции. Точный состав, количество
-          шаров и доступные оттенки указаны внутри каждой композиции.
+          Изображения показывают визуальный характер коллекции, а не обещают точную
+          копию. Точный состав, количество и доступные оттенки фиксируем в карточке.
         </p>
       </section>
 
       <section className="wx-finder" id="finder" aria-labelledby="wx-finder-title">
         <div className="wx-finder-intro">
-          <p className="wx-kicker">Когда выбирать не хочется</p>
+          <p className="wx-kicker">WINK MATCH · быстрый подбор</p>
           <h2 className="wx-title" id="wx-finder-title" ref={finderHeading} tabIndex={-1}>
-            Четыре ответа. До двух вариантов.
+            Четыре ответа. Два решения.
           </h2>
           <p>
-            Без регистрации и длинного конструктора. Доставка считается отдельно,
-            а желаемую дату мы подтверждаем до оплаты.
+            Не нужно знать названия шаров и сочетаний. Расскажите главное — кому,
+            по какому поводу, какое настроение и бюджет. Дату и доставку подтвердим
+            отдельно.
           </p>
         </div>
         <div className="wx-finder-panel">
@@ -388,12 +389,12 @@ export default function WinkHome2026() {
               </>
             ) : (
               <div className="wx-finder-result-intro" aria-live="polite">
-                <span className="wx-kicker">Готово</span>
-                <h3>Вот с чего можно начать.</h3>
+                <span className="wx-kicker">WINK MATCH</span>
+                <h3>Вот с чего WINK советует начать.</h3>
                 <p>
                   {recommendations.length
-                    ? `${recommendations.length} ${recommendations.length === 1 ? "вариант" : "варианта"} под ваш запрос. Откройте композицию, чтобы выбрать детали.`
-                    : "В этом бюджете подходящих наборов пока нет. Попробуйте другой бюджет или напишите нам — подскажем ближайший вариант."}
+                    ? `${recommendations.length} ${recommendations.length === 1 ? "решение" : "решения"} под ваш запрос. Откройте композицию — там останется выбрать только детали.`
+                    : "Не будем притягивать неподходящий вариант к бюджету. Попробуйте другую рамку или напишите нам — предложим ближайшее решение."}
                 </p>
                 <div className="wx-actions">
                   <button
@@ -401,11 +402,11 @@ export default function WinkHome2026() {
                     className="wx-pill"
                     onClick={() => setAnswers([])}
                   >
-                    Подобрать заново
+                    Пройти подбор заново
                   </button>
                   {!recommendations.length && (
                     <a className="wx-pill" href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
-                      Написать нам
+                      Написать WINK
                     </a>
                   )}
                 </div>
@@ -436,40 +437,40 @@ export default function WinkHome2026() {
             unoptimized
             sizes="(max-width: 820px) 100vw, 50vw"
           />
-          <figcaption className="wx-personal-label">Личная деталь меняет всё</figcaption>
+          <figcaption className="wx-personal-label">Личное — не значит сложное</figcaption>
         </figure>
         <div className="wx-personal-copy">
-          <p className="wx-kicker">Сделать именно для вашего человека</p>
+          <p className="wx-kicker">Персонализация без хаоса</p>
           <h2 className="wx-title" id="wx-personal-title">
-            Один набор. Ваш смысл.
+            Добавьте только то, что имеет смысл.
           </h2>
           <article className="wx-personal-step">
             <span>01</span>
             <div>
-              <h3>Цифра</h3>
+              <h3>Возраст</h3>
               <p>
-                Выберите композицию с цифрами и укажите возраст. Цена для одной
-                и двух цифр показывается отдельно — без сюрприза в финале.
+                Выберите основу BIRTHDAY и укажите цифру. Одна и две цифры имеют
+                отдельные составы и цены — итог понятен заранее.
               </p>
             </div>
           </article>
           <article className="wx-personal-step">
             <span>02</span>
             <div>
-              <h3>Надпись</h3>
+              <h3>Ваши слова</h3>
               <p>
-                В наборах MESSAGE можно добавить личные слова. Поле появляется
-                именно там, где надпись входит в производимый состав.
+                В MESSAGE персональная надпись входит в сам сценарий подарка:
+                до 40 символов и трёх строк.
               </p>
             </div>
           </article>
           <article className="wx-personal-step">
             <span>03</span>
             <div>
-              <h3>Оттенок</h3>
+              <h3>Настроение</h3>
               <p>
-                Выберите настроение палитры до корзины. Изображение показывает
-                характер коллекции, а фактические доступные цвета перечислены в карточке.
+                Палитра выбирается как готовое сочетание. Стандартная палитра не
+                меняет цену — вы покупаете визуальный результат, а не стоимость оттенков.
               </p>
             </div>
           </article>
@@ -488,7 +489,7 @@ export default function WinkHome2026() {
           </div>
           <div className="wx-personal-cta">
             <Link href="/build" className="wx-pill">
-              Собрать свой вариант <ShopIcon name="arrow" />
+              Выбрать основу <ShopIcon name="arrow" />
             </Link>
           </div>
         </div>
@@ -497,37 +498,37 @@ export default function WinkHome2026() {
       <section className="wx-order" aria-labelledby="wx-order-title">
         <div className="wx-order-head">
           <div>
-            <p className="wx-kicker">Что происходит после «оформить»</p>
+            <p className="wx-kicker">После заявки</p>
             <h2 className="wx-title" id="wx-order-title">
-              Без обещаний наобум.
+              Сначала подтверждаем. Потом обещаем.
             </h2>
           </div>
           <p className="wx-copy">
-            Мы не притворяемся, что дата, доставка и оплата уже подтверждены.
-            Сначала заявка — затем реальное согласование деталей.
+            Дата, внешний вид, доставка и итоговая сумма — часть результата.
+            Поэтому не делаем вид, что всё подтверждено, пока реально не проверили.
           </p>
         </div>
         <div className="wx-order-ledger">
           {[
             [
               "01",
-              "Вы отправляете заявку",
-              "Корзина хранит выбранный состав, персонализацию и пожелание по дате. Это ещё не автоматическое списание денег.",
+              "Фиксируем ваш выбор",
+              "Сохраняем композицию, персонализацию, контакты и пожелание по дате. Деньги на этом шаге не списываются.",
             ],
             [
               "02",
-              "Мы подтверждаем детали",
-              "Проверяем состав, доступную дату, способ доставки и её стоимость. Если нужен сюрприз — общаемся с вами, не с получателем.",
+              "Проверяем дату и доставку",
+              "Подтверждаем доступность, адрес, время и стоимость доставки. Если это сюрприз — общаемся с вами, а не с получателем.",
             ],
             [
               "03",
-              "Согласуем оплату",
-              "Способ оплаты фиксируем после того, как вам понятна итоговая сумма и подтверждён момент доставки.",
+              "Подтверждаем итог",
+              "Вы видите понятную итоговую сумму и способ оплаты до того, как заказ считается согласованным.",
             ],
             [
               "04",
               "Привозим готовым",
-              "Композиция приезжает собранной, с лентами, грузиками и транспортной упаковкой согласно карточке набора.",
+              "Композиция приезжает собранной, с лентами, грузиками и транспортной упаковкой согласно карточке.",
             ],
           ].map(([number, title, text]) => (
             <article className="wx-order-row" key={number}>
@@ -539,19 +540,19 @@ export default function WinkHome2026() {
         </div>
         <div className="wx-order-actions">
           <Link href="/delivery" className="wx-pill">
-            Доставка и оплата <ShopIcon name="arrow" />
+            Как работает доставка <ShopIcon name="arrow" />
           </Link>
           <Link href="/shop" className="wx-text-link">
-            Перейти к композициям <ShopIcon name="arrow" />
+            Смотреть решения <ShopIcon name="arrow" />
           </Link>
         </div>
       </section>
 
       <section className="wx-faq" aria-labelledby="wx-faq-title">
         <div>
-          <p className="wx-kicker">Перед первым WINK</p>
+          <p className="wx-kicker">Снимем последние вопросы</p>
           <h2 className="wx-title" id="wx-faq-title">
-            Коротко о важном.
+            Чтобы нажать «оформить» спокойно.
           </h2>
         </div>
         <div className="wx-faq-list">
@@ -566,28 +567,28 @@ export default function WinkHome2026() {
           ))}
           <div className="wx-order-actions">
             <a className="wx-text-link" href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
-              Остался вопрос — написать нам <ShopIcon name="arrow" />
+              Задать свой вопрос <ShopIcon name="arrow" />
             </a>
           </div>
         </div>
       </section>
 
       <section className="wx-closing" aria-labelledby="wx-closing-title">
-        <p className="wx-kicker">WINK · Кемерово</p>
+        <p className="wx-kicker">WINK · когда надо красиво поздравить</p>
         <h2 className="wx-display" id="wx-closing-title">
-          Есть повод? Сделаем красиво.
+          Повод уже есть. Остальное можно делегировать.
         </h2>
         <div className="wx-closing-bottom">
           <p>
-            Начните с готовой композиции или ответьте на четыре вопроса. Дальше
-            мы оставили только те шаги, которые действительно нужны заказу.
+            Назовите человека, дату и бюджет. Мы сузим выбор до нескольких красивых
+            решений и возьмём профессиональный выбор на себя.
           </p>
           <div className="wx-actions">
             <Link className="wx-pill-dark" href="/shop">
-              Выбрать WINK <ShopIcon name="arrow" />
+              Смотреть готовые решения <ShopIcon name="arrow" />
             </Link>
             <button className="wx-pill-dark" type="button" onClick={startFinder}>
-              Помочь выбрать
+              Получить 2 варианта
             </button>
           </div>
         </div>
