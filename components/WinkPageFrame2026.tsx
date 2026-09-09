@@ -150,7 +150,7 @@ export default function WinkPageFrame2026({
           <Link href="/favorites">Сохранённые композиции</Link>
         </div>
       </footer>
-      {!path.replace(/\/$/, "").endsWith("/checkout") && (
+      {!path.endsWith("/checkout") && !path.includes("/product/") && (
         <nav className="wk-bottom-nav" aria-label="Мобильная навигация">
           {[
             ["/", "Главная", "home"],

@@ -16,7 +16,9 @@ describe("isolated demo fixtures", () => {
         (a) =>
           a.id.startsWith("demo-") &&
           a.sku.startsWith("DEMO-") &&
-          !a.images.length,
+          a.images.length === 1 &&
+          a.images[0].url.endsWith(`/images/gift-${a.id.slice(5)}.webp`) &&
+          a.images[0].alt.includes("Визуализация демо-образца"),
       ),
     ).toBe(true);
     expect(

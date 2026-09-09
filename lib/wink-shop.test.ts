@@ -14,6 +14,7 @@ import {
   parseCatalog,
   personalizationErrors,
   priceFor,
+  productImage,
   searchProducts,
   validDeliveryDate,
   writeCart,
@@ -32,6 +33,16 @@ const line = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("catalog and prices used by the storefront", () => {
+  it("does not illustrate BABY REVEAL SOLO with the extra fountains", () => {
+    const solo = FALLBACK_CATALOG.products.find(
+      (p) => p.slug === "baby-reveal-solo",
+    )!;
+    const full = FALLBACK_CATALOG.products.find(
+      (p) => p.slug === "baby-reveal16",
+    )!;
+    expect(productImage(solo)).toContain("reveal-solo-v2.webp");
+    expect(productImage(solo)).not.toBe(productImage(full));
+  });
   it("uses v6 base plus bows without a palette surcharge", () => {
     const product = {
       ...air,

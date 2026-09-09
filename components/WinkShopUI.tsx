@@ -108,6 +108,7 @@ export function ProductCard({
   palette?: string;
   note?: string;
 }) {
+  const [preview, setPreview] = useState(false);
   return (
     <article className="wk-product-card">
       <div className="wk-product-visual">
@@ -125,6 +126,14 @@ export function ProductCard({
           />
         </Link>
         <FavoriteButton slug={product.slug} />
+        <button
+          type="button"
+          className="wk-quickview-trigger"
+          onClick={() => setPreview(true)}
+          aria-label={`Быстрый просмотр: ${FAMILY_NAMES[product.name]}, ${product.subtitle}`}
+        >
+          Рассмотреть ↗
+        </button>
         {note && <span className="wk-card-note">{note}</span>}
       </div>
       <div className="wk-product-copy">
@@ -144,6 +153,42 @@ export function ProductCard({
           </Link>
         </div>
       </div>
+      {preview && (
+        <ShopDialog
+          open={preview}
+          onClose={() => setPreview(false)}
+          title="Знакомьтесь, ваш WINK"
+        >
+          <div className="wk-quickview">
+            <Image
+              src={productImage(product)}
+              alt={`Визуализация коллекции ${FAMILY_NAMES[product.name]}`}
+              width={600}
+              height={750}
+              unoptimized
+            />
+            <div>
+              <p className="wk-eyebrow">{product.name}</p>
+              <h2>{FAMILY_NAMES[product.name]}</h2>
+              <p>{product.description}</p>
+              <strong>{money(displayPrice(product, palette))}</strong>
+              <p>
+                Палитра, персонализация и дополнения — на следующем шаге.
+                Доставка оплачивается отдельно.
+              </p>
+              <Link
+                href={productHref(product.slug, palette)}
+                className="wk-button"
+              >
+                Выбрать детали <ShopIcon name="arrow" />
+              </Link>
+              <p className="wk-image-note">
+                Изображение передаёт настроение, не точный состав набора.
+              </p>
+            </div>
+          </div>
+        </ShopDialog>
+      )}
     </article>
   );
 }

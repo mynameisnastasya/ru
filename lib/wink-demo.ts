@@ -1,6 +1,6 @@
 import { ADDON_DEFAULTS } from "./wink-addon-defaults";
 import type { Addon, AddonCatalog } from "./wink-addons";
-import { FALLBACK_CATALOG } from "./wink-shop";
+import { asset, FALLBACK_CATALOG } from "./wink-shop";
 
 function sample(
   id: string,
@@ -22,7 +22,16 @@ function sample(
     available_quantity: 10,
     stock_status: "IN_STOCK",
     short_description:
-      "Тестовый товар. Цена и наличие условные; фото будет добавлено позже.",
+      "Визуализация демо-образца. Цена и наличие условные.",
+    full_description:
+      "Демо-образец подарка. Изображение создано для показа идеи и не является фотографией реального товара. Внешний вид, цена и наличие условные; оформление работает только в тестовом режиме.",
+    images: [
+      {
+        url: asset(`/images/gift-${id}.webp`),
+        alt: `Визуализация демо-образца ${name}. Внешний вид условный.`,
+        role: "MAIN",
+      },
+    ],
     search_keywords: [name],
     ...extra,
   };
