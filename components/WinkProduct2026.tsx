@@ -81,10 +81,10 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     return (
       <WinkPageFrame2026>
         <main className="wk-empty">
-          <h1>Этот набор сейчас недоступен.</h1>
-          <p>Посмотрите другие готовые композиции.</p>
+          <h1>Этого готового решения сейчас нет.</h1>
+          <p>Покажем другие варианты, с которыми не придётся импровизировать.</p>
           <Link className="wk-button" href="/shop">
-            В каталог
+            Посмотреть решения
           </Link>
         </main>
       </WinkPageFrame2026>
@@ -116,6 +116,18 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
   const price = priceFor(product, config, catalog);
   const digits = Number(product.config.digit_count || 0);
   const siblings = catalog.products.filter((p) => p.name === product.name);
+  const promise =
+    product.name === "AIR"
+      ? "Готовый визуальный жест без лишнего декора. Выберите масштаб и настроение — композиция уже собрана как цельный результат."
+      : product.name === "BIRTHDAY"
+        ? "Возраст становится частью поздравления, а не отдельной деталью. Выберите масштаб и нужную цифру — остальное уже сбалансировано."
+        : product.name === "LOVE"
+          ? "Сердца остаются акцентом, а не превращают подарок в визуальный шум. Для момента, когда хочется сказать главное красиво."
+          : product.name === "HEARTS"
+            ? "Один понятный жест без сложного выбора: одинаковые сердца, один цвет и чистая подача."
+            : product.name === "MESSAGE"
+              ? "Подарок, который говорит вашими словами. Личная надпись встроена в готовую композицию, а не добавлена поверх случайного набора."
+              : "Сценарий сюрприза, в котором результат остаётся секретом до самого момента. Внешнюю часть держим нейтральной.";
   function change(value: Partial<LineConfig>) {
     setChoice((current) => ({ ...current, ...value }));
     setAdded(false);
@@ -226,7 +238,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     <WinkPageFrame2026>
       <main>
         <nav className="wk-breadcrumbs" aria-label="Хлебные крошки">
-          <Link href="/shop">Композиции</Link>
+          <Link href="/shop">Готовые решения</Link>
           <span>/</span>
           <span>{FAMILY_NAMES[product.name]}</span>
         </nav>
@@ -245,20 +257,19 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               <FavoriteButton slug={slug} />
             </figure>
             <p className="wk-image-note">
-              Визуализация коллекции. Количество шаров, цвет и персонализация
-              определяются выбранным составом. Изображение не меняется при
-              выборе оттенков.
+              Фото показывает характер коллекции, а не обещает пиксель-в-пиксель.
+              Точный состав, количество и доступные оттенки зафиксированы ниже.
             </p>
           </div>
           <div className="wk-product-buy">
             <p className="wk-eyebrow">{product.name} · WINK</p>
             <h1>{FAMILY_NAMES[product.name]}</h1>
-            <p>{product.subtitle}</p>
+            <p>{promise}</p>
             <strong className="wk-product-price" aria-live="polite">
               {money(price)}
             </strong>
             <p className="wk-status-note">
-              За композицию. Стоимость и время доставки согласуем до оплаты.
+              Цена выбранного решения. Доставку и доступное время подтвердим до оплаты.
             </p>
             {status === "reference" && (
               <p className="wk-status-note">
@@ -267,7 +278,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
             )}
             {siblings.length > 1 && (
               <fieldset className="wk-option">
-                <legend>Размер композиции</legend>
+                <legend>Масштаб</legend>
                 <div className="wk-sizes">
                   {siblings.map((p) => (
                     <Link
@@ -286,7 +297,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
             )}
             {product.name === "HEARTS" ? (
               <fieldset className="wk-option">
-                <legend>Цвет сердец</legend>
+                <legend>Какой акцент?</legend>
                 <div className="wk-palette-options">
                   {Object.entries(FOIL_NAMES).map(([value, label]) => (
                     <button
@@ -314,7 +325,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               </fieldset>
             ) : product.name !== "BABY REVEAL" ? (
               <fieldset className="wk-option">
-                <legend>Палитра · {PALETTES[selectedPalette]?.name}</legend>
+                <legend>Настроение · {PALETTES[selectedPalette]?.name}</legend>
                 <div className="wk-palette-options">
                   {ids.map((id) => (
                     <button
@@ -335,8 +346,8 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               </fieldset>
             ) : (
               <p className="wk-status-note">
-                Чёрный шар-сюрприз 36″ с розовым или голубым конфетти.
-                Дополнительные шары — в нейтральной палитре.
+                Снаружи — нейтрально. Внутри — розовое или голубое конфетти,
+                чтобы результат не читался раньше времени.
               </p>
             )}
             <div className="wk-personalization">
@@ -362,14 +373,14 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                   <span className="wk-status-note" id="digit-help">
                     Возраст или другая важная цифра.{" "}
                     {digits === 1
-                      ? "Для двузначного возраста выберите набор с двумя цифрами."
+                      ? "Для двузначного возраста выберите вариант с двумя цифрами."
                       : "Нужно ровно две цифры."}
                   </span>
                 </label>
               )}
               {product.config.message_required === true && (
                 <label className="wk-field">
-                  Ваша надпись
+                  Что хотите сказать?
                   <textarea
                     value={choice.inscription || ""}
                     onChange={(e) => change({ inscription: e.target.value })}
@@ -385,11 +396,11 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               )}
               {product.config.reveal_result_required === true && (
                 <fieldset className="wk-option">
-                  <legend>Цвет конфетти внутри</legend>
+                  <legend>Какой результат спрятать внутри?</legend>
                   <div className="wk-palette-options">
                     {[
-                      ["girl", "Розовое"],
-                      ["boy", "Голубое"],
+                      ["girl", "Розовое конфетти"],
+                      ["boy", "Голубое конфетти"],
                     ].map(([value, label]) => (
                       <button
                         key={value}
@@ -403,8 +414,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     ))}
                   </div>
                   <p>
-                    В сводке корзины цвет не показываем, чтобы сохранить
-                    сюрприз.
+                    В корзине результат не показываем — сюрприз останется сюрпризом.
                   </p>
                 </fieldset>
               )}
@@ -423,15 +433,15 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     <b>
                       {modifier.name} · +{money(modifier.price_delta_minor)}
                     </b>
-                    <small>Нежный акцент на лентах</small>
+                    <small>Небольшой акцент на лентах — без перегруза</small>
                   </span>
                 </label>
               )}
             </div>
             <details className="wk-option">
-              <summary>Уже знаете дату доставки?</summary>
+              <summary>Уже знаете нужную дату?</summary>
               <label className="wk-field">
-                Желаемая дата
+                Когда должен случиться момент
                 <input
                   type="date"
                   min={kemerovoDate()}
@@ -443,7 +453,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                 />
               </label>
               <p>
-                Сохраним пожелание в заказе. Адрес можно указать при оформлении.
+                Сохраним дату как пожелание. Реальную возможность доставки подтвердим до оплаты; адрес можно добавить при оформлении.
               </p>
             </details>
             {error && (
@@ -457,27 +467,27 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               onClick={addToCart}
             >
               <span>
-                {editId ? "Сохранить изменения" : "Добавить в корзину"}
+                {editId ? "Сохранить выбор" : "Выбрать этот вариант"}
               </span>
               <strong>{money(price)}</strong>
             </button>
             {added && (
               <div className="wk-product-added" role="status">
                 <span>
-                  {editId ? "Изменения сохранены" : "Композиция в корзине"}
+                  {editId ? "Выбор обновлён" : "Вариант добавлен"}
                 </span>
-                <Link href="/checkout">Оформить заказ →</Link>
+                <Link href="/checkout">Перейти к оформлению →</Link>
               </div>
             )}
             <Link className="wk-text-link" href="/#finder">
-              Нужна помощь с выбором?
+              Сомневаетесь? Пройти WINK MATCH
             </Link>
           </div>
         </section>
         <section className="wk-product-included">
           <div>
-            <p className="wk-eyebrow">Без догадок</p>
-            <h2>Что приедет к вам</h2>
+            <p className="wk-eyebrow">Чтобы без догадок</p>
+            <h2>Что именно приедет</h2>
           </div>
           <ul>
             {included.map((item) => (
