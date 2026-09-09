@@ -175,18 +175,23 @@ export function asset(path: string) {
 export const IMAGES = {
   air: asset("/images/wink-air.webp"),
   birthday: asset("/images/wink-birthday.webp"),
-  hearts: asset("/images/wink-hearts.webp"),
+  hearts: asset("/images/hearts-silver-v2.webp"),
   arrival: asset("/images/campaign-arrival.webp"),
   message: asset("/images/wink-message.webp"),
   reveal: asset("/images/wink-reveal.webp"),
-  love: asset("/images/wink-love.webp"),
-  kids: asset("/images/campaign-kids.webp"),
-  forHim: asset("/images/campaign-for-him.webp"),
+  love: asset("/images/love-silver-v2.webp"),
+  kids: asset("/images/palette-milk.webp"),
+  forHim: asset("/images/palette-black-chrome.webp"),
+  revealSolo: asset("/images/reveal-solo-v2.webp"),
   milk: asset("/images/palette-milk.webp"),
   blackChrome: asset("/images/palette-black-chrome.webp"),
+  momentMaster: asset("/images/moment-master-v2.webp"),
+  momentDetail: asset("/images/moment-detail-v2.webp"),
+  momentReaction: asset("/images/moment-reaction-v2.webp"),
 };
 // These original illustrations convey the collection's mood, not an exact SKU or completed customer order.
-export function productImage(p: { name: string }) {
+export function productImage(p: { name: string; slug?: string }) {
+  if (p.slug === "baby-reveal-solo") return IMAGES.revealSolo;
   return (
     (
       {

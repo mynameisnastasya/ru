@@ -147,8 +147,8 @@ export default function WinkCatalog2026() {
           <p className="wk-eyebrow">Коллекция WINK · Кемерово</p>
           <h1>Выберите красивое.</h1>
           <p>
-            Готовые наборы для ваших людей. Откройте композицию, выберите
-            палитру и добавьте личную деталь.
+            Готовые композиции для ваших людей. Палитру и личные детали выберете
+            внутри.
           </p>
           <div className="wk-chips">
             {[
@@ -157,6 +157,8 @@ export default function WinkCatalog2026() {
               ["HEARTS", "Сердца"],
               ["AIR", "Воздушные сеты"],
               ["MESSAGE", "С надписью"],
+              ["LOVE", "С любовью"],
+              ["BABY REVEAL", "Пол малыша"],
             ].map(([value, label]) => (
               <button
                 key={label}
@@ -171,12 +173,6 @@ export default function WinkCatalog2026() {
         </section>
         <section className="wk-catalog-controls" aria-label="Фильтры каталога">
           {fields()}
-          <button
-            className="wk-button secondary wk-catalog-filter-toggle"
-            onClick={() => setFiltersOpen(true)}
-          >
-            Фильтры{filterCount ? ` · ${filterCount}` : ""}
-          </button>
           {filterCount > 0 && (
             <button
               className="wk-text-button"
@@ -194,9 +190,16 @@ export default function WinkCatalog2026() {
         </section>
         <div className="wk-catalog-toolbar">
           <span aria-live="polite">{products.length} вариантов</span>
+          <button
+            className="wk-button secondary wk-catalog-filter-toggle"
+            onClick={() => setFiltersOpen(true)}
+          >
+            Фильтры{filterCount ? ` · ${filterCount}` : ""}
+          </button>
           <label>
-            Порядок{" "}
+            <span className="wk-sort-label">Порядок </span>
             <select
+              aria-label="Порядок композиций"
               value={sort}
               onChange={(e) => update("sort", e.target.value)}
             >

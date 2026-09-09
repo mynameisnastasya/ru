@@ -132,7 +132,7 @@ export function ProductCard({
           onClick={() => setPreview(true)}
           aria-label={`Быстрый просмотр: ${FAMILY_NAMES[product.name]}, ${product.subtitle}`}
         >
-          Быстрый просмотр ↗
+          Рассмотреть ↗
         </button>
         {note && <span className="wk-card-note">{note}</span>}
       </div>

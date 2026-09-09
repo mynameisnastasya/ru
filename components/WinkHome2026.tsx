@@ -5,16 +5,15 @@ import { useMemo, useRef, useState } from "react";
 import {
   CONTACT_URL,
   IMAGES,
-  budgetMatches,
   displayPrice,
-  paletteIds,
   money,
   Product,
 } from "@/lib/wink-shop";
 import { useWinkCatalog } from "@/lib/use-wink-catalog";
-import { rankFinderCandidates } from "@/lib/wink-finder";
+import { recommendWinkMatch, type WinkMatchAnswers } from "@/lib/wink-match";
 import { ProductCard, ShopIcon } from "./WinkShopUI";
 import WinkPaletteScene from "./WinkPaletteScene";
+import WinkMomentStory from "./WinkMomentStory";
 
 export default function WinkHome2026() {
   const { catalog } = useWinkCatalog();
@@ -49,12 +48,22 @@ export default function WinkHome2026() {
       ],
     },
     {
+      title: "Где будет сюрприз?",
+      values: [
+        ["bedroom", "Спальня или небольшой номер"],
+        ["living", "Гостиная"],
+        ["venue", "Ресторан или просторный зал"],
+        ["unsure", "Пока не знаю"],
+      ],
+    },
+    {
       title: "Какое настроение?",
       values: [
         ["PINK_MILK", "Нежное"],
         ["PINK_CHROME", "С блеском"],
         ["MILK", "Спокойное"],
         ["BLACK_CHROME", "Контрастное"],
+        ["choose", "Доверюсь WINK"],
       ],
     },
     {
@@ -67,44 +76,15 @@ export default function WinkHome2026() {
     },
   ];
   const recommendations = useMemo(() => {
-    if (answers.length !== 4) return [];
-    const [recipient, event, palette, budget] = answers;
-    return rankFinderCandidates(
-      catalog.products
-        .filter(
-          (p) =>
-            budgetMatches(displayPrice(p, palette), budget) &&
-            (p.name === "HEARTS" ||
-              p.name === "BABY REVEAL" ||
-              paletteIds(p).includes(palette)) &&
-            (event === "baby"
-              ? p.name === "BABY REVEAL"
-              : p.name !== "BABY REVEAL"),
-        )
-        .map((p) => ({
-          item: p,
-          signals: {
-            recipientMatch:
-              recipient === "kids"
-                ? Number(p.name === "BIRTHDAY")
-                : recipient === "him"
-                  ? Number(["AIR", "BIRTHDAY", "MESSAGE"].includes(p.name))
-                  : 1,
-            occasionMatch:
-              event === "birthday"
-                ? Number(p.name === "BIRTHDAY")
-                : event === "love"
-                  ? Number(["LOVE", "HEARTS", "MESSAGE"].includes(p.name))
-                  : 1,
-            vibeMatch: 0,
-            budgetFit: 1,
-            bestseller: Boolean(p.bestseller),
-            inStock: false,
-            slotRisk: 0,
-          },
-        })),
-      2,
-    ).map((r) => r.item);
+    if (answers.length !== 5) return [];
+    const [recipient, occasion, space, mood, budget] = answers;
+    return recommendWinkMatch(catalog.products, {
+      recipient,
+      occasion,
+      space,
+      mood,
+      budget: budget === "any" ? "any" : Number(budget),
+    } as WinkMatchAnswers);
   }, [catalog.products, answers]);
   const preferred = ["air16", "birthday16-2", "hearts7"];
   const selection =
@@ -144,9 +124,8 @@ export default function WinkHome2026() {
             <em>это чувство.</em>
           </h1>
           <p className="wk-hero-intro">
-            Воздушные композиции для того самого
-            <br className="wk-desktop-break" /> «Это всё для меня?» С доставкой
-            по Кемерову.
+            Готовые воздушные композиции для ваших людей. Соберём и привезём по
+            Кемерову.
           </p>
           <p className="wk-start-price">
             Композиции от{" "}
@@ -168,8 +147,8 @@ export default function WinkHome2026() {
         </div>
         <figure className="wk-hero-image">
           <Image
-            src={IMAGES.arrival}
-            alt="Визуализация: девушка открывает дверь и видит нежно-розовые воздушные композиции"
+            src={IMAGES.momentReaction}
+            alt="Визуализация: девушка рядом с молочной воздушной композицией в домашней спальне"
             width={1000}
             height={1250}
             priority
@@ -239,17 +218,19 @@ export default function WinkHome2026() {
           детали — в составе каждого набора.
         </p>
       </section>
+      <WinkMomentStory onFind={startFinder} />
       <section className="wk-finder wk-section" id="finder">
         <div>
-          <p className="wk-eyebrow">Можно без долгого выбора</p>
+          <p className="wk-eyebrow">WINK MATCH · можно без долгого выбора</p>
           <h2 ref={finderHeading} tabIndex={-1}>
             «Хочу красиво.
             <br />
             <em>Помогите выбрать».</em>
           </h2>
           <p>
-            Четыре коротких ответа — до двух композиций в вашем бюджете.
-            Доставка считается отдельно.
+            Пять коротких ответов — до двух композиций под ваш повод,
+            пространство и бюджет. Объясним, почему они подходят. Доставка
+            считается отдельно.
           </p>
         </div>
         <div className="wk-finder-panel">
@@ -257,9 +238,9 @@ export default function WinkHome2026() {
             className="wk-finder-progress"
             role="progressbar"
             aria-valuemin={0}
-            aria-valuemax={4}
+            aria-valuemax={questions.length}
             aria-valuenow={answers.length}
-            aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}
+            aria-label={`Подбор: ${answers.length} из ${questions.length} ответов`}
           >
             {questions.map((q, i) => (
               <span
@@ -268,9 +249,29 @@ export default function WinkHome2026() {
               />
             ))}
           </div>
-          {answers.length < 4 ? (
+          {answers.length > 0 && (
+            <div
+              className="wk-match-answers"
+              role="group"
+              aria-label="Изменить ответы подбора"
+            >
+              {answers.map((value, i) => (
+                <button
+                  key={questions[i].title}
+                  type="button"
+                  onClick={() => answer(answers.slice(0, i))}
+                  aria-label={`Изменить ответ: ${questions[i].title}`}
+                >
+                  {questions[i].values.find(([id]) => id === value)?.[1]}
+                </button>
+              ))}
+            </div>
+          )}
+          {answers.length < questions.length ? (
             <>
-              <span className="wk-eyebrow">0{answers.length + 1} / 04</span>
+              <span className="wk-eyebrow">
+                Шаг {answers.length + 1} из {questions.length}
+              </span>
               <h3 ref={questionHeading} tabIndex={-1}>
                 {questions[answers.length].title}
               </h3>
@@ -319,44 +320,21 @@ export default function WinkHome2026() {
         </div>
         {recommendations.length > 0 && (
           <div className="wk-finder-results">
-            {recommendations.map((p) => (
-              <ProductCard key={p.slug} product={p} palette={answers[2]} />
+            {recommendations.map(({ product, palette, reason }, i) => (
+              <div className="wk-match-result" key={product.slug}>
+                <p className="wk-match-reason">
+                  <strong>
+                    {i === 0 ? "WINK рекомендует" : "Ещё один вариант"}
+                  </strong>
+                  {reason}
+                </p>
+                <ProductCard product={product} palette={palette} />
+              </div>
             ))}
           </div>
         )}
       </section>
       <WinkPaletteScene />
-      <section className="wk-story">
-        <figure>
-          <Image
-            src={IMAGES.birthday}
-            alt="Визуализация композиции с серебряными цифрами 25 и нежными шарами"
-            width={1024}
-            height={1536}
-            unoptimized
-            sizes="(max-width: 700px) 100vw, 50vw"
-          />
-          <figcaption>Вдохновение для дня рождения</figcaption>
-        </figure>
-        <div>
-          <p className="wk-eyebrow">Для того самого утра</p>
-          <h2>
-            «Ты это всё
-            <br />
-            <em>для меня?»</em>
-          </h2>
-          <p>
-            Цифры, которые что-то значат. Цвета, которые нравятся вашему
-            человеку. И ощущение: «обо мне подумали».
-          </p>
-          <Link className="wk-button" href="/occasion/birthday">
-            Собрать день рождения <ShopIcon name="arrow" />
-          </Link>
-          <Link className="wk-text-link" href="/room">
-            Хочется оформить всю комнату?
-          </Link>
-        </div>
-      </section>
       <section
         className="wk-section wk-occasion-edit"
         aria-labelledby="occasion-title"
@@ -412,41 +390,6 @@ export default function WinkHome2026() {
           Идеи оформления, созданные с помощью ИИ. Доступные оттенки и состав
           выбираются в карточке.
         </p>
-      </section>
-      <section className="wk-section wk-how">
-        <div className="wk-section-heading">
-          <div>
-            <p className="wk-eyebrow">Всего три шага</p>
-            <h2>
-              Вам остаётся <em>порадовать.</em>
-            </h2>
-          </div>
-        </div>
-        <div className="wk-how-grid">
-          {[
-            [
-              "01",
-              "Выберите основу",
-              "Набор и палитру. Состав и цена — сразу в карточке.",
-            ],
-            [
-              "02",
-              "Добавьте личное",
-              "Важная цифра, надпись или акцент из бантов.",
-            ],
-            [
-              "03",
-              "Доверьте нам детали",
-              "Согласуем доставку и оплату. Соберём и привезём готовую композицию.",
-            ],
-          ].map(([n, title, text]) => (
-            <article key={n}>
-              <span>{n}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
-          ))}
-        </div>
       </section>
       <section className="wk-section wk-faq">
         <div>
