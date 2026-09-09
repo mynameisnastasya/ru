@@ -37,3 +37,7 @@ npm run build
 ```
 
 GitHub Pages deploys the static export with the `/ru` base path through the existing workflow.
+
+## Publication
+
+Latest manual republish trigger: 2026-09-10.
