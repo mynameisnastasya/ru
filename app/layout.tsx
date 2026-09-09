@@ -13,6 +13,7 @@ import "./wink-cleanup.css";
 import "./wink-storefront.css";
 import "./wink-editorial.css";
 import "./wink-cinematic.css";
+import "./wink-cinematic-audit.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F7F3EE",
+  themeColor: "#F7F7F3",
   colorScheme: "light",
 };
 
