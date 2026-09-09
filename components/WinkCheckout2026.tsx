@@ -362,7 +362,7 @@ export default function WinkCheckout2026() {
     return (
       <WinkPageFrame2026>
         <main className="wk-empty" aria-busy="true">
-          <p>Открываем вашу корзину…</p>
+          <p>Проверяем ваш выбор…</p>
         </main>
       </WinkPageFrame2026>
     );
@@ -372,14 +372,14 @@ export default function WinkCheckout2026() {
         <main className="wk-success">
           <p className="wk-eyebrow">Демонстрация оформления</p>
           <h1>
-            Тест пройден.
+            Всё проверено.
             <br />
-            Заказ не отправлен.
+            Реальная заявка не отправлена.
           </h1>
           <p>
-            Состав и персонализация проверены. Деньги не списывались, товары не
-            резервировались, WINK не получил заявку. Ваши контактные данные
-            никуда не отправлены.
+            Состав и персонализация прошли проверку. Деньги не списывались, товары
+            не резервировались, WINK не получил заявку, а контактные данные никуда
+            не отправлены.
           </p>
           {demoReceipt.map((line) => (
             <article className="wk-cart-line" key={line.lineId}>
@@ -406,7 +406,7 @@ export default function WinkCheckout2026() {
             </article>
           ))}
           <p>
-            Тестовая сумма товаров:{" "}
+            Тестовая сумма выбранных решений:{" "}
             <strong>
               {money(
                 demoReceipt.reduce(
@@ -418,7 +418,7 @@ export default function WinkCheckout2026() {
             . Доставка не рассчитана.
           </p>
           <button className="wk-button" onClick={() => setDemoReceipt(null)}>
-            Вернуться к тестовой корзине
+            Вернуться к тестовому оформлению
           </button>
         </main>
       </WinkPageFrame2026>
@@ -429,25 +429,25 @@ export default function WinkCheckout2026() {
         <main className="wk-success">
           <p className="wk-eyebrow">Заявка № {order.number}</p>
           <h1>
-            Ваш красивый момент
+            Заявка принята.
             <br />
-            стал на шаг ближе.
+            Теперь подтверждаем ваш момент.
           </h1>
           <p>
-            Заявка сохранена. Согласуем состав, доступную дату, стоимость
-            доставки и способ оплаты. Пока дата не подтверждена, она остаётся
-            пожеланием.
+            Проверим выбранный состав, реальную доступность даты, адрес и стоимость
+            доставки. Пока мы это не подтвердили, дата остаётся пожеланием и деньги
+            не должны списываться автоматически.
           </p>
           <p>
-            Статус можно проверить по ссылке. Если нужно обсудить детали сейчас,
-            напишите нам номер заявки.
+            Статус можно открыть по ссылке. Если важную деталь нужно уточнить прямо
+            сейчас — напишите нам номер заявки.
           </p>
           <div className="wk-actions">
             <Link
               className="wk-button"
               href={`/order/?token=${encodeURIComponent(order.public_token)}`}
             >
-              Следить за заказом
+              Проверить статус
             </Link>
             <a
               className="wk-button secondary"
@@ -465,23 +465,23 @@ export default function WinkCheckout2026() {
     return (
       <WinkPageFrame2026>
         <main className="wk-empty">
-          <p className="wk-eyebrow">Ваш WINK</p>
+          <p className="wk-eyebrow">Когда надо красиво поздравить</p>
           <h1>
-            Здесь будет
+            Сначала выберем
             <br />
-            чей-то хороший день.
+            сильное решение.
           </h1>
-          <p>Выберите композицию и добавьте то, что делает её личной.</p>
+          <p>Можно посмотреть готовые варианты или доверить первый выбор WINK MATCH.</p>
           {error && (
             <p className="wk-error" role="alert">
               {error}
             </p>
           )}
           <Link className="wk-button" href="/shop">
-            Выбрать композицию
+            Посмотреть готовые решения
           </Link>
           <Link className="wk-button secondary" href="/#finder">
-            Помочь с выбором
+            Пройти WINK MATCH
           </Link>
           {error && (
             <button className="wk-text-button" onClick={() => updateCart([])}>
@@ -520,11 +520,11 @@ export default function WinkCheckout2026() {
               </button>
             </p>
           )}
-          <p className="wk-eyebrow">Корзина / Оформление</p>
-          <h1>Осталось самое личное.</h1>
+          <p className="wk-eyebrow">Ваш выбор / подтверждение</p>
+          <h1>Фиксируем, кому, куда и когда.</h1>
           <p>
-            Кому, куда и когда. Состав и стоимость доставки согласуем с вами
-            перед оплатой.
+            Сейчас вы отправляете заявку, а не оплачиваете заказ. Мы сначала проверим
+            дату и доставку, подтвердим итоговую сумму — и только потом согласуем оплату.
           </p>
         </div>
         <form onSubmit={submit} className="wk-checkout-layout">
@@ -542,7 +542,7 @@ export default function WinkCheckout2026() {
             >
               <section className="wk-form-section">
                 <h2>
-                  <span>01</span>Как с вами связаться?
+                  <span>01</span>Кому подтвердить детали?
                 </h2>
                 <div className="wk-form-fields">
                   <label className="wk-field">
@@ -573,7 +573,7 @@ export default function WinkCheckout2026() {
               </section>
               <section className="wk-form-section">
                 <h2>
-                  <span>02</span>Кто получает?
+                  <span>02</span>Для кого этот момент?
                 </h2>
                 <div className="wk-chips">
                   <button
@@ -632,8 +632,8 @@ export default function WinkCheckout2026() {
                         onChange={(e) => field("surprise", e.target.checked)}
                       />
                       <span>
-                        <b>Это сюрприз — не звонить получателю</b>
-                        <small>Вопросы по заказу решаем с вами.</small>
+                        <b>Сохранить сюрприз — не звонить получателю</b>
+                        <small>Все организационные вопросы решаем с вами.</small>
                       </span>
                     </label>
                     <label className="wk-check">
@@ -666,7 +666,7 @@ export default function WinkCheckout2026() {
               </section>
               <section className="wk-form-section">
                 <h2>
-                  <span>03</span>Куда и когда?
+                  <span>03</span>Где и когда он должен случиться?
                 </h2>
                 <div className="wk-form-fields">
                   <label className="wk-field wide">
@@ -682,7 +682,7 @@ export default function WinkCheckout2026() {
                     />
                   </label>
                   <label className="wk-field">
-                    Желаемая дата
+                    Нужная дата
                     <input
                       required
                       type="date"
@@ -692,7 +692,7 @@ export default function WinkCheckout2026() {
                     />
                   </label>
                   <label className="wk-field">
-                    Предпочтительное время
+                    Когда лучше привезти
                     <select
                       value={fields.slot}
                       onChange={(e) => field("slot", e.target.value)}
@@ -706,7 +706,7 @@ export default function WinkCheckout2026() {
                   </label>
                   {fields.slot === "Точное время" && (
                     <label className="wk-field">
-                      Во сколько?
+                      Желаемое время
                       <input
                         type="time"
                         required
@@ -717,7 +717,7 @@ export default function WinkCheckout2026() {
                   )}
                 </div>
                 <p className="wk-status-note">
-                  Указанная дата и время — пожелание. Подтвердим возможность
+                  Пока это пожелание, не бронь. Подтвердим реальную возможность
                   доставки и её стоимость до оплаты.
                 </p>
                 <label className="wk-check">
@@ -727,21 +727,21 @@ export default function WinkCheckout2026() {
                     onChange={(e) => field("leaveAtDoor", e.target.checked)}
                   />
                   <span>
-                    Можно обсудить доставку до двери без личной встречи
+                    Обсудить доставку до двери без личной встречи
                   </span>
                 </label>
               </section>
               <section className="wk-form-section">
                 <h2>
-                  <span>04</span>Что ещё учесть?
+                  <span>04</span>Есть ли важная деталь?
                 </h2>
                 <label className="wk-field">
-                  Пожелания к заказу · необязательно
+                  Комментарий · необязательно
                   <textarea
                     maxLength={300}
                     value={fields.message}
                     onChange={(e) => field("message", e.target.value)}
-                    placeholder="Например, подарок нужно передать на ресепшене."
+                    placeholder="Например: передать подарок на ресепшене и не звонить в номер."
                   />
                 </label>
                 <p className="wk-status-note">
@@ -752,7 +752,7 @@ export default function WinkCheckout2026() {
             <p className="wk-status-note">
               {WINK_DEMO
                 ? "Проверка проходит только в браузере. Тестовая корзина сохранится; реальная заявка не будет создана."
-                : "Сейчас отправляем заявку. Детали доставки и способ оплаты согласуем после подтверждения заказа."}
+                : "Нажимая кнопку ниже, вы отправляете заявку на подтверждение. Это ещё не автоматическая оплата и не подтверждённая бронь даты."}
             </p>
             {error && (
               <div className="wk-error" role="alert">
@@ -776,11 +776,11 @@ export default function WinkCheckout2026() {
                 ? WINK_DEMO
                   ? "Проверяем…"
                   : "Проверяем и отправляем…"
-                : `${WINK_DEMO ? "Проверить оформление" : "Отправить заявку"} · ${money(total)}`}
+                : `${WINK_DEMO ? "Проверить оформление" : "Отправить на подтверждение"} · ${money(total)}`}
             </button>
           </div>
           <aside className="wk-order-summary">
-            <h2>Ваше поздравление</h2>
+            <h2>Вы выбрали</h2>
             {cart.map((line) => (
               <article key={line.lineId} className="wk-cart-line">
                 <div>
@@ -808,7 +808,7 @@ export default function WinkCheckout2026() {
                     className="wk-edit-link"
                     href={`/product/${line.productId}/?edit=${encodeURIComponent(line.lineId)}`}
                   >
-                    Изменить палитру и детали
+                    Изменить настроение и детали
                   </Link>
                 )}
                 <div className="wk-cart-actions">
@@ -877,27 +877,27 @@ export default function WinkCheckout2026() {
               </article>
             ))}
             <div className="wk-cart-total">
-              <span>Товары</span>
+              <span>Выбранные решения</span>
               <strong>{money(total)}</strong>
             </div>
             <p className="wk-status-note">
-              Доставка — отдельно, по согласованию. Дополнения уже включены в
-              сумму товаров.
+              Доставка не входит в эту сумму: рассчитаем её по адресу и согласуем до оплаты.
+              Дополнения уже включены.
             </p>
             {requirements.days > 0 && (
               <p className="wk-status-note">
-                Изготовление дополнений · {requirements.days} дн. Самая ранняя
+                На изготовление дополнений нужно {requirements.days} дн. Самая ранняя
                 дата: {kemerovoDate(new Date(), requirements.days)}.
               </p>
             )}
             {requirements.delivery_class !== "STANDARD" && (
               <p className="wk-status-note">
                 В заказе крупный подарок. Подберём подходящий автомобиль и
-                согласуем отдельный тариф доставки.
+                заранее согласуем отдельный тариф доставки.
               </p>
             )}
             <Link className="wk-text-link" href="/shop">
-              Добавить ещё композицию
+              Добавить ещё решение
             </Link>
             {mainLine && mainProduct && (
               <AddonRecommendations
