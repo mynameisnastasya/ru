@@ -99,6 +99,27 @@ export function FavoriteButton({ slug }: { slug: string }) {
   );
 }
 
+function cardTitle(product: Product) {
+  const latex = Number(product.config.latex_count || 0);
+  const hearts = Number(product.config.heart_count || 0);
+  const digits = Number(product.config.digit_count || 0);
+  if (product.name === "AIR")
+    return latex >= 30 ? "Чтобы пространство сразу изменилось" : "Красивый жест без сложного повода";
+  if (product.name === "BIRTHDAY")
+    return latex >= 30
+      ? `Большое праздничное утро · ${digits === 2 ? "две цифры" : "одна цифра"}`
+      : `День рождения без сборки по частям · ${digits === 2 ? "две цифры" : "одна цифра"}`;
+  if (product.name === "LOVE")
+    return latex >= 30 ? "Большое «люблю» без визуального шума" : "Сказать «люблю» красиво";
+  if (product.name === "HEARTS")
+    return hearts >= 14 ? "Когда одного жеста хочется больше" : "Семь сердец. Один понятный жест.";
+  if (product.name === "MESSAGE")
+    return latex >= 30 ? "Ваши слова · заметный формат" : "Ваши слова становятся подарком";
+  if (product.name === "BABY REVEAL")
+    return latex ? "Сюрприз и готовая воздушная сцена" : "Сам момент раскрытия";
+  return product.subtitle;
+}
+
 export function ProductCard({
   product,
   palette,
@@ -108,12 +129,13 @@ export function ProductCard({
   palette?: string;
   note?: string;
 }) {
+  const title = cardTitle(product);
   return (
     <article className="wk-product-card">
       <div className="wk-product-visual">
         <Link
           href={productHref(product.slug, palette)}
-          aria-label={`${product.subtitle}, ${money(displayPrice(product, palette))}`}
+          aria-label={`${title}, ${money(displayPrice(product, palette))}`}
         >
           <Image
             src={productImage(product)}
@@ -132,13 +154,13 @@ export function ProductCard({
           {FAMILY_NAMES[product.name] || product.name}
         </span>
         <Link href={productHref(product.slug, palette)}>
-          <h3>{product.subtitle}</h3>
+          <h3>{title}</h3>
         </Link>
         <div>
           <strong>{money(displayPrice(product, palette))}</strong>
           <Link
             href={productHref(product.slug, palette)}
-            aria-label={`Выбрать ${product.subtitle}`}
+            aria-label={`Открыть: ${title}`}
           >
             <ShopIcon name="arrow" />
           </Link>
