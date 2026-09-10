@@ -1,0 +1,66 @@
+/* WINK V3 — visual audit pass from rendered Pages artifact. */
+
+/* Keep the detail crop on the photography side. The first pass allowed it to
+   cross into the copy column and cover the last word of the headline. */
+@media (min-width:761px){
+  .wv3-personal-image.detail{
+    width:18vw;
+    max-width:270px;
+    left:calc(56% - 20vw);
+    right:auto;
+    bottom:3vw;
+    border-color:#fff;
+  }
+}
+
+/* On common 1440x900 laptop/desktop viewports the first artifact placed the
+   primary CTA just below the fold. Tighten only short desktop screens rather
+   than globally shrinking the campaign typography. */
+@media (min-width:981px) and (max-height:950px){
+  .wv3-hero-copy{
+    padding-top:34px;
+    padding-bottom:28px;
+  }
+  .wv3-hero-copy h1{
+    margin:6vh 0 3vh;
+    font-size:clamp(48px,4.9vw,78px);
+  }
+  .wv3-hero-cta{gap:14px 20px}
+}
+
+@media (max-width:760px){
+  /* Product still dominates mobile, but the first 390x844 viewport must also
+     deliver the full proposition and primary action. */
+  .wv3-hero-stage{
+    height:40svh;
+    min-height:40svh;
+  }
+  .wv3-hero-copy{
+    padding-top:20px;
+    padding-bottom:26px;
+  }
+  .wv3-hero-copy .wv3-label{margin-bottom:14px}
+  .wv3-hero-copy h1{
+    margin-bottom:20px;
+    font-size:clamp(39px,10.6vw,47px);
+    line-height:.89;
+  }
+  .wv3-hero-cta{gap:12px}
+  .wv3-hero-cta>p{line-height:1.45}
+  .wv3-hero-cta small{font-size:8px}
+
+  /* Fixed commerce nav should never be the final visual edge of an interactive
+     scene. Give tap targets enough runway to clear it. */
+  .wv3-match-console,
+  .wv3-edit,
+  .wv3-personal-copy,
+  .wv3-faq{
+    padding-bottom:max(92px,calc(76px + env(safe-area-inset-bottom)))!important;
+  }
+
+  .wv3-personal-image.detail{
+    width:34vw;
+    right:18px;
+    bottom:18px;
+  }
+}

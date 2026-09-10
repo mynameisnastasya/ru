@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { WINK_DEMO } from "@/lib/wink-mode";
+import "@fontsource/cormorant-garamond/cyrillic-400.css";
+import "@fontsource/cormorant-garamond/cyrillic-400-italic.css";
+import "@fontsource/cormorant-garamond/latin-400.css";
+import "@fontsource/cormorant-garamond/latin-400-italic.css";
 import "@fontsource/instrument-serif/latin-400.css";
 import "@fontsource/ibm-plex-mono/cyrillic-400.css";
 import "@fontsource/ibm-plex-mono/latin-400.css";
@@ -18,6 +22,9 @@ import "./wink-cinematic.css";
 import "./wink-cinematic-audit.css";
 import "./wink-v2.css";
 import "./wink-v2-audit.css";
+import "./wink-v3.css";
+import "./wink-v3-font.css";
+import "./wink-v3-audit.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
@@ -25,15 +32,15 @@ export const metadata: Metadata = {
   description:
     "Скажите, кого поздравляем, повод и бюджет. WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову до оплаты.",
   openGraph: {
-    title: "WINK — когда надо красиво поздравить",
+    title: "WINK — важный повод, красивый жест",
     description:
-      "Красивый результат без сложного выбора. Контекст — в WINK, до двух готовых решений — вам.",
+      "Два точных решения вместо бесконечного выбора. Персонализация и доставка по Кемерову.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbfaf5",
+  themeColor: "#ffffff",
   colorScheme: "light",
 };
 
