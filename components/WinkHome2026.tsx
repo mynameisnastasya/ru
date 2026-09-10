@@ -22,92 +22,42 @@ import { ShopIcon } from "./WinkShopUI";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const questions = [
-  {
-    eyebrow: "01 / Человек",
-    title: "Кого поздравляем?",
-    values: [
-      ["her", "Её"],
-      ["him", "Его"],
-      ["kids", "Ребёнка"],
-      ["mom", "Маму"],
-      ["friend", "Подругу"],
-    ],
-  },
-  {
-    eyebrow: "02 / Повод",
-    title: "Что происходит?",
-    values: [
-      ["birthday", "День рождения"],
-      ["love", "Хочу сказать «люблю»"],
-      ["any", "Просто порадовать"],
-      ["baby", "Baby reveal"],
-    ],
-  },
-  {
-    eyebrow: "03 / Настроение",
-    title: "Как это должно ощущаться?",
-    values: [
-      ["PINK_MILK", "Нежно"],
-      ["PINK_CHROME", "Вау"],
-      ["MILK", "Спокойно"],
-      ["BLACK_CHROME", "Графично"],
-    ],
-  },
-  {
-    eyebrow: "04 / Бюджет",
-    title: "Какую рамку держим?",
-    values: [
-      ["5000", "До 5 000 ₽"],
-      ["7500", "До 7 500 ₽"],
-      ["any", "Можно гибко"],
-    ],
-  },
+  { eyebrow: "01 · Человек", title: "Кого поздравляем?", values: [["her", "Её"], ["him", "Его"], ["kids", "Ребёнка"], ["mom", "Маму"], ["friend", "Подругу"]] },
+  { eyebrow: "02 · Повод", title: "Что происходит?", values: [["birthday", "День рождения"], ["love", "Хочу сказать «люблю»"], ["any", "Просто порадовать"], ["baby", "Baby reveal"]] },
+  { eyebrow: "03 · Настроение", title: "Как это должно ощущаться?", values: [["PINK_MILK", "Нежно"], ["PINK_CHROME", "С эффектом вау"], ["MILK", "Спокойно"], ["BLACK_CHROME", "Графично"]] },
+  { eyebrow: "04 · Бюджет", title: "Какую рамку держим?", values: [["5000", "До 5 000 ₽"], ["7500", "До 7 500 ₽"], ["any", "Можно гибко"]] },
 ] as const;
 
-const proof = [
-  ["01", "Вы присылаете контекст", "Кого поздравляем, повод, настроение и бюджет."],
-  ["02", "WINK собирает решение", "Не сотню позиций — максимум два варианта, которые подходят под задачу."],
-  ["03", "Вы делаете подарок личным", "Цвет, цифра, надпись и нужные дополнения — только после выбора основы."],
-  ["04", "Мы подтверждаем доставку", "Дата, адрес и полная сумма согласуются до оплаты."],
+const orderSteps = [
+  ["01", "Запрос", "Вы отвечаете на четыре вопроса или выбираете готовую композицию."],
+  ["02", "Решение", "WINK помогает сузить выбор и фиксирует персональные детали."],
+  ["03", "Подтверждение", "До оплаты согласуем дату, адрес, доставку и итоговую сумму."],
+  ["04", "Готово", "Привозим собранную композицию к нужному моменту."],
 ] as const;
 
 const faq = [
-  ["Мне нужно сегодня. Это реально?", "Иногда да. Напишите WINK до оформления — быстро скажем, что можно собрать и доставить к нужному времени."],
-  ["Можно не звонить получателю?", "Да. В оформлении есть режим сюрприза: организационные вопросы решаем с вами."],
-  ["Цена на сайте финальная?", "Цена выбранной композиции и персонализации видна сразу. Доставка считается отдельно и подтверждается до оплаты."],
-  ["Если я вообще не понимаю, что красиво?", "Для этого и существует WINK MATCH. Четыре ответа — и мы сужаем выбор до двух решений."],
+  ["Мне нужно сегодня. Реально?", "Иногда да. Напишите WINK до оформления — быстро скажем, что можно собрать и доставить к нужному времени."],
+  ["Можно сохранить сюрприз?", "Да. В оформлении можно указать, что получателю не нужно звонить заранее. Организационные детали решим с вами."],
+  ["Цена на сайте финальная?", "Цена композиции и персонализации видна сразу. Доставка рассчитывается отдельно и подтверждается до оплаты."],
+  ["Я не понимаю, что выбрать", "Для этого есть WINK MATCH. Четыре коротких ответа — и мы оставляем максимум два подходящих решения."],
 ] as const;
 
-function V3Product({ product, index = 0 }: { product: Product; index?: number }) {
+function V5Product({ product, index = 0, featured = false }: { product: Product; index?: number; featured?: boolean }) {
   return (
     <motion.article
-      className="wv3-product"
+      className={`wv5-product${featured ? " featured" : ""}`}
       initial={{ opacity: 0, y: 34 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.8, delay: index * 0.08, ease: EASE }}
+      viewport={{ once: true, amount: 0.16 }}
+      transition={{ duration: 0.75, delay: index * 0.06, ease: EASE }}
     >
-      <Link className="wv3-product-image" href={productHref(product.slug)}>
-        <Image
-          src={productImage(product)}
-          alt={`Композиция ${product.subtitle}`}
-          fill
-          unoptimized
-          sizes="(max-width: 760px) 86vw, 31vw"
-        />
-        <span className="wv3-product-index">0{index + 1}</span>
+      <Link className="wv5-product-media" href={productHref(product.slug)}>
+        <Image src={productImage(product)} alt={`Композиция ${product.subtitle}`} fill unoptimized sizes={featured ? "(max-width: 760px) 88vw, 52vw" : "(max-width: 760px) 78vw, 30vw"} />
+        <span>0{index + 1}</span>
       </Link>
-      <div className="wv3-product-meta">
-        <div>
-          <p>{FAMILY_NAMES[product.name] || product.name}</p>
-          <h3>{product.subtitle}</h3>
-        </div>
-        <div>
-          <strong>{money(displayPrice(product))}</strong>
-          <Link href={productHref(product.slug)} aria-label={`Открыть ${product.subtitle}`}>
-            <ShopIcon name="arrow" />
-          </Link>
-        </div>
+      <div className="wv5-product-copy">
+        <div><p>{FAMILY_NAMES[product.name] || product.name}</p><h3>{product.subtitle}</h3></div>
+        <div className="wv5-product-action"><strong>{money(displayPrice(product))}</strong><Link href={productHref(product.slug)}>Подробнее <ShopIcon name="arrow" /></Link></div>
       </div>
     </motion.article>
   );
@@ -117,59 +67,30 @@ export default function WinkHome2026() {
   const { catalog } = useWinkCatalog();
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
-  const matchRef = useRef<HTMLElement>(null);
+  const finderRef = useRef<HTMLElement>(null);
+  const personalRef = useRef<HTMLElement>(null);
   const [answers, setAnswers] = useState<string[]>([]);
-  const [matchKey, setMatchKey] = useState(0);
 
-  const { scrollYProgress: heroProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroImageY = useTransform(heroProgress, [0, 1], [0, 70]);
-  const heroImageScale = useTransform(heroProgress, [0, 1], [1, 1.06]);
-  const heroWordY = useTransform(heroProgress, [0, 1], [0, -60]);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroMediaY = useTransform(heroProgress, [0, 1], [0, 68]);
+  const heroMediaScale = useTransform(heroProgress, [0, 1], [1, 1.045]);
+  const heroCopyY = useTransform(heroProgress, [0, 1], [0, -28]);
+  const { scrollYProgress: personalProgress } = useScroll({ target: personalRef, offset: ["start end", "end start"] });
+  const personalY = useTransform(personalProgress, [0, 1], [-24, 34]);
 
-  const startPrice = catalog.products.length
-    ? Math.min(...catalog.products.map((product) => displayPrice(product)))
-    : 0;
-
-  const edit = useMemo(() => {
-    const slugs = ["air16", "birthday16-2", "hearts7"];
-    return slugs
-      .map((slug) => catalog.products.find((product) => product.slug === slug))
-      .filter((product): product is Product => Boolean(product));
-  }, [catalog.products]);
+  const edit = useMemo(() => ["air16", "birthday16-2", "hearts7"].map((slug) => catalog.products.find((product) => product.slug === slug)).filter((product): product is Product => Boolean(product)), [catalog.products]);
 
   const recommendations = useMemo(() => {
     if (answers.length !== 4) return [];
     const [recipient, occasion, palette, budget] = answers;
     return rankFinderCandidates(
       catalog.products
-        .filter(
-          (product) =>
-            budgetMatches(displayPrice(product, palette), budget) &&
-            (product.name === "HEARTS" ||
-              product.name === "BABY REVEAL" ||
-              paletteIds(product).includes(palette)) &&
-            (occasion === "baby"
-              ? product.name === "BABY REVEAL"
-              : product.name !== "BABY REVEAL"),
-        )
+        .filter((product) => budgetMatches(displayPrice(product, palette), budget) && (product.name === "HEARTS" || product.name === "BABY REVEAL" || paletteIds(product).includes(palette)) && (occasion === "baby" ? product.name === "BABY REVEAL" : product.name !== "BABY REVEAL"))
         .map((product) => ({
           item: product,
           signals: {
-            recipientMatch:
-              recipient === "kids"
-                ? Number(product.name === "BIRTHDAY")
-                : recipient === "him"
-                  ? Number(["AIR", "BIRTHDAY", "MESSAGE"].includes(product.name))
-                  : 1,
-            occasionMatch:
-              occasion === "birthday"
-                ? Number(product.name === "BIRTHDAY")
-                : occasion === "love"
-                  ? Number(["LOVE", "HEARTS", "MESSAGE"].includes(product.name))
-                  : 1,
+            recipientMatch: recipient === "kids" ? Number(product.name === "BIRTHDAY") : recipient === "him" ? Number(["AIR", "BIRTHDAY", "MESSAGE"].includes(product.name)) : 1,
+            occasionMatch: occasion === "birthday" ? Number(product.name === "BIRTHDAY") : occasion === "love" ? Number(["LOVE", "HEARTS", "MESSAGE"].includes(product.name)) : 1,
             vibeMatch: 0,
             budgetFit: 1,
             bestseller: Boolean(product.bestseller),
@@ -181,199 +102,94 @@ export default function WinkHome2026() {
     ).map((result) => result.item);
   }, [answers, catalog.products]);
 
-  const step = Math.min(answers.length, questions.length - 1);
   const completed = answers.length === questions.length;
+  const step = Math.min(answers.length, questions.length - 1);
+  const startPrice = catalog.products.length ? Math.min(...catalog.products.map((product) => displayPrice(product))) : 0;
 
   function startMatch() {
     setAnswers([]);
-    setMatchKey((value) => value + 1);
-    matchRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    finderRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
   return (
-    <main className="wv3-home">
-      <section className="wv3-hero" ref={heroRef} aria-labelledby="wv3-title">
-        <div className="wv3-hero-copy">
-          <p className="wv3-label">WINK / Кемерово / gifting studio</p>
-          <motion.h1 id="wv3-title" style={reducedMotion ? undefined : { y: heroWordY }}>
-            Важный повод.
-            <br />
-            <em>Красивый жест.</em>
-            <br />
-            Без мучительного выбора.
-          </motion.h1>
-          <div className="wv3-hero-cta">
-            <p>
-              Скажите, кого поздравляем, повод и бюджет. WINK предложит два точных решения,
-              персонализирует и согласует доставку.
-            </p>
-            <button type="button" className="wv3-button dark" onClick={startMatch}>
-              Подобрать подарок <ShopIcon name="arrow" />
-            </button>
+    <main className="wv5-home">
+      <section className="wv5-hero" ref={heroRef} aria-labelledby="wv5-title">
+        <motion.div className="wv5-hero-copy" style={reducedMotion ? undefined : { y: heroCopyY }}>
+          <p className="wv5-kicker">WINK / gifting studio / Кемерово</p>
+          <h1 id="wv5-title">Красиво поздравить — <span>без долгого выбора.</span></h1>
+          <div className="wv5-hero-bottom">
+            <p>Четыре ответа — и WINK покажет максимум два решения, которые подходят человеку, поводу и бюджету.</p>
+            <div className="wv5-hero-actions">
+              <button type="button" className="wv5-button primary" onClick={startMatch}>Подобрать за 4 ответа <ShopIcon name="arrow" /></button>
+              <Link className="wv5-button ghost" href="/shop">Смотреть коллекцию</Link>
+            </div>
             {startPrice > 0 && <small>Композиции от {money(startPrice)} · доставка отдельно</small>}
           </div>
-        </div>
-
-        <motion.div
-          className="wv3-hero-stage"
-          style={reducedMotion ? undefined : { y: heroImageY, scale: heroImageScale }}
-        >
-          <Image
-            src={IMAGES.air}
-            alt="Воздушная композиция WINK в светлом интерьере"
-            fill
-            priority
-            unoptimized
-            sizes="(max-width: 820px) 100vw, 56vw"
-          />
-          <span className="wv3-stage-caption">AIR / готовое поздравление</span>
         </motion.div>
-        <Link href="/shop" className="wv3-hero-shop">Все решения ↗</Link>
+        <motion.figure className="wv5-hero-media" style={reducedMotion ? undefined : { y: heroMediaY, scale: heroMediaScale }}>
+          <Image src={IMAGES.air} alt="Воздушная композиция WINK" fill priority unoptimized sizes="(max-width: 820px) 100vw, 58vw" />
+          <figcaption><span>AIR / готовое поздравление</span><span>01 / WINK EDIT</span></figcaption>
+        </motion.figure>
       </section>
 
-      <section className="wv3-statement" aria-label="Позиционирование WINK">
-        <p>Не магазин, где надо стать экспертом по шарам.</p>
-        <h2>WINK — это человек с хорошим вкусом, который <em>уже сократил выбор за вас.</em></h2>
-        <span>Контекст → 2 решения → личная деталь → доставка</span>
+      <section className="wv5-position" aria-label="Что такое WINK">
+        <div><p className="wv5-kicker">Не каталог ради каталога</p><h2>Не нужно становиться экспертом по шарам, чтобы <span>сделать красивый подарок.</span></h2></div>
+        <div className="wv5-position-notes"><p>Мы уже собрали сочетания, которые работают.</p><p>Вы добавляете человека, повод и личную деталь.</p><p>Доставка и итоговая сумма подтверждаются до оплаты.</p></div>
       </section>
 
-      <section className="wv3-match" id="finder" ref={matchRef} aria-labelledby="wv3-match-title">
-        <div className="wv3-match-intro">
-          <p className="wv3-label">WINK MATCH / 4 ответа</p>
-          <h2 id="wv3-match-title">Не листайте каталог. Дайте нам контекст.</h2>
-          <p>В конце — не больше двух вариантов. Потому что хороший сервис уменьшает неопределённость, а не добавляет её.</p>
+      <section className="wv5-match" id="finder" ref={finderRef} aria-labelledby="wv5-match-title">
+        <div className="wv5-match-intro">
+          <p className="wv5-kicker">WINK MATCH / главный сценарий</p>
+          <h2 id="wv5-match-title">Дайте нам контекст. <span>Мы сократим выбор.</span></h2>
+          <p>Не бесконечная лента товаров, а четыре коротких решения. В финале — максимум два варианта.</p>
+          <div className="wv5-match-counter" aria-hidden="true">0{Math.min(answers.length + 1, 4)} / 04</div>
         </div>
-
-        <div className="wv3-match-console" key={matchKey}>
-          <div className="wv3-match-progress" aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}>
-            {[0, 1, 2, 3].map((item) => (
-              <i key={item} className={item < answers.length ? "done" : item === answers.length ? "active" : ""} />
-            ))}
-          </div>
-
+        <div className="wv5-match-panel">
+          <div className="wv5-progress" aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}>{[0, 1, 2, 3].map((item) => <i key={item} className={item < answers.length ? "done" : item === answers.length ? "active" : ""} />)}</div>
           {!completed ? (
-            <motion.div
-              className="wv3-question"
-              key={answers.length}
-              initial={reducedMotion ? false : { opacity: 0, y: 26 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: EASE }}
-            >
-              <p>{questions[step].eyebrow}</p>
-              <h3>{questions[step].title}</h3>
-              <div className="wv3-options">
-                {questions[step].values.map(([value, label]) => (
-                  <button
-                    type="button"
-                    key={value}
-                    onClick={() => setAnswers((current) => [...current, value])}
-                  >
-                    <span>{label}</span><ShopIcon name="arrow" />
-                  </button>
-                ))}
-              </div>
-              {answers.length > 0 && (
-                <button type="button" className="wv3-back" onClick={() => setAnswers((current) => current.slice(0, -1))}>
-                  ← Назад
-                </button>
-              )}
+            <motion.div className="wv5-question" key={answers.length} initial={reducedMotion ? false : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: EASE }}>
+              <p>{questions[step].eyebrow}</p><h3>{questions[step].title}</h3>
+              <div className="wv5-options">{questions[step].values.map(([value, label]) => <button type="button" key={value} onClick={() => setAnswers((current) => [...current, value])}><span>{label}</span><ShopIcon name="arrow" /></button>)}</div>
+              {answers.length > 0 && <button type="button" className="wv5-back" onClick={() => setAnswers((current) => current.slice(0, -1))}>← Назад</button>}
             </motion.div>
           ) : (
-            <motion.div
-              className="wv3-results"
-              initial={reducedMotion ? false : { opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: EASE }}
-            >
-              <div className="wv3-results-head">
-                <div><p>WINK MATCH / результат</p><h3>Вот с чего мы бы начали.</h3></div>
-                <button type="button" onClick={() => setAnswers([])}>Пройти заново</button>
-              </div>
-              {recommendations.length ? (
-                <div className="wv3-result-grid">
-                  {recommendations.map((product, index) => <V3Product key={product.slug} product={product} index={index} />)}
-                </div>
-              ) : (
-                <div className="wv3-no-result">
-                  <h3>В эту рамку сейчас не помещается решение, которым мы довольны.</h3>
-                  <Link href="/shop">Посмотреть все готовые решения →</Link>
-                </div>
-              )}
+            <motion.div className="wv5-results" initial={reducedMotion ? false : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, ease: EASE }}>
+              <div className="wv5-results-head"><div><p>WINK MATCH / результат</p><h3>Начните с этих вариантов.</h3></div><button type="button" onClick={() => setAnswers([])}>Пройти заново</button></div>
+              {recommendations.length ? <div className="wv5-result-grid">{recommendations.map((product, index) => <V5Product key={product.slug} product={product} index={index} />)}</div> : <div className="wv5-empty"><p>В этой рамке сейчас нет решения, которое мы готовы рекомендовать.</p><Link href="/shop">Посмотреть всю коллекцию →</Link></div>}
             </motion.div>
           )}
         </div>
       </section>
 
-      <section className="wv3-edit" aria-labelledby="wv3-edit-title">
-        <header>
-          <p className="wv3-label">THE WINK EDIT / готовые решения</p>
-          <h2 id="wv3-edit-title">Три сценария, которые уже собраны правильно.</h2>
-          <Link href="/shop">Смотреть весь каталог ↗</Link>
-        </header>
-        <div className="wv3-edit-grid">
-          {edit.map((product, index) => <V3Product key={product.slug} product={product} index={index} />)}
+      <section className="wv5-edit" aria-labelledby="wv5-edit-title">
+        <header><div><p className="wv5-kicker">The WINK edit / 03 решения</p><h2 id="wv5-edit-title">Готовые сценарии, <span>не товарная стена.</span></h2></div><Link href="/shop">Вся коллекция <ShopIcon name="arrow" /></Link></header>
+        <div className="wv5-edit-grid">{edit.map((product, index) => <V5Product key={product.slug} product={product} index={index} featured={index === 0} />)}</div>
+        <p className="wv5-visual-note">Фото показывают настроение коллекций. Точный состав и количество шаров указаны в карточке каждой композиции.</p>
+      </section>
+
+      <section className="wv5-personal" ref={personalRef} aria-labelledby="wv5-personal-title">
+        <motion.figure className="wv5-personal-media" style={reducedMotion ? undefined : { y: personalY }}><Image src={IMAGES.birthday} alt="Композиция WINK с цифрами ко дню рождения" fill unoptimized sizes="(max-width: 760px) 100vw, 52vw" /></motion.figure>
+        <div className="wv5-personal-copy">
+          <p className="wv5-kicker">Личная деталь / не конструктор ради конструктора</p><h2 id="wv5-personal-title">Подарок становится вашим <span>после одной точной детали.</span></h2>
+          <p>Основа уже собрана дизайнером. После выбора добавьте только то, что делает её про вашего человека.</p>
+          <div className="wv5-personal-list"><div><span>01</span><strong>Цифра</strong><p>Возраст или дата, которая значит больше, чем просто число.</p></div><div><span>02</span><strong>Надпись</strong><p>Короткая фраза — без необходимости придумывать весь дизайн.</p></div><div><span>03</span><strong>Палитра</strong><p>Готовые сочетания вместо десятков случайных оттенков.</p></div></div>
+          <Link className="wv5-inline-link" href="/build">Посмотреть персонализацию <ShopIcon name="arrow" /></Link>
         </div>
       </section>
 
-      <section className="wv3-personal" aria-labelledby="wv3-personal-title">
-        <div className="wv3-personal-image main">
-          <Image src={IMAGES.birthday} alt="Композиция WINK с цифрами ко дню рождения" fill unoptimized sizes="(max-width: 820px) 100vw, 58vw" />
-        </div>
-        <div className="wv3-personal-copy">
-          <p className="wv3-label">Сделать личным</p>
-          <h2 id="wv3-personal-title">Основа уже красивая. Теперь добавьте <em>вашего человека.</em></h2>
-          <p>Возраст, короткая надпись, спокойная или контрастная палитра. Персонализация не должна превращать подарок в конструктор из двадцати решений.</p>
-          <Link className="wv3-button light" href="/build">Персонализировать <ShopIcon name="arrow" /></Link>
-        </div>
-        <div className="wv3-personal-image detail" aria-hidden="true">
-          <Image src={IMAGES.hearts} alt="" fill unoptimized sizes="26vw" />
-        </div>
+      <section className="wv5-proof" aria-labelledby="wv5-proof-title">
+        <header><p className="wv5-kicker">Что будет после кнопки «Оформить»</p><h2 id="wv5-proof-title">Понятный процесс <span>до оплаты.</span></h2></header>
+        <div className="wv5-proof-table">{orderSteps.map(([n, title, text]) => <article key={n}><span>{n}</span><h3>{title}</h3><p>{text}</p><i>↘</i></article>)}</div>
       </section>
 
-      <section className="wv3-proof" aria-labelledby="wv3-proof-title">
-        <div className="wv3-proof-head">
-          <p className="wv3-label">Как это работает</p>
-          <h2 id="wv3-proof-title">Красивый результат — это не магия. Это четыре понятных шага.</h2>
-        </div>
-        <div className="wv3-proof-list">
-          {proof.map(([number, title, text], index) => (
-            <motion.article
-              key={number}
-              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.45 }}
-              transition={{ duration: 0.65, delay: index * 0.05, ease: EASE }}
-            >
-              <span>{number}</span><h3>{title}</h3><p>{text}</p>
-            </motion.article>
-          ))}
-        </div>
+      <section className="wv5-faq" aria-labelledby="wv5-faq-title">
+        <div><p className="wv5-kicker">Без мелкого шрифта</p><h2 id="wv5-faq-title">Перед первым WINK.</h2></div>
+        <div className="wv5-faq-list">{faq.map(([q, a], index) => <details key={q} open={index === 0}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div>
       </section>
 
-      <section className="wv3-faq" aria-labelledby="wv3-faq-title">
-        <div>
-          <p className="wv3-label">Перед заказом</p>
-          <h2 id="wv3-faq-title">То, что обычно хочется спросить до оплаты.</h2>
-        </div>
-        <div className="wv3-faq-list">
-          {faq.map(([question, answer]) => (
-            <details key={question}>
-              <summary>{question}<span>+</span></summary>
-              <p>{answer}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <section className="wv3-close" aria-labelledby="wv3-close-title">
-        <div className="wv3-close-image" aria-hidden="true">
-          <Image src={IMAGES.hearts} alt="" fill unoptimized sizes="100vw" />
-        </div>
-        <div className="wv3-close-copy">
-          <p className="wv3-label">WINK / Кемерово</p>
-          <h2 id="wv3-close-title">Скажите, кого хочется порадовать. <em>Остальное соберём.</em></h2>
-          <button className="wv3-button light" type="button" onClick={startMatch}>Начать подбор <ShopIcon name="arrow" /></button>
-        </div>
+      <section className="wv5-close" aria-labelledby="wv5-close-title">
+        <figure><Image src={IMAGES.hearts} alt="Композиция WINK с сердцами" fill unoptimized sizes="100vw" /></figure>
+        <div className="wv5-close-copy"><p className="wv5-kicker">Есть человек. Есть повод.</p><h2 id="wv5-close-title">Остальное <span>соберём.</span></h2><div><button type="button" className="wv5-button primary" onClick={startMatch}>Подобрать подарок <ShopIcon name="arrow" /></button><Link className="wv5-button light" href="/shop">Смотреть готовые решения</Link></div></div>
       </section>
     </main>
   );
