@@ -57,18 +57,15 @@ export default function WinkAnalytics2026() {
       if (!(e.target instanceof Element)) return;
       const link = e.target.closest("a");
       const href = link?.getAttribute("href") || "";
+      const finderTrigger = e.target.closest("[data-wink-finder-open]");
       if (href.includes("/product/"))
         trackWink({ event: "product_click", product_slug: slug(href) });
-      else if (href.includes("#finder")) trackWink({ event: "finder_open" });
+      else if (href.includes("#finder") || finderTrigger)
+        trackWink({ event: "finder_open" });
     };
     const onAdd = (event: Event) => {
-      const detail = (event as CustomEvent<{ slug: string; price: number }>)
-        .detail;
-      trackWink({
-        event: "add_to_cart",
-        product_slug: detail.slug,
-        value: detail.price,
-      });
+      const detail = (event as CustomEvent<{ slug: string; price: number }>).detail;
+      trackWink({ event: "add_to_cart", product_slug: detail.slug, value: detail.price });
     };
     const onOrder = (event: Event) => {
       const detail = (event as CustomEvent<{ value: number }>).detail;
@@ -94,11 +91,7 @@ export default function WinkAnalytics2026() {
         ].includes(d.event_name)
       )
         return;
-      trackWink({
-        event: d.event_name,
-        addon_id: d.addon_id,
-        product_slug: d.main_slug,
-      });
+      trackWink({ event: d.event_name, addon_id: d.addon_id, product_slug: d.main_slug });
       void fetch(`${API_URL}/api/addons/events`, {
         method: "POST",
         headers: { "content-type": "application/json" },
