@@ -1,0 +1,29 @@
+/* WINK V4 — rendered-artifact audit fixes. */
+
+/* The unoptimized Next <Image> keeps absolute /images paths. GitHub Pages lives
+   under /ru, so use the exported campaign artwork as a CSS surface at the real
+   production base path. The img remains semantic-empty and is hidden. */
+.wv4-hero-art{
+  background:url("/ru/images/wink-v4-hero.svg") center/cover no-repeat;
+}
+.wv4-hero-art>img{visibility:hidden!important}
+.wv4-personal-art{
+  background:url("/ru/images/wink-v4-detail.svg") center/cover no-repeat;
+}
+.wv4-personal-art>img{visibility:hidden!important}
+
+@media (max-width:760px){
+  /* The longest Russian prompt must fit without clipping on a 390px viewport. */
+  .wv4-question>h3{
+    font-size:clamp(36px,10.2vw,43px);
+    line-height:.86;
+    letter-spacing:-.065em;
+  }
+
+  /* Closing word is a poster, not accidental horizontal crop. */
+  .wv4-close h2{
+    font-size:clamp(74px,20.8vw,84px);
+    line-height:.72;
+    letter-spacing:-.085em;
+  }
+}
