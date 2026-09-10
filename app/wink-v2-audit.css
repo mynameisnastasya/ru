@@ -56,3 +56,11 @@
     right: 0;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  /* globals.css enables smooth scrolling on html; reset the root as well so anchor
+     navigation and keyboard jumps are immediate when the OS asks for less motion. */
+  html {
+    scroll-behavior: auto !important;
+  }
+}
