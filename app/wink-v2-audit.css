@@ -25,19 +25,46 @@
 }
 
 @media (max-width: 820px) {
-  /* First artifact review showed the image consuming ~61svh and pushing the full
-     proposition/CTA below the first mobile viewport. Image remains dominant, but
-     the promise now arrives inside the same initial reading moment. */
+  /* The first rendered pass let the photograph consume most of the mobile viewport.
+     Keep the editorial image moment, but make the promise and primary action arrive
+     before the fixed navigation. This exact proportion was re-rendered at 390x844. */
   .wv2-hero {
-    padding-top: min(49svh, 430px);
+    padding-top: min(30svh, 300px);
   }
 
   .wv2-hero-media {
-    height: min(49svh, 430px);
+    height: min(30svh, 300px);
   }
 
   .wv2-hero-inner {
     padding-top: 22px;
+  }
+
+  .wv2-hero h1 {
+    font-size: clamp(46px, 12.5vw, 62px);
+    line-height: 0.9;
+  }
+
+  .wv2-hero-bottom {
+    margin-top: 18px;
+    gap: 14px;
+  }
+
+  .wv2-hero-bottom > p {
+    font-size: 14.5px;
+    line-height: 1.4;
+  }
+
+  .wv2-hero-actions {
+    gap: 6px;
+  }
+
+  .wv2-hero-actions .wv2-button {
+    min-height: 46px;
+  }
+
+  .wv2-hero-actions .wv2-button.ghost {
+    min-height: 38px;
   }
 
   .wv2-proof {
