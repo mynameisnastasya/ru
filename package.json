@@ -11,6 +11,7 @@
     "test": "NODE_OPTIONS=--import=./scripts/runtime-shim.mjs vitest run --pool=threads --maxWorkers=1 --no-file-parallelism"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/instrument-serif": "^5.2.7",
     "@fontsource/inter": "^5.2.8",
