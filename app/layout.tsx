@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { WINK_DEMO } from "@/lib/wink-mode";
+import "@fontsource/cormorant-garamond/cyrillic-400.css";
+import "@fontsource/cormorant-garamond/cyrillic-400-italic.css";
+import "@fontsource/cormorant-garamond/latin-400.css";
+import "@fontsource/cormorant-garamond/latin-400-italic.css";
 import "@fontsource/instrument-serif/latin-400.css";
 import "@fontsource/ibm-plex-mono/cyrillic-400.css";
 import "@fontsource/ibm-plex-mono/latin-400.css";
