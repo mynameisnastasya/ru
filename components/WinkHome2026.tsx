@@ -6,6 +6,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { useMemo, useRef, useState } from "react";
 import {
   FAMILY_NAMES,
+  asset,
   budgetMatches,
   displayPrice,
   money,
@@ -206,7 +207,7 @@ export default function WinkHome2026() {
           aria-hidden="true"
         >
           <Image
-            src="/images/wink-v4-hero.svg"
+            src={asset("/images/wink-v4-hero.svg")}
             alt=""
             fill
             priority
@@ -389,7 +390,7 @@ export default function WinkHome2026() {
           transition={{ duration: 1.05, ease: EASE }}
         >
           <Image
-            src="/images/wink-v4-detail.svg"
+            src={asset("/images/wink-v4-detail.svg")}
             alt=""
             fill
             unoptimized
