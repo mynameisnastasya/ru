@@ -1,0 +1,12 @@
+/* WINK V5 — second visual QA pass. */
+@media (min-width:1001px){
+  .wv5-hero{grid-template-columns:46% 54%}
+  .wv5-hero-copy h1{font-size:clamp(64px,6.25vw,112px)}
+}
+
+@media (max-width:760px){
+  .wv5-hero-media{height:36svh;min-height:270px}
+  .wv5-hero-copy{padding-top:18px}
+  .wv5-hero-copy h1{font-size:clamp(47px,13.6vw,59px);margin:18px 0}
+  .wv5-hero-bottom>p{margin-bottom:14px}
+}
