@@ -1,425 +1,402 @@
 "use client";
-import Link from "next/link";
+
 import Image from "next/image";
+import Link from "next/link";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useMemo, useRef, useState } from "react";
 import {
   CONTACT_URL,
   IMAGES,
-  PALETTES,
   budgetMatches,
   displayPrice,
-  paletteIds,
   money,
-  Product,
+  paletteIds,
+  productHref,
+  productImage,
+  type Product,
 } from "@/lib/wink-shop";
-import { useWinkCatalog } from "@/lib/use-wink-catalog";
 import { rankFinderCandidates } from "@/lib/wink-finder";
-import { ProductCard, ShopIcon } from "./WinkShopUI";
+import { useWinkCatalog } from "@/lib/use-wink-catalog";
+import { ShopIcon } from "./WinkShopUI";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+const questions = [
+  {
+    label: "01 · Человек",
+    title: "Кого поздравляем?",
+    values: [
+      ["her", "Её"],
+      ["him", "Его"],
+      ["kids", "Ребёнка"],
+      ["mom", "Маму"],
+      ["friend", "Подругу"],
+    ],
+  },
+  {
+    label: "02 · Повод",
+    title: "Что за момент?",
+    values: [
+      ["birthday", "День рождения"],
+      ["love", "Хочу сказать «люблю»"],
+      ["any", "Просто порадовать"],
+      ["baby", "Baby reveal"],
+    ],
+  },
+  {
+    label: "03 · Настроение",
+    title: "Как должно ощущаться?",
+    values: [
+      ["PINK_MILK", "Нежно"],
+      ["PINK_CHROME", "С блеском"],
+      ["MILK", "Спокойно"],
+      ["BLACK_CHROME", "Графично"],
+    ],
+  },
+  {
+    label: "04 · Бюджет",
+    title: "Какую рамку держим?",
+    values: [
+      ["5000", "До 5 000 ₽"],
+      ["7500", "До 7 500 ₽"],
+      ["any", "Можно гибко"],
+    ],
+  },
+] as const;
+
+const trustRows = [
+  ["01", "Цена понятна до оформления", "Стоимость композиции и персонализации видна сразу. Доставку подтверждаем отдельно до оплаты."],
+  ["02", "Сюрприз можно сохранить", "Если получателю не нужно звонить заранее, отметьте это при оформлении — организационные вопросы решим с вами."],
+  ["03", "Детали подтверждаем до оплаты", "Дата, адрес, состав и итоговая сумма сначала согласуются. Только после этого заказ считается подтверждённым."],
+] as const;
+
+const faq = [
+  ["Мне нужно сегодня. Есть шанс?", "Иногда да. Напишите WINK до оформления — быстро проверим, что можно собрать и доставить к нужному времени."],
+  ["Можно поменять цвета?", "Да, если выбранная композиция поддерживает нужную палитру. Доступные сочетания показываем в карточке товара."],
+  ["Можно добавить цифру или надпись?", "Да. Для подходящих композиций персонализация добавляется после выбора основы — без необходимости собирать набор с нуля."],
+  ["Я вообще не понимаю, что выбрать", "Это нормальный сценарий. WINK MATCH задаст четыре вопроса и оставит максимум два подходящих варианта."],
+] as const;
+
+function EditCard({ product, index, large = false }: { product: Product; index: number; large?: boolean }) {
+  const reducedMotion = useReducedMotion();
+  return (
+    <motion.article
+      className={`wb5-edit-card${large ? " is-large" : ""}`}
+      initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: 0.7, delay: index * 0.06, ease: EASE }}
+    >
+      <Link className="wb5-edit-media" href={productHref(product.slug)}>
+        <Image
+          src={productImage(product)}
+          alt={`Композиция ${product.subtitle}`}
+          fill
+          unoptimized
+          sizes={large ? "(max-width: 760px) 88vw, 58vw" : "(max-width: 760px) 88vw, 36vw"}
+        />
+      </Link>
+      <div className="wb5-edit-meta">
+        <div>
+          <span>0{index + 1}</span>
+          <h3>{product.subtitle}</h3>
+        </div>
+        <div>
+          <strong>{money(displayPrice(product))}</strong>
+          <Link href={productHref(product.slug)} aria-label={`Открыть ${product.subtitle}`}>
+            Подробнее <ShopIcon name="arrow" />
+          </Link>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
 
 export default function WinkHome2026() {
   const { catalog } = useWinkCatalog();
-  const [occasion, setOccasion] = useState("Все");
+  const reducedMotion = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const finderRef = useRef<HTMLElement>(null);
   const [answers, setAnswers] = useState<string[]>([]);
-  const finderHeading = useRef<HTMLHeadingElement>(null);
-  const questions = [
-    {
-      title: "Кого порадуем?",
-      values: [
-        ["her", "Её"],
-        ["him", "Его"],
-        ["kids", "Ребёнка"],
-        ["mom", "Маму"],
-        ["friend", "Подругу"],
-      ],
-    },
-    {
-      title: "По какому поводу?",
-      values: [
-        ["birthday", "День рождения"],
-        ["love", "Сказать «люблю»"],
-        ["any", "Просто так"],
-        ["baby", "Узнать пол малыша"],
-      ],
-    },
-    {
-      title: "Какое настроение?",
-      values: [
-        ["PINK_MILK", "Нежное"],
-        ["PINK_CHROME", "С блеском"],
-        ["MILK", "Спокойное"],
-        ["BLACK_CHROME", "Контрастное"],
-      ],
-    },
-    {
-      title: "Сколько потратим на композицию?",
-      values: [
-        ["5000", "До 5 000 ₽"],
-        ["7500", "До 7 500 ₽"],
-        ["any", "Посмотрю все цены"],
-      ],
-    },
-  ];
+  const [finderKey, setFinderKey] = useState(0);
+
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.045]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 26]);
+
+  const startPrice = catalog.products.length
+    ? Math.min(...catalog.products.map((product) => displayPrice(product)))
+    : 0;
+
+  const edit = useMemo(() => {
+    const slugs = ["birthday16-2", "hearts7", "air16"];
+    return slugs
+      .map((slug) => catalog.products.find((product) => product.slug === slug))
+      .filter((product): product is Product => Boolean(product));
+  }, [catalog.products]);
+
   const recommendations = useMemo(() => {
     if (answers.length !== 4) return [];
-    const [recipient, event, palette, budget] = answers;
+    const [recipient, occasion, palette, budget] = answers;
     return rankFinderCandidates(
       catalog.products
         .filter(
-          (p) =>
-            budgetMatches(displayPrice(p, palette), budget) &&
-            (p.name === "HEARTS" ||
-              p.name === "BABY REVEAL" ||
-              paletteIds(p).includes(palette)) &&
-            (event === "baby"
-              ? p.name === "BABY REVEAL"
-              : p.name !== "BABY REVEAL"),
+          (product) =>
+            budgetMatches(displayPrice(product, palette), budget) &&
+            (product.name === "HEARTS" || product.name === "BABY REVEAL" || paletteIds(product).includes(palette)) &&
+            (occasion === "baby" ? product.name === "BABY REVEAL" : product.name !== "BABY REVEAL"),
         )
-        .map((p) => ({
-          item: p,
+        .map((product) => ({
+          item: product,
           signals: {
             recipientMatch:
               recipient === "kids"
-                ? Number(p.name === "BIRTHDAY")
+                ? Number(product.name === "BIRTHDAY")
                 : recipient === "him"
-                  ? Number(["AIR", "BIRTHDAY", "MESSAGE"].includes(p.name))
+                  ? Number(["AIR", "BIRTHDAY", "MESSAGE"].includes(product.name))
                   : 1,
             occasionMatch:
-              event === "birthday"
-                ? Number(p.name === "BIRTHDAY")
-                : event === "love"
-                  ? Number(["LOVE", "HEARTS", "MESSAGE"].includes(p.name))
+              occasion === "birthday"
+                ? Number(product.name === "BIRTHDAY")
+                : occasion === "love"
+                  ? Number(["LOVE", "HEARTS", "MESSAGE"].includes(product.name))
                   : 1,
             vibeMatch: 0,
             budgetFit: 1,
-            bestseller: Boolean(p.bestseller),
+            bestseller: Boolean(product.bestseller),
             inStock: false,
             slotRisk: 0,
           },
         })),
       2,
-    ).map((r) => r.item);
-  }, [catalog.products, answers]);
-  const preferred = ["air16", "birthday16-2", "hearts7", "message16"];
-  const selection =
-    occasion === "Все"
-      ? preferred
-          .map((slug) => catalog.products.find((p) => p.slug === slug))
-          .filter((p): p is Product => Boolean(p))
-      : catalog.products
-          .filter((p) =>
-            occasion === "День рождения"
-              ? p.name === "BIRTHDAY"
-              : occasion === "С любовью"
-                ? ["LOVE", "HEARTS"].includes(p.name)
-                : p.name === "AIR",
-          )
-          .slice(0, 4);
+    ).map((result) => result.item);
+  }, [answers, catalog.products]);
+
+  const completed = answers.length === 4;
+  const step = Math.min(answers.length, 3);
+  const previewImage =
+    answers[1] === "birthday" || answers[0] === "kids"
+      ? IMAGES.birthday
+      : answers[1] === "love" || answers[0] === "her"
+        ? IMAGES.hearts
+        : IMAGES.air;
+
   function startFinder() {
     setAnswers([]);
+    setFinderKey((value) => value + 1);
     window.requestAnimationFrame(() => {
-      finderHeading.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      finderHeading.current?.focus({ preventScroll: true });
+      finderRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     });
   }
+
   return (
-    <main className="wk-home">
-      <section className="wk-hero wk-editorial-hero">
-        <div className="wk-hero-copy">
-          <p className="wk-eyebrow">Красиво поздравить · Кемерово</p>
-          <h1>
-            Дарите
-            <br />
-            <em>это чувство.</em>
-          </h1>
-          <p className="wk-hero-intro">
-            То самое «это всё для меня?». Воздушные композиции для людей,
-            которые вам особенно дороги.
-          </p>
-          <p className="wk-start-price">
-            Композиции от{" "}
-            <strong>
-              {money(Math.min(...catalog.products.map((p) => displayPrice(p))))}
-            </strong>
-          </p>
-          <div className="wk-actions">
-            <Link className="wk-button" href="/shop">
-              Найти свой WINK <ShopIcon name="arrow" />
-            </Link>
-            <button className="wk-text-button" onClick={startFinder}>
-              Помочь с выбором
-            </button>
+    <main className="wb5-home">
+      <section className="wb5-hero" ref={heroRef} aria-labelledby="wb5-title">
+        <div className="wb5-hero-copy">
+          <p className="wb5-kicker">WINK · gifting studio · Кемерово</p>
+          <h1 id="wb5-title">Подарок, который не надо придумывать.</h1>
+          <div className="wb5-hero-bottom">
+            <p>
+              Ответьте на четыре вопроса. Мы сократим выбор до двух готовых решений,
+              поможем сделать подарок личным и согласуем доставку.
+            </p>
+            <div className="wb5-actions">
+              <button type="button" className="wb5-button" onClick={startFinder} data-wink-finder-open>
+                Подобрать подарок <ShopIcon name="arrow" />
+              </button>
+              <Link className="wb5-text-link" href="/shop">Смотреть коллекцию</Link>
+            </div>
+            {startPrice > 0 && <small>Композиции от {money(startPrice)} · доставка отдельно</small>}
           </div>
-          <span className="wk-hero-note">
-            Вы выбираете повод. Мы помогаем сделать красиво.
-          </span>
         </div>
-        <figure className="wk-hero-image">
+        <motion.figure
+          className="wb5-hero-media"
+          style={reducedMotion ? undefined : { scale: heroScale, y: heroY }}
+        >
           <Image
             src={IMAGES.air}
-            alt="Визуализация воздушных композиций в залитой утренним светом комнате"
-            width={1536}
-            height={1024}
+            alt="Воздушная композиция WINK в светлом интерьере"
+            fill
             priority
             unoptimized
-            sizes="100vw"
+            sizes="(max-width: 820px) 100vw, 55vw"
           />
-          <figcaption>
-            <small>Визуализация настроения · WINK</small>
-          </figcaption>
-        </figure>
+          <figcaption>WINK AIR · готовое решение</figcaption>
+        </motion.figure>
       </section>
-      <div className="wk-service-strip">
-        <span>Готовые сочетания</span>
-        <span>Ваша цифра или надпись</span>
-        <span>Доставим собранными</span>
-      </div>
-      <section className="wk-section" id="selection">
-        <div className="wk-section-heading">
-          <div>
-            <p className="wk-eyebrow">The WINK edit / 01</p>
-            <h2>
-              Маленькая коллекция.
-              <br />
-              <em>Большие чувства.</em>
-            </h2>
-          </div>
-          <Link href="/shop" className="wk-text-link">
-            Все композиции <ShopIcon name="arrow" />
-          </Link>
-        </div>
-        <div className="wk-chips" aria-label="Подборка по поводу">
-          {["Все", "День рождения", "С любовью", "Просто так"].map((value) => (
-            <button
-              type="button"
-              key={value}
-              aria-pressed={occasion === value}
-              className={occasion === value ? "active" : ""}
-              onClick={() => setOccasion(value)}
-            >
-              {value}
-            </button>
-          ))}
-        </div>
-        <div className="wk-grid" aria-live="polite">
-          {selection.map((p) => (
-            <ProductCard key={p.slug} product={p} />
-          ))}
-        </div>
-        <p className="wk-image-note">
-          Изображения показывают настроение коллекций. Точное количество шаров и
-          детали — в составе каждого набора.
+
+      <section className="wb5-facts" aria-label="Как работает WINK">
+        <div><strong>4</strong><span>коротких ответа</span></div>
+        <div><strong>2</strong><span>варианта максимум</span></div>
+        <div><strong>1</strong><span>готовое поздравление</span></div>
+      </section>
+
+      <section className="wb5-intro" aria-labelledby="wb5-intro-title">
+        <p className="wb5-kicker">Не каталог ради каталога</p>
+        <h2 id="wb5-intro-title">Хороший сервис не даёт больше выбора. Он оставляет правильный.</h2>
+        <p>
+          Вам не нужно сравнивать десятки почти одинаковых наборов. WINK сначала понимает
+          человека и повод, потом показывает то, что действительно подходит.
         </p>
       </section>
-      <section className="wk-finder wk-section" id="finder">
-        <div>
-          <p className="wk-eyebrow">Можно без долгого выбора</p>
-          <h2 ref={finderHeading} tabIndex={-1}>
-            «Хочу красиво.
-            <br />
-            <em>Помогите выбрать».</em>
-          </h2>
-          <p>
-            Четыре коротких ответа — до двух композиций в вашем бюджете.
-            Доставка считается отдельно.
-          </p>
-        </div>
-        <div className="wk-finder-panel">
-          <div
-            className="wk-finder-progress"
-            aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}
-          >
-            {questions.map((q, i) => (
-              <span
-                className={i <= answers.length ? "active" : ""}
-                key={q.title}
-              />
-            ))}
+
+      <section className="wb5-finder" id="finder" ref={finderRef} aria-labelledby="wb5-finder-title">
+        <div className="wb5-finder-intro">
+          <div>
+            <p className="wb5-kicker">WINK MATCH</p>
+            <h2 id="wb5-finder-title">Дайте контекст. Мы сделаем выбор короче.</h2>
           </div>
-          {answers.length < 4 ? (
-            <>
-              <span className="wk-eyebrow">0{answers.length + 1} / 04</span>
-              <h3>{questions[answers.length].title}</h3>
-              <div className="wk-finder-choices">
-                {questions[answers.length].values.map(([value, label]) => (
-                  <button
-                    key={value}
-                    onClick={() => setAnswers([...answers, value])}
-                  >
-                    {label}
-                    <ShopIcon name="arrow" />
-                  </button>
-                ))}
-              </div>
-              {answers.length > 0 && (
-                <button
-                  className="wk-text-button"
-                  onClick={() => setAnswers(answers.slice(0, -1))}
-                >
-                  Назад
-                </button>
-              )}
-            </>
-          ) : (
-            <div aria-live="polite">
-              <h3>Вот с чего можно начать.</h3>
-              <p>
-                {recommendations.length
-                  ? `${recommendations.length} ${recommendations.length === 1 ? "вариант" : "варианта"} под ваш запрос. Посмотрите детали ниже.`
-                  : "В этом бюджете подходящих наборов пока нет. Попробуйте другой бюджет или напишите нам."}
-              </p>
-              <button className="wk-text-button" onClick={() => setAnswers([])}>
-                Подобрать заново
-              </button>
-              {!recommendations.length && (
-                <a className="wk-text-link" href={CONTACT_URL}>
-                  Написать нам
-                </a>
-              )}
+          <p>Четыре ответа занимают меньше минуты. В результате — максимум два решения.</p>
+        </div>
+
+        <div className="wb5-finder-stage" key={finderKey}>
+          <div className="wb5-finder-visual" aria-hidden="true">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={previewImage}
+                initial={reducedMotion ? false : { opacity: 0, scale: 1.025 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={reducedMotion ? undefined : { opacity: 0 }}
+                transition={{ duration: 0.55, ease: EASE }}
+              >
+                <Image src={previewImage} alt="" fill unoptimized sizes="(max-width: 760px) 100vw, 44vw" />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="wb5-finder-panel">
+            <div className="wb5-progress" aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}>
+              {[0, 1, 2, 3].map((index) => (
+                <span key={index} className={index < answers.length ? "done" : index === answers.length ? "active" : ""} />
+              ))}
             </div>
-          )}
-        </div>
-        {recommendations.length > 0 && (
-          <div className="wk-finder-results">
-            {recommendations.map((p) => (
-              <ProductCard key={p.slug} product={p} palette={answers[2]} />
-            ))}
+
+            {!completed ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  className="wb5-question"
+                  key={answers.length}
+                  initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reducedMotion ? undefined : { opacity: 0, y: -10 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                >
+                  <p>{questions[step].label}</p>
+                  <h3>{questions[step].title}</h3>
+                  <div className="wb5-options">
+                    {questions[step].values.map(([value, label]) => (
+                      <button type="button" key={value} onClick={() => setAnswers((current) => [...current, value])}>
+                        <span>{label}</span><ShopIcon name="arrow" />
+                      </button>
+                    ))}
+                  </div>
+                  {answers.length > 0 && (
+                    <button type="button" className="wb5-back" onClick={() => setAnswers((current) => current.slice(0, -1))}>
+                      ← Назад
+                    </button>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <motion.div
+                className="wb5-results"
+                initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE }}
+              >
+                <div className="wb5-results-head">
+                  <div><p>Результат WINK MATCH</p><h3>Вот с чего мы бы начали.</h3></div>
+                  <button type="button" onClick={() => setAnswers([])}>Пройти заново</button>
+                </div>
+                {recommendations.length ? (
+                  <div className="wb5-result-grid">
+                    {recommendations.map((product, index) => <EditCard key={product.slug} product={product} index={index} />)}
+                  </div>
+                ) : (
+                  <div className="wb5-empty-result">
+                    <p>В этой рамке сейчас нет решения, которым мы довольны.</p>
+                    <Link href="/shop">Посмотреть всю коллекцию</Link>
+                    <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">Написать WINK</a>
+                  </div>
+                )}
+              </motion.div>
+            )}
           </div>
-        )}
+        </div>
       </section>
-      <section className="wk-section wk-palettes">
-        <div className="wk-section-heading">
+
+      <section className="wb5-edit" aria-labelledby="wb5-edit-title">
+        <header>
           <div>
-            <p className="wk-eyebrow">Один набор — разное настроение</p>
-            <h2>
-              Найдите <em>свои оттенки.</em>
-            </h2>
+            <p className="wb5-kicker">The WINK edit</p>
+            <h2 id="wb5-edit-title">Готовые сценарии вместо бесконечной ленты.</h2>
           </div>
-          <p>Мы собрали сочетания. Вам осталось выбрать то самое.</p>
-        </div>
-        <div className="wk-palette-grid">
-          {["PINK_MILK", "PINK_CHROME", "MILK", "BLACK_CHROME"].map((id) => (
-            <Link
-              key={id}
-              href={`/shop/?palette=${id}`}
-              className="wk-palette-link"
-            >
-              <span className="wk-swatches">
-                {PALETTES[id].colors.map((c, i) => (
-                  <i key={i} style={{ background: c }} />
-                ))}
-              </span>
-              <span>{PALETTES[id].name}</span>
-              <ShopIcon name="arrow" />
-            </Link>
-          ))}
+          <Link href="/shop" className="wb5-text-link">Вся коллекция <ShopIcon name="arrow" /></Link>
+        </header>
+        <div className="wb5-edit-layout">
+          {edit.map((product, index) => <EditCard key={product.slug} product={product} index={index} large={index === 0} />)}
         </div>
       </section>
-      <section className="wk-story">
-        <figure>
-          <Image
-            src={IMAGES.birthday}
-            alt="Визуализация композиции с серебряными цифрами 25 и нежными шарами"
-            width={1024}
-            height={1536}
-            unoptimized
-            sizes="(max-width: 700px) 100vw, 50vw"
-          />
-          <figcaption>Вдохновение для дня рождения</figcaption>
-        </figure>
-        <div>
-          <p className="wk-eyebrow">Для того самого утра</p>
-          <h2>
-            «Ты это всё
-            <br />
-            <em>для меня?»</em>
-          </h2>
+
+      <section className="wb5-personal" aria-labelledby="wb5-personal-title">
+        <div className="wb5-personal-copy">
+          <p className="wb5-kicker">После выбора основы</p>
+          <h2 id="wb5-personal-title">Сделайте подарок именно про вашего человека.</h2>
           <p>
-            Цифры, которые что-то значат. Цвета, которые нравятся вашему
-            человеку. И ощущение: «обо мне подумали».
+            Важная цифра, короткая надпись, нужная палитра. Сначала выбираем сильную основу,
+            потом добавляем личные детали — поэтому результат остаётся цельным.
           </p>
-          <Link className="wk-button" href="/occasion/birthday">
-            Собрать день рождения <ShopIcon name="arrow" />
-          </Link>
-          <Link className="wk-text-link" href="/room">
-            Хочется оформить всю комнату?
-          </Link>
+          <Link className="wb5-button secondary" href="/build">Персонализировать <ShopIcon name="arrow" /></Link>
         </div>
-      </section>
-      <section className="wk-section wk-how">
-        <div className="wk-section-heading">
-          <div>
-            <p className="wk-eyebrow">Всего три шага</p>
-            <h2>
-              Вам остаётся <em>порадовать.</em>
-            </h2>
+        <figure className="wb5-personal-media">
+          <Image src={IMAGES.birthday} alt="Композиция WINK с серебряными цифрами" fill unoptimized sizes="(max-width: 760px) 100vw, 55vw" />
+          <div className="wb5-personal-tags" aria-hidden="true">
+            <span>цифра</span><span>надпись</span><span>палитра</span>
           </div>
-        </div>
-        <div className="wk-how-grid">
-          {[
-            [
-              "01",
-              "Выберите основу",
-              "Набор и палитру. Состав и цена — сразу в карточке.",
-            ],
-            [
-              "02",
-              "Добавьте личное",
-              "Важная цифра, надпись или акцент из бантов.",
-            ],
-            [
-              "03",
-              "Доверьте нам детали",
-              "Согласуем доставку и оплату. Соберём и привезём готовую композицию.",
-            ],
-          ].map(([n, title, text]) => (
-            <article key={n}>
-              <span>{n}</span>
+        </figure>
+      </section>
+
+      <section className="wb5-trust" aria-labelledby="wb5-trust-title">
+        <header>
+          <p className="wb5-kicker">До того, как вы платите</p>
+          <h2 id="wb5-trust-title">Никакой магии в важных деталях.</h2>
+        </header>
+        <div className="wb5-trust-rows">
+          {trustRows.map(([number, title, text]) => (
+            <article key={number}>
+              <span>{number}</span>
               <h3>{title}</h3>
               <p>{text}</p>
             </article>
           ))}
         </div>
       </section>
-      <section className="wk-section wk-faq">
+
+      <section className="wb5-faq" aria-labelledby="wb5-faq-title">
         <div>
-          <p className="wk-eyebrow">Перед вашим первым WINK</p>
-          <h2>
-            Пара <em>вопросов.</em>
-          </h2>
-          <a className="wk-text-link" href={CONTACT_URL}>
-            Можно просто написать нам <ShopIcon name="arrow" />
-          </a>
+          <p className="wb5-kicker">Перед первым WINK</p>
+          <h2 id="wb5-faq-title">То, что обычно спрашивают.</h2>
         </div>
-        <div>
-          {[
-            [
-              "Можно выбрать свою цифру?",
-              "Да. В карточке набора с цифрами укажите нужный возраст. Для одной цифры и двух цифр предусмотрены разные наборы и цены.",
-            ],
-            [
-              "Что входит в цену?",
-              "Состав указан в карточке: количество шаров, цифры или другие акценты, ленты, грузики и упаковка. Платные дополнения видны до добавления в корзину. Доставка оплачивается отдельно.",
-            ],
-            [
-              "Можно заказать сюрприз?",
-              "При оформлении выберите «Это подарок» и отметьте «Не звонить получателю». Организационные вопросы будем решать с вами.",
-            ],
-            [
-              "Когда и как оплатить?",
-              "После отправки заявки согласуем состав, доступную дату, стоимость доставки и способ оплаты. До подтверждения дата остаётся пожеланием.",
-            ],
-          ].map(([q, a]) => (
-            <details key={q}>
-              <summary>
-                {q}
-                <span>+</span>
-              </summary>
-              <p>{a}</p>
+        <div className="wb5-faq-list">
+          {faq.map(([question, answer]) => (
+            <details key={question}>
+              <summary><span>{question}</span><i>+</i></summary>
+              <p>{answer}</p>
             </details>
           ))}
+        </div>
+      </section>
+
+      <section className="wb5-close" aria-labelledby="wb5-close-title">
+        <figure>
+          <Image src={IMAGES.hearts} alt="Композиция WINK из фольгированных сердец" fill unoptimized sizes="100vw" />
+        </figure>
+        <div>
+          <p className="wb5-kicker">Если повод уже близко</p>
+          <h2 id="wb5-close-title">Не ищите идеальный набор. Дайте нам контекст.</h2>
+          <button type="button" className="wb5-button light" onClick={startFinder} data-wink-finder-open>
+            Получить 2 варианта <ShopIcon name="arrow" />
+          </button>
         </div>
       </section>
     </main>

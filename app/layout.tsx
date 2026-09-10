@@ -12,21 +12,22 @@ import "./globals.css";
 import "./wink-cleanup.css";
 import "./wink-storefront.css";
 import "./wink-editorial.css";
+import "./wink-v5.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
-  title: "WINK — воздушные шары с доставкой в Кемерово",
+  title: "WINK — подарок без долгого выбора | Кемерово",
   description:
-    "Готовые композиции из воздушных шаров в Кемерово. Выберите набор, палитру, цифры и личную надпись. Согласуем доставку к вашему моменту.",
+    "Ответьте на четыре вопроса — WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову.",
   openGraph: {
-    title: "WINK — когда надо красиво поздравить",
-    description: "Меньше выбора. Больше вкуса. Меньше хлопот. Больше эмоции.",
+    title: "WINK — подарок, который не надо придумывать",
+    description: "Четыре ответа. До двух вариантов. Персонализация и доставка по Кемерову.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F7F3EE",
+  themeColor: "#f6f4f0",
   colorScheme: "light",
 };
 
