@@ -58,8 +58,8 @@ export default function WinkPageFrame2026({
       </a>
       {!WINK_DEMO && (
         <div className="wk-announcement">
-          Красивые поздравления с доставкой по Кемерову{" "}
-          <span>Собираем с заботой о вашем моменте</span>
+          WINK — когда надо красиво поздравить{" "}
+          <span>Красивый результат без сложного выбора</span>
         </div>
       )}
       <header className="wk-header">
@@ -115,11 +115,11 @@ export default function WinkPageFrame2026({
             WINK<span>;</span>
           </Link>
           <p>
-            Когда хочется
+            Красивый результат
             <br />
-            сделать красиво.
+            без сложного выбора.
           </p>
-          <span>Шары и поздравления · Кемерово</span>
+          <span>Современные поздравления · Кемерово</span>
         </div>
         <div>
           <h2>Выбрать</h2>
@@ -139,14 +139,17 @@ export default function WinkPageFrame2026({
           <Link href="/corporate">Для компаний</Link>
         </div>
         <div className="wk-footer-contact">
-          <h2>Поможем выбрать</h2>
-          <p>Напишите, кого поздравляем и когда. Подскажем, с чего начать.</p>
+          <h2>Не хотите выбирать?</h2>
+          <p>
+            Назовите повод, дату и бюджет — предложим до двух вариантов и коротко
+            объясним разницу.
+          </p>
           <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
-            Написать в Telegram <ShopIcon name="arrow" />
+            Получить подбор <ShopIcon name="arrow" />
           </a>
         </div>
         <div className="wk-footer-bottom">
-          <span>WINK · С любовью к деталям</span>
+          <span>WINK · меньше выбора, больше вкуса</span>
           <Link href="/favorites">Сохранённые композиции</Link>
         </div>
       </footer>
@@ -191,7 +194,7 @@ export default function WinkPageFrame2026({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Помочь с выбором
+          Подобрать 2 варианта
         </a>
       </ShopDialog>
     </div>

@@ -8,25 +8,31 @@ import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
 import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
+import WinkMotionRuntime from "@/components/WinkMotionRuntime";
 import "./globals.css";
 import "./wink-cleanup.css";
 import "./wink-storefront.css";
 import "./wink-editorial.css";
+import "./wink-cinematic.css";
+import "./wink-cinematic-audit.css";
+import "./wink-motion-luxury.css";
+import "./wink-motion-runtime.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
-  title: "WINK — воздушные шары с доставкой в Кемерово",
+  title: "WINK — красивые поздравления с доставкой в Кемерово",
   description:
-    "Готовые композиции из воздушных шаров в Кемерово. Выберите набор, палитру, цифры и личную надпись. Согласуем доставку к вашему моменту.",
+    "Когда надо красиво поздравить: назовите повод, дату и бюджет — WINK поможет выбрать готовое решение, персонализировать его и согласовать доставку по Кемерову.",
   openGraph: {
     title: "WINK — когда надо красиво поздравить",
-    description: "Меньше выбора. Больше вкуса. Меньше хлопот. Больше эмоции.",
+    description:
+      "Красивый результат без сложного выбора. Меньше выбора. Больше вкуса. Меньше хлопот. Больше эмоции.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F7F3EE",
+  themeColor: "#F7F7F3",
   colorScheme: "light",
 };
 
@@ -37,6 +43,7 @@ export default function RootLayout({
     <html lang="ru">
       <body>
         <WinkAnalytics2026 />
+        <WinkMotionRuntime />
         {children}
       </body>
     </html>

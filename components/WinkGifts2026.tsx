@@ -20,9 +20,12 @@ export default function WinkGifts2026() {
     <WinkPageFrame2026>
       <main>
         <section className="wk-catalog-head">
-          <p className="wk-eyebrow">WINK / Подарки</p>
-          <h1>Дополнить подарок.</h1>
-          <p>Маленькие вещи, которые остаются с вами после праздника.</p>
+          <p className="wk-eyebrow">WINK / Дополнения</p>
+          <h1>Дополнение должно добавлять смысл, а не шум.</h1>
+          <p>
+            Личные детали, которые усиливают основной подарок, а не превращают
+            его в случайный набор.
+          </p>
           <div className="wk-chips">
             {[
               ["", "Все"],
@@ -43,20 +46,21 @@ export default function WinkGifts2026() {
         </section>
         <section className="wk-section">
           {loading ? (
-            <p aria-live="polite">Подбираем личные детали…</p>
+            <p aria-live="polite">Смотрим, что действительно подходит…</p>
           ) : items.length && catalog.checkout_enabled ? (
             <AddonCards catalog={catalog} items={items} standalone />
           ) : (
             <div className="wk-gifts-empty">
-              <p className="wk-eyebrow">Пусть будет по-вашему</p>
-              <h2>Начнём с самого личного.</h2>
+              <p className="wk-eyebrow">Сначала смысл</p>
+              <h2>Не добавляем ради добавления.</h2>
               <p>
-                Надпись на шаре, любимая палитра, акцент из бантов. Уже можно
-                выбрать то, что сделает поздравление вашим.
+                Надпись, палитра, бант или другой акцент имеет смысл только когда
+                делает поздравление личнее. Начните с композиции — доступные
+                дополнения покажем по месту.
               </p>
               <div className="wk-actions">
-                <Link href="/shop?format=MESSAGE" className="wk-button">
-                  Выбрать композицию
+                <Link href="/shop" className="wk-button">
+                  Выбрать основу
                 </Link>
                 <a
                   href={CONTACT_URL}
@@ -64,7 +68,7 @@ export default function WinkGifts2026() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Обсудить дополнения
+                  Обсудить деталь
                 </a>
               </div>
             </div>

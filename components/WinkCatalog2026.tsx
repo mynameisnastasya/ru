@@ -118,7 +118,7 @@ export default function WinkCatalog2026() {
           </select>
         </label>
         <label className="wk-field">
-          Бюджет на набор
+          Бюджет на подарок
           <select
             value={budget}
             onChange={(e) => update("budget", e.target.value)}
@@ -144,11 +144,12 @@ export default function WinkCatalog2026() {
     <WinkPageFrame2026>
       <main>
         <section className="wk-catalog-head">
-          <p className="wk-eyebrow">Коллекция WINK · Кемерово</p>
-          <h1>Выберите красивое.</h1>
+          <p className="wk-eyebrow">WINK · готовые решения · Кемерово</p>
+          <h1>Красивое уже отобрано.</h1>
           <p>
-            Готовые наборы для ваших людей. Откройте композицию, выберите
-            палитру и добавьте личную деталь.
+            Сначала выберите повод или формат. В карточке — точный состав, цена,
+            палитры и персонализация. Не хочется сравнивать — быстрый подбор
+            оставит до двух вариантов.
           </p>
           <div className="wk-chips">
             {[
@@ -193,7 +194,7 @@ export default function WinkCatalog2026() {
           )}
         </section>
         <div className="wk-catalog-toolbar">
-          <span aria-live="polite">{products.length} вариантов</span>
+          <span aria-live="polite">{products.length} решений</span>
           <label>
             Порядок{" "}
             <select
@@ -229,10 +230,10 @@ export default function WinkCatalog2026() {
           </div>
           {!products.length && (
             <div className="wk-empty">
-              <h2>Попробуем чуть иначе?</h2>
+              <h2>Не будем притягивать неподходящий вариант.</h2>
               <p>
-                С таким сочетанием условий наборов пока нет. Уберите один фильтр
-                — или доверьтесь нашему подбору.
+                С этим сочетанием условий готового решения пока нет. Уберите один
+                фильтр — или ответьте на четыре вопроса, и WINK сузит выбор за вас.
               </p>
               <button
                 className="wk-button"
@@ -241,14 +242,14 @@ export default function WinkCatalog2026() {
                 Сбросить фильтры
               </button>
               <Link className="wk-button secondary" href="/#finder">
-                Помочь с выбором
+                Подобрать 2 варианта
               </Link>
             </div>
           )}
           <p className="wk-image-note">
-            Визуализации передают настроение коллекций. Точный состав и
-            доступные цвета указаны в карточке набора. Доставка оплачивается
-            отдельно.
+            Изображения показывают визуальный характер коллекции, а не обещают
+            точную копию. Состав, количество и доступные оттенки фиксируем в
+            карточке. Доставка оплачивается отдельно.
           </p>
           {status === "reference" && (
             <p className="wk-status-note">
@@ -260,11 +261,11 @@ export default function WinkCatalog2026() {
         <ShopDialog
           open={filtersOpen}
           onClose={() => setFiltersOpen(false)}
-          title="Ваши пожелания"
+          title="Что важно для подарка"
         >
           {fields()}
           <button className="wk-button" onClick={() => setFiltersOpen(false)}>
-            Показать варианты · {products.length}
+            Показать решения · {products.length}
           </button>
         </ShopDialog>
       </main>
