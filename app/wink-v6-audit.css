@@ -1,0 +1,108 @@
+/* WINK V6 — mandatory second art-direction pass.
+   The goal is restraint: fewer repeated luxury cues, denser product rhythm,
+   better low-height desktop composition, and no extra runtime cost. */
+
+/* Keep the display serif rare. It should feel like a voice change, not a template preset. */
+.wv6-promise h2 em,
+.wv6-personal-panel h2 em,
+.wv6-certainty > header h2 em,
+.wv6-faq h2 em{
+  font-family:var(--wv6-sans);
+  font-style:normal;
+  font-weight:500;
+  letter-spacing:-.067em;
+}
+
+/* Product edit: one dominant object + two quieter supporting objects.
+   The first pass left a large accidental void in the lower-left of this scene. */
+@media (min-width:821px){
+  .wv6-edit{padding-bottom:108px}
+  .wv6-edit-grid{
+    grid-template-columns:minmax(0,1.62fr) minmax(320px,.72fr);
+    column-gap:clamp(42px,5.2vw,88px);
+    row-gap:0;
+    align-items:start;
+  }
+  .wv6-edit-grid > .wv6-product:first-child{
+    grid-column:1;
+    grid-row:1 / 3;
+  }
+  .wv6-edit-grid > .wv6-product:nth-child(2){
+    grid-column:2;
+    grid-row:1;
+  }
+  .wv6-edit-grid > .wv6-product:nth-child(3){
+    grid-column:2;
+    grid-row:2;
+    margin-top:54px;
+  }
+  .wv6-edit-grid > .wv6-product:not(:first-child) .wv6-product-media{
+    aspect-ratio:1 / 1;
+  }
+  .wv6-caption{margin-top:42px}
+
+  /* The hero must still finish inside a normal 900px laptop viewport. */
+  @media (max-height:920px){
+    .wv6-hero{
+      min-height:720px;
+      height:calc(100svh - 92px);
+    }
+    .wv6-hero-media{
+      top:11.2vw;
+      height:min(61svh,620px);
+    }
+    .wv6-hero-copy{bottom:22px}
+    .wv6-hero-copy h1{font-size:clamp(62px,6vw,102px)}
+    .wv6-hero-offer{padding:16px}
+  }
+}
+
+/* Quiet, tactile interaction — movement belongs to the image, not the card chrome. */
+.wv6-product-media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  border:1px solid rgba(14,14,13,.14);
+  pointer-events:none;
+  transition:border-color .35s var(--wv6-ease);
+}
+.wv6-product-media:hover::after{border-color:rgba(14,14,13,.38)}
+.wv6-product-buy a,
+.wv6-edit > header > a,
+.wv6-text-link{
+  transition:color .25s ease,border-color .25s ease,gap .35s var(--wv6-ease);
+}
+.wv6-product-buy a:hover,
+.wv6-edit > header > a:hover,
+.wv6-text-link:hover{
+  color:var(--wv6-berry);
+  gap:12px;
+}
+
+/* Make the sticky story feel intentional on short desktop screens instead of oversized. */
+@media (min-width:821px) and (max-height:760px){
+  .wv6-story-stage{height:100svh;padding:18px 24px}
+  .wv6-story-visual{height:82svh}
+  .wv6-story-copy header{min-height:70svh;padding-top:72px;padding-bottom:52px}
+  .wv6-story-steps article{min-height:52svh;padding:52px 0}
+}
+
+/* Mobile already has a separate sequence; keep it dense and touch-first. */
+@media (max-width:560px){
+  .wv6-edit{padding-bottom:78px}
+  .wv6-edit-grid{padding-bottom:8px}
+  .wv6-edit-grid > .wv6-product{flex-basis:82vw}
+  .wv6-product-media::after{border-color:rgba(14,14,13,.1)}
+  .wv6-promise h2 em,
+  .wv6-personal-panel h2 em,
+  .wv6-certainty > header h2 em,
+  .wv6-faq h2 em{letter-spacing:-.055em}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .wv6-product-buy a,
+  .wv6-edit > header > a,
+  .wv6-text-link,
+  .wv6-product-media::after{transition:none!important}
+}
