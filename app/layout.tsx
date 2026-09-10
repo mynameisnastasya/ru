@@ -25,28 +25,27 @@ import "./wink-v2-audit.css";
 import "./wink-v3.css";
 import "./wink-v3-font.css";
 import "./wink-v3-audit.css";
+import "./wink-v5.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
-  title: "WINK — красивые поздравления без сложного выбора | Кемерово",
+  title: "WINK — подарок без долгого выбора | Кемерово",
   description:
-    "Скажите, кого поздравляем, повод и бюджет. WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову до оплаты.",
+    "Ответьте на четыре вопроса — WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову до оплаты.",
   openGraph: {
-    title: "WINK — важный повод, красивый жест",
+    title: "WINK — красиво поздравить без долгого выбора",
     description:
-      "Два точных решения вместо бесконечного выбора. Персонализация и доставка по Кемерову.",
+      "Четыре ответа. Максимум два решения. Персонализация и доставка по Кемерову.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f7f7f4",
   colorScheme: "light",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
       <body>
