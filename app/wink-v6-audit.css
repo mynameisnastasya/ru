@@ -57,6 +57,26 @@
   }
 }
 
+/* Make the opening photograph read as a product object, not an apartment snapshot. */
+.wv6-hero-media img{
+  transform:scale(1.12);
+  transform-origin:center 43%;
+}
+
+/* One decision in the hero. The collection link is deliberately quieter. */
+.wv6-hero-offer .wv6-actions .wv6-button:not(.is-primary){
+  border:0;
+  min-height:36px;
+  padding:0;
+  width:auto;
+  justify-self:start;
+  justify-content:flex-start;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:5px;
+  color:var(--wv6-muted);
+}
+
 /* Quiet, tactile interaction — movement belongs to the image, not the card chrome. */
 .wv6-product-media::after{
   content:"";
@@ -98,6 +118,11 @@
   .wv6-personal-panel h2 em,
   .wv6-certainty > header h2 em,
   .wv6-faq h2 em{letter-spacing:-.055em}
+  .wv6-hero-media img{
+    transform:scale(1.06);
+    transform-origin:center 42%;
+  }
+  .wv6-hero-offer .wv6-actions .wv6-button:not(.is-primary){min-height:32px}
 }
 
 @media (prefers-reduced-motion:reduce){
