@@ -6,7 +6,7 @@ WINK is not a balloon catalogue. It is a gifting service for people who have a p
 ## Art direction
 The visual idea is the choreography of a gift: context → edit → personal detail → moment. The site should feel like a premium brand campaign wrapped around a very clear commerce flow.
 
-The interface is nearly monochrome: near-white, ink black and one deep berry accent. Product photography carries the emotional colour. Large sans typography creates confidence; Cormorant Garamond italic is used only for emotional turns, never as decorative body copy. IBM Plex Mono is limited to utility labels and system information.
+The interface is nearly monochrome: near-white, ink black and one deep berry accent. Product photography carries the emotional colour. Large sans typography creates confidence; Cormorant Garamond italic is reserved for a few emotional turns rather than repeated as a generic luxury cue. IBM Plex Mono is limited to utility labels and system information.
 
 No glassmorphism, noisy gradients, generic bento grids, ornamental 3D, fake social proof or decorative cards.
 
@@ -20,7 +20,7 @@ Codrops and scroll-craft are used as motion references only: scroll should revea
 2. Positioning: WINK does not sell more choice; it takes choice off the customer.
 3. Sticky gift choreography: four meaningful stages with product imagery changing as the narrative progresses.
 4. WINK MATCH: the primary conversion tool, four questions, up to two recommendations.
-5. Curated edit: three strong ready-made scenarios rather than a product wall.
+5. Curated edit: one dominant product and two supporting scenarios instead of a product wall.
 6. Personalization: one precise detail on top of a designer-made base.
 7. Checkout certainty: composition, price, delivery and surprise conditions are clear before payment.
 8. FAQ and image-led close.
@@ -33,5 +33,19 @@ Reduced-motion removes scroll choreography and long transitions. Mobile collapse
 ## Conversion and measurement
 Primary action: start WINK MATCH. Secondary: open a ready-made composition. All finder-entry buttons use an explicit `data-wink-finder-open` analytics hook so the main funnel can be measured independently of CSS class names.
 
+## Final release audit
+The actual GitHub Pages artifact was inspected after the mandatory second design pass at 1440×900, 834×1112 and 390×844.
+
+- Document scroll width equals viewport width at all three sizes.
+- Mobile homepage intentionally removes the duplicate fixed bottom navigation while internal routes keep it.
+- Hero headline, offer and CTA remain within their layout bounds; low-height desktop has a compact hero treatment.
+- Sticky story uses a separate non-pinned mobile sequence and collapses to normal flow under `prefers-reduced-motion`.
+- Reduced-motion audit reports no CSS animations and `scroll-behavior: auto`.
+- WINK MATCH fits all audited viewports and retains the existing ranking logic.
+- Product edit was rebuilt in the second pass to remove accidental dead space: one dominant product plus two supporting objects.
+- Repeated italic-serif treatment was reduced so it remains an accent rather than a template-like luxury device.
+- Checkout and internal shell were checked for document-level horizontal overflow at desktop and mobile widths.
+- No temporary generated-image URLs, new animation frameworks or QA-only runtime code are included in the release.
+
 ## Release rule
-V6 is not merged into production until lint, TypeScript, domain tests and production static build pass, and the actual Pages artifact is visually inspected at desktop, tablet and mobile sizes. A second visual iteration is mandatory before merge.
+Merge only after lint, TypeScript, domain tests and production static build are green on the final head, and the final Pages artifact has passed desktop/tablet/mobile visual review.
