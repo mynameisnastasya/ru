@@ -5,8 +5,16 @@
 }
 
 @media (max-width:760px){
+  /* On the campaign homepage the compact top bar already exposes search, cart and menu.
+     Removing the duplicate fixed bottom navigation keeps the first viewport and MATCH clear. */
+  body:has(.wv5-home) .wk-bottom-nav{display:none!important}
+
   .wv5-hero-media{height:36svh;min-height:270px}
   .wv5-hero-copy{padding-top:18px}
   .wv5-hero-copy h1{font-size:clamp(47px,13.6vw,59px);margin:18px 0}
   .wv5-hero-bottom>p{margin-bottom:14px}
+
+  .wv5-question{padding-bottom:max(34px,env(safe-area-inset-bottom))}
+  .wv5-results{padding-bottom:max(34px,env(safe-area-inset-bottom))}
+  .wv5-close-copy{padding-bottom:max(42px,calc(26px + env(safe-area-inset-bottom)))}
 }
