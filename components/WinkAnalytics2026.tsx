@@ -54,11 +54,10 @@ export default function WinkAnalytics2026() {
       if (!(e.target instanceof Element)) return;
       const link = e.target.closest("a");
       const href = link?.getAttribute("href") || "";
-      const button = e.target.closest("button");
-      const finderButton = Boolean(button?.closest(".wv3-hero, .wv3-close"));
+      const finderIntent = Boolean(e.target.closest("[data-wink-finder-open='true']"));
       if (href.includes("/product/"))
         trackWink({ event: "product_click", product_slug: slug(href) });
-      else if (href.includes("#finder") || finderButton)
+      else if (href.includes("#finder") || finderIntent)
         trackWink({ event: "finder_open" });
     };
     const onAdd = (event: Event) => {

@@ -2,7 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import { useMemo, useRef, useState } from "react";
 import {
   FAMILY_NAMES,
@@ -23,89 +28,76 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 const questions = [
   {
-    eyebrow: "01 / Человек",
+    eyebrow: "01 · Человек",
     title: "Кого поздравляем?",
-    values: [
-      ["her", "Её"],
-      ["him", "Его"],
-      ["kids", "Ребёнка"],
-      ["mom", "Маму"],
-      ["friend", "Подругу"],
-    ],
+    values: [["her", "Её"], ["him", "Его"], ["kids", "Ребёнка"], ["mom", "Маму"], ["friend", "Подругу"]],
   },
   {
-    eyebrow: "02 / Повод",
-    title: "Что происходит?",
-    values: [
-      ["birthday", "День рождения"],
-      ["love", "Хочу сказать «люблю»"],
-      ["any", "Просто порадовать"],
-      ["baby", "Baby reveal"],
-    ],
+    eyebrow: "02 · Повод",
+    title: "Что случилось?",
+    values: [["birthday", "День рождения"], ["love", "Хочу сказать «люблю»"], ["any", "Просто порадовать"], ["baby", "Baby reveal"]],
   },
   {
-    eyebrow: "03 / Настроение",
-    title: "Как это должно ощущаться?",
-    values: [
-      ["PINK_MILK", "Нежно"],
-      ["PINK_CHROME", "Вау"],
-      ["MILK", "Спокойно"],
-      ["BLACK_CHROME", "Графично"],
-    ],
+    eyebrow: "03 · Настроение",
+    title: "Какой нужен характер?",
+    values: [["PINK_MILK", "Нежный"], ["PINK_CHROME", "С эффектом вау"], ["MILK", "Спокойный"], ["BLACK_CHROME", "Графичный"]],
   },
   {
-    eyebrow: "04 / Бюджет",
+    eyebrow: "04 · Бюджет",
     title: "Какую рамку держим?",
-    values: [
-      ["5000", "До 5 000 ₽"],
-      ["7500", "До 7 500 ₽"],
-      ["any", "Можно гибко"],
-    ],
+    values: [["5000", "До 5 000 ₽"], ["7500", "До 7 500 ₽"], ["any", "Можно гибко"]],
   },
 ] as const;
 
-const proof = [
-  ["01", "Вы присылаете контекст", "Кого поздравляем, повод, настроение и бюджет."],
-  ["02", "WINK собирает решение", "Не сотню позиций — максимум два варианта, которые подходят под задачу."],
-  ["03", "Вы делаете подарок личным", "Цвет, цифра, надпись и нужные дополнения — только после выбора основы."],
-  ["04", "Мы подтверждаем доставку", "Дата, адрес и полная сумма согласуются до оплаты."],
+const storySteps = [
+  ["01", "Контекст", "Кому, по какому поводу и что хочется сказать этим подарком."],
+  ["02", "Редактура", "Убираем лишнее. Оставляем сочетания, которые уже работают визуально."],
+  ["03", "Личная деталь", "Цифра, короткая надпись или палитра — ровно столько персонализации, сколько нужно."],
+  ["04", "Момент", "До оплаты подтверждаем дату, адрес, доставку и итоговую сумму."],
+] as const;
+
+const certainty = [
+  ["Состав", "Точная комплектация — в карточке выбранной композиции."],
+  ["Цена", "Композиция и персонализация считаются до оформления."],
+  ["Доставка", "Адрес, дата и стоимость доставки подтверждаются до оплаты."],
+  ["Сюрприз", "Можно попросить не звонить получателю заранее."],
 ] as const;
 
 const faq = [
-  ["Мне нужно сегодня. Это реально?", "Иногда да. Напишите WINK до оформления — быстро скажем, что можно собрать и доставить к нужному времени."],
-  ["Можно не звонить получателю?", "Да. В оформлении есть режим сюрприза: организационные вопросы решаем с вами."],
-  ["Цена на сайте финальная?", "Цена выбранной композиции и персонализации видна сразу. Доставка считается отдельно и подтверждается до оплаты."],
-  ["Если я вообще не понимаю, что красиво?", "Для этого и существует WINK MATCH. Четыре ответа — и мы сужаем выбор до двух решений."],
+  ["Мне нужно сегодня. Реально?", "Иногда да. Напишите WINK до оформления — быстро скажем, что можно собрать и доставить к нужному времени."],
+  ["Я вообще не понимаю, что выбрать", "Это нормальный сценарий для WINK MATCH. Четыре ответа — и мы оставляем максимум два решения, с которых стоит начать."],
+  ["Можно сохранить сюрприз?", "Да. В оформлении можно указать, что получателю не нужно звонить заранее. Организационные детали решим с вами."],
+  ["Цена на сайте окончательная?", "Цена композиции и выбранной персонализации видна сразу. Доставка рассчитывается отдельно и подтверждается до оплаты."],
 ] as const;
 
-function V3Product({ product, index = 0 }: { product: Product; index?: number }) {
+function V6Product({ product, index = 0, featured = false }: { product: Product; index?: number; featured?: boolean }) {
   return (
     <motion.article
-      className="wv3-product"
-      initial={{ opacity: 0, y: 34 }}
+      className={`wv6-product${featured ? " is-featured" : ""}`}
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.8, delay: index * 0.08, ease: EASE }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: 0.8, delay: index * 0.07, ease: EASE }}
     >
-      <Link className="wv3-product-image" href={productHref(product.slug)}>
+      <Link className="wv6-product-media" href={productHref(product.slug)}>
         <Image
           src={productImage(product)}
           alt={`Композиция ${product.subtitle}`}
           fill
           unoptimized
-          sizes="(max-width: 760px) 86vw, 31vw"
+          sizes={featured ? "(max-width: 760px) 88vw, 52vw" : "(max-width: 760px) 78vw, 31vw"}
         />
-        <span className="wv3-product-index">0{index + 1}</span>
+        <span className="wv6-product-index">0{index + 1}</span>
       </Link>
-      <div className="wv3-product-meta">
+      <div className="wv6-product-meta">
         <div>
           <p>{FAMILY_NAMES[product.name] || product.name}</p>
           <h3>{product.subtitle}</h3>
         </div>
-        <div>
+        <div className="wv6-product-buy">
           <strong>{money(displayPrice(product))}</strong>
           <Link href={productHref(product.slug)} aria-label={`Открыть ${product.subtitle}`}>
-            <ShopIcon name="arrow" />
+            Подробнее <ShopIcon name="arrow" />
           </Link>
         </div>
       </div>
@@ -117,28 +109,36 @@ export default function WinkHome2026() {
   const { catalog } = useWinkCatalog();
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
-  const matchRef = useRef<HTMLElement>(null);
+  const storyRef = useRef<HTMLElement>(null);
+  const finderRef = useRef<HTMLElement>(null);
+  const personalRef = useRef<HTMLElement>(null);
   const [answers, setAnswers] = useState<string[]>([]);
   const [matchKey, setMatchKey] = useState(0);
 
-  const { scrollYProgress: heroProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroImageY = useTransform(heroProgress, [0, 1], [0, 70]);
-  const heroImageScale = useTransform(heroProgress, [0, 1], [1, 1.06]);
-  const heroWordY = useTransform(heroProgress, [0, 1], [0, -60]);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroImageY = useTransform(heroProgress, [0, 1], [0, 82]);
+  const heroImageScale = useTransform(heroProgress, [0, 1], [1, 1.055]);
+  const heroWordY = useTransform(heroProgress, [0, 1], [0, -42]);
+
+  const { scrollYProgress: storyProgress } = useScroll({ target: storyRef, offset: ["start start", "end end"] });
+  const storyOne = useTransform(storyProgress, [0, 0.2, 0.34], [1, 1, 0]);
+  const storyTwo = useTransform(storyProgress, [0.2, 0.34, 0.55, 0.68], [0, 1, 1, 0]);
+  const storyThree = useTransform(storyProgress, [0.55, 0.69, 1], [0, 1, 1]);
+  const storyScale = useTransform(storyProgress, [0, 1], [1.06, 1]);
+
+  const { scrollYProgress: personalProgress } = useScroll({ target: personalRef, offset: ["start end", "end start"] });
+  const personalY = useTransform(personalProgress, [0, 1], [-28, 36]);
 
   const startPrice = catalog.products.length
     ? Math.min(...catalog.products.map((product) => displayPrice(product)))
     : 0;
 
-  const edit = useMemo(() => {
-    const slugs = ["air16", "birthday16-2", "hearts7"];
-    return slugs
+  const edit = useMemo(
+    () => ["air16", "birthday16-2", "hearts7"]
       .map((slug) => catalog.products.find((product) => product.slug === slug))
-      .filter((product): product is Product => Boolean(product));
-  }, [catalog.products]);
+      .filter((product): product is Product => Boolean(product)),
+    [catalog.products],
+  );
 
   const recommendations = useMemo(() => {
     if (answers.length !== 4) return [];
@@ -148,12 +148,8 @@ export default function WinkHome2026() {
         .filter(
           (product) =>
             budgetMatches(displayPrice(product, palette), budget) &&
-            (product.name === "HEARTS" ||
-              product.name === "BABY REVEAL" ||
-              paletteIds(product).includes(palette)) &&
-            (occasion === "baby"
-              ? product.name === "BABY REVEAL"
-              : product.name !== "BABY REVEAL"),
+            (product.name === "HEARTS" || product.name === "BABY REVEAL" || paletteIds(product).includes(palette)) &&
+            (occasion === "baby" ? product.name === "BABY REVEAL" : product.name !== "BABY REVEAL"),
         )
         .map((product) => ({
           item: product,
@@ -181,198 +177,193 @@ export default function WinkHome2026() {
     ).map((result) => result.item);
   }, [answers, catalog.products]);
 
-  const step = Math.min(answers.length, questions.length - 1);
   const completed = answers.length === questions.length;
+  const step = Math.min(answers.length, questions.length - 1);
 
   function startMatch() {
     setAnswers([]);
     setMatchKey((value) => value + 1);
-    matchRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    finderRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
   }
 
   return (
-    <main className="wv3-home">
-      <section className="wv3-hero" ref={heroRef} aria-labelledby="wv3-title">
-        <div className="wv3-hero-copy">
-          <p className="wv3-label">WINK / Кемерово / gifting studio</p>
-          <motion.h1 id="wv3-title" style={reducedMotion ? undefined : { y: heroWordY }}>
-            Важный повод.
-            <br />
-            <em>Красивый жест.</em>
-            <br />
-            Без мучительного выбора.
-          </motion.h1>
-          <div className="wv3-hero-cta">
-            <p>
-              Скажите, кого поздравляем, повод и бюджет. WINK предложит два точных решения,
-              персонализирует и согласует доставку.
-            </p>
-            <button type="button" className="wv3-button dark" onClick={startMatch}>
-              Подобрать подарок <ShopIcon name="arrow" />
-            </button>
-            {startPrice > 0 && <small>Композиции от {money(startPrice)} · доставка отдельно</small>}
-          </div>
+    <main className="wv6-home">
+      <section className="wv6-hero" ref={heroRef} aria-labelledby="wv6-title">
+        <motion.div className="wv6-hero-word" aria-hidden="true" style={reducedMotion ? undefined : { y: heroWordY }}>
+          WINK
+        </motion.div>
+        <div className="wv6-hero-topline">
+          <span>Gifting studio · Кемерово</span>
+          <span>Curated gifts / delivery</span>
         </div>
-
-        <motion.div
-          className="wv3-hero-stage"
+        <motion.figure
+          className="wv6-hero-media"
           style={reducedMotion ? undefined : { y: heroImageY, scale: heroImageScale }}
         >
           <Image
             src={IMAGES.air}
-            alt="Воздушная композиция WINK в светлом интерьере"
+            alt="Воздушная композиция WINK"
             fill
             priority
             unoptimized
-            sizes="(max-width: 820px) 100vw, 56vw"
+            sizes="(max-width: 760px) 100vw, 46vw"
           />
-          <span className="wv3-stage-caption">AIR / готовое поздравление</span>
-        </motion.div>
-        <Link href="/shop" className="wv3-hero-shop">Все решения ↗</Link>
-      </section>
-
-      <section className="wv3-statement" aria-label="Позиционирование WINK">
-        <p>Не магазин, где надо стать экспертом по шарам.</p>
-        <h2>WINK — это человек с хорошим вкусом, который <em>уже сократил выбор за вас.</em></h2>
-        <span>Контекст → 2 решения → личная деталь → доставка</span>
-      </section>
-
-      <section className="wv3-match" id="finder" ref={matchRef} aria-labelledby="wv3-match-title">
-        <div className="wv3-match-intro">
-          <p className="wv3-label">WINK MATCH / 4 ответа</p>
-          <h2 id="wv3-match-title">Не листайте каталог. Дайте нам контекст.</h2>
-          <p>В конце — не больше двух вариантов. Потому что хороший сервис уменьшает неопределённость, а не добавляет её.</p>
+          <figcaption><span>AIR / WINK EDIT</span><span>01</span></figcaption>
+        </motion.figure>
+        <div className="wv6-hero-copy">
+          <p className="wv6-kicker">Подарок без мучительного выбора</p>
+          <h1 id="wv6-title">Подарок, который <em>попадает в человека.</em></h1>
+          <div className="wv6-hero-offer">
+            <p>Скажите, кого поздравляете, что случилось и сколько хотите потратить. WINK оставит максимум два точных варианта и доведёт подарок до двери.</p>
+            <div className="wv6-actions">
+              <button type="button" className="wv6-button is-primary" onClick={startMatch} data-wink-finder-open="true">
+                Подобрать мне <ShopIcon name="arrow" />
+              </button>
+              <Link className="wv6-button" href="/shop">Смотреть готовые</Link>
+            </div>
+            {startPrice > 0 && <small>Композиции от {money(startPrice)} · доставка отдельно</small>}
+          </div>
         </div>
+      </section>
 
-        <div className="wv3-match-console" key={matchKey}>
-          <div className="wv3-match-progress" aria-label={`Шаг ${Math.min(answers.length + 1, 4)} из 4`}>
-            {[0, 1, 2, 3].map((item) => (
-              <i key={item} className={item < answers.length ? "done" : item === answers.length ? "active" : ""} />
+      <section className="wv6-promise" aria-label="Позиционирование WINK">
+        <div><span>01</span><p>Не 200 вариантов.</p></div>
+        <h2>Мы не продаём выбор. <em>Мы берём его на себя.</em></h2>
+        <div className="wv6-promise-foot"><p>Контекст → редактура → личная деталь → момент вручения</p><Link href="#finder">Как это работает ↘</Link></div>
+      </section>
+
+      <section className="wv6-story" ref={storyRef} aria-labelledby="wv6-story-title">
+        <div className="wv6-story-stage" aria-hidden="true">
+          <motion.div className="wv6-story-visual" style={reducedMotion ? undefined : { scale: storyScale }}>
+            <motion.figure style={reducedMotion ? { opacity: 1 } : { opacity: storyOne }}><Image src={IMAGES.air} alt="" fill unoptimized sizes="50vw" /></motion.figure>
+            <motion.figure style={reducedMotion ? { opacity: 0 } : { opacity: storyTwo }}><Image src={IMAGES.birthday} alt="" fill unoptimized sizes="50vw" /></motion.figure>
+            <motion.figure style={reducedMotion ? { opacity: 0 } : { opacity: storyThree }}><Image src={IMAGES.hearts} alt="" fill unoptimized sizes="50vw" /></motion.figure>
+          </motion.div>
+          <div className="wv6-story-stamp"><span>WINK / METHOD</span><span>04 STATES</span></div>
+        </div>
+        <div className="wv6-story-copy">
+          <header>
+            <p className="wv6-kicker">The choreography of a gift</p>
+            <h2 id="wv6-story-title">Хороший подарок не должен начинаться с каталога.</h2>
+          </header>
+          <div className="wv6-story-steps">
+            {storySteps.map(([number, title, copy]) => (
+              <article key={number}>
+                <span>{number}</span>
+                <div><h3>{title}</h3><p>{copy}</p></div>
+              </article>
             ))}
           </div>
-
-          {!completed ? (
-            <motion.div
-              className="wv3-question"
-              key={answers.length}
-              initial={reducedMotion ? false : { opacity: 0, y: 26 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: EASE }}
-            >
-              <p>{questions[step].eyebrow}</p>
-              <h3>{questions[step].title}</h3>
-              <div className="wv3-options">
-                {questions[step].values.map(([value, label]) => (
-                  <button
-                    type="button"
-                    key={value}
-                    onClick={() => setAnswers((current) => [...current, value])}
-                  >
-                    <span>{label}</span><ShopIcon name="arrow" />
-                  </button>
-                ))}
-              </div>
-              {answers.length > 0 && (
-                <button type="button" className="wv3-back" onClick={() => setAnswers((current) => current.slice(0, -1))}>
-                  ← Назад
-                </button>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div
-              className="wv3-results"
-              initial={reducedMotion ? false : { opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: EASE }}
-            >
-              <div className="wv3-results-head">
-                <div><p>WINK MATCH / результат</p><h3>Вот с чего мы бы начали.</h3></div>
-                <button type="button" onClick={() => setAnswers([])}>Пройти заново</button>
-              </div>
-              {recommendations.length ? (
-                <div className="wv3-result-grid">
-                  {recommendations.map((product, index) => <V3Product key={product.slug} product={product} index={index} />)}
-                </div>
-              ) : (
-                <div className="wv3-no-result">
-                  <h3>В эту рамку сейчас не помещается решение, которым мы довольны.</h3>
-                  <Link href="/shop">Посмотреть все готовые решения →</Link>
-                </div>
-              )}
-            </motion.div>
-          )}
         </div>
       </section>
 
-      <section className="wv3-edit" aria-labelledby="wv3-edit-title">
+      <section className="wv6-match" id="finder" ref={finderRef} aria-labelledby="wv6-match-title">
         <header>
-          <p className="wv3-label">THE WINK EDIT / готовые решения</p>
-          <h2 id="wv3-edit-title">Три сценария, которые уже собраны правильно.</h2>
-          <Link href="/shop">Смотреть весь каталог ↗</Link>
+          <div><p className="wv6-kicker">WINK MATCH / 4 ответа</p><h2 id="wv6-match-title">Четыре ответа. <em>До двух вариантов.</em></h2></div>
+          <p>Вместо бесконечной ленты — короткий разговор о человеке, поводе, характере и бюджете.</p>
         </header>
-        <div className="wv3-edit-grid">
-          {edit.map((product, index) => <V3Product key={product.slug} product={product} index={index} />)}
-        </div>
-      </section>
-
-      <section className="wv3-personal" aria-labelledby="wv3-personal-title">
-        <div className="wv3-personal-image main">
-          <Image src={IMAGES.birthday} alt="Композиция WINK с цифрами ко дню рождения" fill unoptimized sizes="(max-width: 820px) 100vw, 58vw" />
-        </div>
-        <div className="wv3-personal-copy">
-          <p className="wv3-label">Сделать личным</p>
-          <h2 id="wv3-personal-title">Основа уже красивая. Теперь добавьте <em>вашего человека.</em></h2>
-          <p>Возраст, короткая надпись, спокойная или контрастная палитра. Персонализация не должна превращать подарок в конструктор из двадцати решений.</p>
-          <Link className="wv3-button light" href="/build">Персонализировать <ShopIcon name="arrow" /></Link>
-        </div>
-        <div className="wv3-personal-image detail" aria-hidden="true">
-          <Image src={IMAGES.hearts} alt="" fill unoptimized sizes="26vw" />
-        </div>
-      </section>
-
-      <section className="wv3-proof" aria-labelledby="wv3-proof-title">
-        <div className="wv3-proof-head">
-          <p className="wv3-label">Как это работает</p>
-          <h2 id="wv3-proof-title">Красивый результат — это не магия. Это четыре понятных шага.</h2>
-        </div>
-        <div className="wv3-proof-list">
-          {proof.map(([number, title, text], index) => (
-            <motion.article
-              key={number}
-              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.45 }}
-              transition={{ duration: 0.65, delay: index * 0.05, ease: EASE }}
+        <div className="wv6-match-shell" key={matchKey}>
+          <div className="wv6-match-index">
+            <span>WINK MATCH</span>
+            <strong>0{Math.min(answers.length + 1, 4)}</strong>
+            <span>/ 04</span>
+          </div>
+          <div className="wv6-match-body">
+            <div
+              className="wv6-progress"
+              role="progressbar"
+              aria-label="Прогресс подбора"
+              aria-valuemin={1}
+              aria-valuemax={4}
+              aria-valuenow={Math.min(answers.length + 1, 4)}
             >
-              <span>{number}</span><h3>{title}</h3><p>{text}</p>
-            </motion.article>
-          ))}
+              {[0, 1, 2, 3].map((item) => <i key={item} className={item < answers.length ? "done" : item === answers.length ? "active" : ""} />)}
+            </div>
+            {!completed ? (
+              <motion.div
+                className="wv6-question"
+                key={answers.length}
+                initial={reducedMotion ? false : { opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.62, ease: EASE }}
+              >
+                <p>{questions[step].eyebrow}</p>
+                <h3>{questions[step].title}</h3>
+                <div className="wv6-options">
+                  {questions[step].values.map(([value, label]) => (
+                    <button type="button" key={value} onClick={() => setAnswers((current) => [...current, value])}>
+                      <span>{label}</span><ShopIcon name="arrow" />
+                    </button>
+                  ))}
+                </div>
+                {answers.length > 0 && <button type="button" className="wv6-back" onClick={() => setAnswers((current) => current.slice(0, -1))}>← Назад</button>}
+              </motion.div>
+            ) : (
+              <motion.div
+                className="wv6-results"
+                initial={reducedMotion ? false : { opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.68, ease: EASE }}
+              >
+                <div className="wv6-results-head"><div><p>WINK MATCH / результат</p><h3>С этих двух мы бы начали.</h3></div><button type="button" onClick={() => setAnswers([])}>Пройти заново</button></div>
+                {recommendations.length ? (
+                  <div className="wv6-result-grid">{recommendations.map((product, index) => <V6Product key={product.slug} product={product} index={index} />)}</div>
+                ) : (
+                  <div className="wv6-empty"><p>В этой рамке сейчас нет решения, которое мы готовы рекомендовать.</p><Link href="/shop">Посмотреть всю коллекцию →</Link></div>
+                )}
+              </motion.div>
+            )}
+          </div>
         </div>
       </section>
 
-      <section className="wv3-faq" aria-labelledby="wv3-faq-title">
-        <div>
-          <p className="wv3-label">Перед заказом</p>
-          <h2 id="wv3-faq-title">То, что обычно хочется спросить до оплаты.</h2>
-        </div>
-        <div className="wv3-faq-list">
-          {faq.map(([question, answer]) => (
-            <details key={question}>
-              <summary>{question}<span>+</span></summary>
-              <p>{answer}</p>
-            </details>
-          ))}
+      <section className="wv6-edit" aria-labelledby="wv6-edit-title">
+        <header>
+          <div><p className="wv6-kicker">The WINK edit / 03</p><h2 id="wv6-edit-title">Три способа сказать: <em>«я о тебе подумал».</em></h2></div>
+          <Link href="/shop">Вся коллекция <ShopIcon name="arrow" /></Link>
+        </header>
+        <div className="wv6-edit-grid">{edit.map((product, index) => <V6Product key={product.slug} product={product} index={index} featured={index === 0} />)}</div>
+        <p className="wv6-caption">Фото показывают настроение коллекций. Точный состав и количество шаров указаны в карточке каждой композиции.</p>
+      </section>
+
+      <section className="wv6-personal" ref={personalRef} aria-labelledby="wv6-personal-title">
+        <motion.figure className="wv6-personal-media" style={reducedMotion ? undefined : { y: personalY }}>
+          <Image src={IMAGES.birthday} alt="Композиция WINK с цифрами ко дню рождения" fill unoptimized sizes="(max-width: 760px) 100vw, 55vw" />
+        </motion.figure>
+        <div className="wv6-personal-panel">
+          <p className="wv6-kicker">Personal / one exact detail</p>
+          <h2 id="wv6-personal-title">Один штрих — и готовое решение <em>становится личным.</em></h2>
+          <p>Не собирайте дизайн с нуля. Выберите основу, а затем добавьте то, что действительно связано с человеком.</p>
+          <div className="wv6-personal-options">
+            <div><span>01</span><strong>Цифра</strong><p>Возраст или важная дата.</p></div>
+            <div><span>02</span><strong>Надпись</strong><p>Короткая фраза на Bubble.</p></div>
+            <div><span>03</span><strong>Палитра</strong><p>Готовое сочетание оттенков.</p></div>
+          </div>
+          <Link href="/build" className="wv6-text-link">Персонализировать <ShopIcon name="arrow" /></Link>
         </div>
       </section>
 
-      <section className="wv3-close" aria-labelledby="wv3-close-title">
-        <div className="wv3-close-image" aria-hidden="true">
-          <Image src={IMAGES.hearts} alt="" fill unoptimized sizes="100vw" />
+      <section className="wv6-certainty" aria-labelledby="wv6-certainty-title">
+        <header><p className="wv6-kicker">Confidence before checkout</p><h2 id="wv6-certainty-title">До оплаты вы знаете <em>всё важное.</em></h2></header>
+        <div className="wv6-certainty-grid">
+          {certainty.map(([title, copy], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{copy}</p><i>↘</i></article>)}
         </div>
-        <div className="wv3-close-copy">
-          <p className="wv3-label">WINK / Кемерово</p>
-          <h2 id="wv3-close-title">Скажите, кого хочется порадовать. <em>Остальное соберём.</em></h2>
-          <button className="wv3-button light" type="button" onClick={startMatch}>Начать подбор <ShopIcon name="arrow" /></button>
+      </section>
+
+      <section className="wv6-faq" aria-labelledby="wv6-faq-title">
+        <div><p className="wv6-kicker">Questions / before order</p><h2 id="wv6-faq-title">Без мелкого шрифта <em>в конце.</em></h2></div>
+        <div className="wv6-faq-list">{faq.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
+      </section>
+
+      <section className="wv6-close" aria-labelledby="wv6-close-title">
+        <figure><Image src={IMAGES.hearts} alt="Композиция WINK с фольгированными сердцами" fill unoptimized sizes="100vw" /></figure>
+        <div className="wv6-close-copy">
+          <p className="wv6-kicker">WINK / Кемерово</p>
+          <h2 id="wv6-close-title">Есть человек. Есть повод. <em>Остальное — WINK.</em></h2>
+          <div className="wv6-actions">
+            <button type="button" className="wv6-button is-light" onClick={startMatch} data-wink-finder-open="true">Подобрать подарок <ShopIcon name="arrow" /></button>
+            <Link className="wv6-button is-ghost-light" href="/shop">Смотреть коллекцию</Link>
+          </div>
         </div>
       </section>
     </main>
