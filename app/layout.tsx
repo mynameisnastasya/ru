@@ -25,22 +25,23 @@ import "./wink-v2-audit.css";
 import "./wink-v3.css";
 import "./wink-v3-font.css";
 import "./wink-v3-audit.css";
+import "./wink-v6.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
-  title: "WINK — красивые поздравления без сложного выбора | Кемерово",
+  title: "WINK — подарок, который попадает в человека | Кемерово",
   description:
-    "Скажите, кого поздравляем, повод и бюджет. WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову до оплаты.",
+    "Скажите, кого поздравляете, повод и бюджет. WINK оставит максимум два точных решения, поможет с личной деталью и согласует доставку по Кемерову до оплаты.",
   openGraph: {
-    title: "WINK — важный повод, красивый жест",
+    title: "WINK — подарок, который попадает в человека",
     description:
-      "Два точных решения вместо бесконечного выбора. Персонализация и доставка по Кемерову.",
+      "Четыре ответа, максимум два решения, персонализация и доставка по Кемерову.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f5f5f1",
   colorScheme: "light",
 };
 
