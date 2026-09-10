@@ -10,9 +10,13 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/inter/cyrillic-400.css";
 import "@fontsource/inter/cyrillic-500.css";
 import "@fontsource/inter/cyrillic-600.css";
+import "@fontsource/inter/cyrillic-800.css";
+import "@fontsource/inter/cyrillic-900.css";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-800.css";
+import "@fontsource/inter/latin-900.css";
 import WinkAnalytics2026 from "@/components/WinkAnalytics2026";
 import "./globals.css";
 import "./wink-cleanup.css";
@@ -25,22 +29,23 @@ import "./wink-v2-audit.css";
 import "./wink-v3.css";
 import "./wink-v3-font.css";
 import "./wink-v3-audit.css";
+import "./wink-v4.css";
 
 export const metadata: Metadata = {
   robots: WINK_DEMO ? { index: false, follow: false } : undefined,
-  title: "WINK — красивые поздравления без сложного выбора | Кемерово",
+  title: "WINK — подарок без мук выбора | Кемерово",
   description:
-    "Скажите, кого поздравляем, повод и бюджет. WINK предложит до двух готовых решений, поможет персонализировать подарок и согласует доставку по Кемерову до оплаты.",
+    "Ответьте на четыре вопроса — WINK предложит до двух готовых подарочных решений, поможет персонализировать и согласует доставку по Кемерову.",
   openGraph: {
-    title: "WINK — важный повод, красивый жест",
+    title: "WINK — подарок без мук выбора",
     description:
-      "Два точных решения вместо бесконечного выбора. Персонализация и доставка по Кемерову.",
+      "Четыре ответа. До двух вариантов. Персонализация и доставка по Кемерову.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#ff4f9a",
   colorScheme: "light",
 };
 
