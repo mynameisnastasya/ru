@@ -40,6 +40,8 @@ export default function WinkPageFrame2026({ children }: { children: ReactNode })
     ["/delivery", "Доставка"],
   ];
 
+  const showBottomNav = path !== "/" && !path.endsWith("/checkout");
+
   return (
     <div className="wk-shell wps26">
       {WINK_DEMO && (
@@ -51,8 +53,8 @@ export default function WinkPageFrame2026({ children }: { children: ReactNode })
       <a className="wk-skip" href="#main-content">Перейти к содержимому</a>
       {!WINK_DEMO && (
         <div className="wk-announcement">
-          Кемерово · подарок по контексту, а не по сотне фильтров
-          <span>WINK MATCH → до двух решений</span>
+          Кемерово · WINK MATCH подбирает подарок по человеку, поводу и бюджету
+          <span>Четыре ответа → до двух решений</span>
         </div>
       )}
       <header className="wk-header">
@@ -104,7 +106,7 @@ export default function WinkPageFrame2026({ children }: { children: ReactNode })
           <Link href="/favorites">Сохранённые решения</Link>
         </div>
       </footer>
-      {!path.replace(/\/$/, "").endsWith("/checkout") && (
+      {showBottomNav && (
         <nav className="wk-bottom-nav" aria-label="Мобильная навигация">
           {[
             ["/", "Главная", "home"],
