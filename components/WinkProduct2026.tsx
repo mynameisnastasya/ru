@@ -30,6 +30,16 @@ import {
 import { useWinkAddons } from "@/lib/use-wink-addons";
 import { AddonRecommendations } from "./WinkAddons";
 
+const PRODUCT_PROMISES: Record<string, string> = {
+  AIR: "Чистый воздушный объём без визуального шума. Для «просто порадовать», встречи, дома или отеля.",
+  BIRTHDAY:
+    "Цифры становятся центром момента, а воздушная база собирает пространство вокруг них.",
+  LOVE: "Когда хочется сказать «люблю» заметно — без случайной фольги и визуального перегруза.",
+  HEARTS: "Один сильный жест: одинаковые сердца, один цвет, ничего лишнего.",
+  MESSAGE: "Подарок, в котором ваши слова становятся частью композиции.",
+  "BABY REVEAL": "Сюрприз, который хранит ответ до нужной секунды.",
+};
+
 const blank: LineConfig = { addons: [] };
 export default function WinkProduct2026({ slug }: { slug: string }) {
   const { catalog, status } = useWinkCatalog();
@@ -81,10 +91,10 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     return (
       <WinkPageFrame2026>
         <main className="wk-empty">
-          <h1>Этот набор сейчас недоступен.</h1>
-          <p>Посмотрите другие готовые композиции.</p>
+          <h1>Это решение сейчас недоступно.</h1>
+          <p>Посмотрите другие готовые варианты — или доверьте выбор WINK MATCH.</p>
           <Link className="wk-button" href="/shop">
-            В каталог
+            Смотреть решения
           </Link>
         </main>
       </WinkPageFrame2026>
@@ -159,13 +169,13 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
           );
       if (editId && !existing) {
         setError(
-          "Этой позиции уже нет в корзине. Вернитесь в корзину и выберите набор заново.",
+          "Этой позиции уже нет в корзине. Вернитесь в корзину и выберите решение заново.",
         );
         return;
       }
       if (!editId && existing && existing.qty >= 20) {
         setError(
-          "В корзине уже 20 таких наборов. Для большого заказа напишите нам.",
+          "В корзине уже 20 таких позиций. Для большого заказа напишите нам.",
         );
         return;
       }
@@ -226,7 +236,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
     <WinkPageFrame2026>
       <main>
         <nav className="wk-breadcrumbs" aria-label="Хлебные крошки">
-          <Link href="/shop">Композиции</Link>
+          <Link href="/shop">Готовые решения</Link>
           <span>/</span>
           <span>{FAMILY_NAMES[product.name]}</span>
         </nav>
@@ -245,20 +255,20 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               <FavoriteButton slug={slug} />
             </figure>
             <p className="wk-image-note">
-              Визуализация коллекции. Количество шаров, цвет и персонализация
-              определяются выбранным составом. Изображение не меняется при
-              выборе оттенков.
+              Изображение показывает визуальное направление коллекции, а не
+              обещает повторение кадра один в один. Точный состав выбранного
+              решения зафиксирован ниже.
             </p>
           </div>
           <div className="wk-product-buy">
-            <p className="wk-eyebrow">{product.name} · WINK</p>
+            <p className="wk-eyebrow">{product.name} · готовое решение WINK</p>
             <h1>{FAMILY_NAMES[product.name]}</h1>
-            <p>{product.subtitle}</p>
+            <p>{PRODUCT_PROMISES[product.name] || product.description}</p>
             <strong className="wk-product-price" aria-live="polite">
               {money(price)}
             </strong>
             <p className="wk-status-note">
-              За композицию. Стоимость и время доставки согласуем до оплаты.
+              Цена готового решения. Стоимость и время доставки согласуем до оплаты.
             </p>
             {status === "reference" && (
               <p className="wk-status-note">
@@ -267,7 +277,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
             )}
             {siblings.length > 1 && (
               <fieldset className="wk-option">
-                <legend>Размер композиции</legend>
+                <legend>Какой масштаб нужен?</legend>
                 <div className="wk-sizes">
                   {siblings.map((p) => (
                     <Link
@@ -286,7 +296,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
             )}
             {product.name === "HEARTS" ? (
               <fieldset className="wk-option">
-                <legend>Цвет сердец</legend>
+                <legend>Какой цвет ближе?</legend>
                 <div className="wk-palette-options">
                   {Object.entries(FOIL_NAMES).map(([value, label]) => (
                     <button
@@ -314,7 +324,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               </fieldset>
             ) : product.name !== "BABY REVEAL" ? (
               <fieldset className="wk-option">
-                <legend>Палитра · {PALETTES[selectedPalette]?.name}</legend>
+                <legend>Настроение · {PALETTES[selectedPalette]?.name}</legend>
                 <div className="wk-palette-options">
                   {ids.map((id) => (
                     <button
@@ -335,15 +345,15 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               </fieldset>
             ) : (
               <p className="wk-status-note">
-                Чёрный шар-сюрприз 36″ с розовым или голубым конфетти.
-                Дополнительные шары — в нейтральной палитре.
+                Снаружи — нейтральный чёрный шар 36″. Цвет конфетти остаётся
+                внутри до самого момента reveal.
               </p>
             )}
             <div className="wk-personalization">
               {digits > 0 && (
                 <label className="wk-field">
                   {digits === 1
-                    ? "Какая цифра нужна?"
+                    ? "Какая цифра станет акцентом?"
                     : "Какие две цифры нужны?"}
                   <input
                     inputMode="numeric"
@@ -362,14 +372,14 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                   <span className="wk-status-note" id="digit-help">
                     Возраст или другая важная цифра.{" "}
                     {digits === 1
-                      ? "Для двузначного возраста выберите набор с двумя цифрами."
+                      ? "Для двузначного возраста выберите формат с двумя цифрами."
                       : "Нужно ровно две цифры."}
                   </span>
                 </label>
               )}
               {product.config.message_required === true && (
                 <label className="wk-field">
-                  Ваша надпись
+                  Какие слова должны остаться на подарке?
                   <textarea
                     value={choice.inscription || ""}
                     onChange={(e) => change({ inscription: e.target.value })}
@@ -378,14 +388,13 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     aria-describedby="inscription-help"
                   />
                   <span className="wk-status-note" id="inscription-help">
-                    {(choice.inscription || "").length} из 40 символов · до трёх
-                    строк
+                    {(choice.inscription || "").length} из 40 символов · до трёх строк
                   </span>
                 </label>
               )}
               {product.config.reveal_result_required === true && (
                 <fieldset className="wk-option">
-                  <legend>Цвет конфетти внутри</legend>
+                  <legend>Какой цвет спрячем внутри?</legend>
                   <div className="wk-palette-options">
                     {[
                       ["girl", "Розовое"],
@@ -403,8 +412,7 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     ))}
                   </div>
                   <p>
-                    В сводке корзины цвет не показываем, чтобы сохранить
-                    сюрприз.
+                    В сводке заказа цвет не показываем, чтобы случайно не раскрыть сюрприз.
                   </p>
                 </fieldset>
               )}
@@ -423,13 +431,13 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                     <b>
                       {modifier.name} · +{money(modifier.price_delta_minor)}
                     </b>
-                    <small>Нежный акцент на лентах</small>
+                    <small>Мягкий сатиновый акцент на лентах</small>
                   </span>
                 </label>
               )}
             </div>
             <details className="wk-option">
-              <summary>Уже знаете дату доставки?</summary>
+              <summary>Если дата уже известна — скажите сейчас</summary>
               <label className="wk-field">
                 Желаемая дата
                 <input
@@ -443,7 +451,8 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
                 />
               </label>
               <p>
-                Сохраним пожелание в заказе. Адрес можно указать при оформлении.
+                Сохраним дату как пожелание и проверим возможность. Адрес можно
+                указать на следующем шаге.
               </p>
             </details>
             {error && (
@@ -457,27 +466,27 @@ export default function WinkProduct2026({ slug }: { slug: string }) {
               onClick={addToCart}
             >
               <span>
-                {editId ? "Сохранить изменения" : "Добавить в корзину"}
+                {editId ? "Сохранить изменения" : "Добавить в заказ"}
               </span>
               <strong>{money(price)}</strong>
             </button>
             {added && (
               <div className="wk-product-added" role="status">
                 <span>
-                  {editId ? "Изменения сохранены" : "Композиция в корзине"}
+                  {editId ? "Изменения сохранены" : "Решение добавлено"}
                 </span>
-                <Link href="/checkout">Оформить заказ →</Link>
+                <Link href="/checkout">Зафиксировать детали →</Link>
               </div>
             )}
             <Link className="wk-text-link" href="/#finder">
-              Нужна помощь с выбором?
+              Сомневаетесь? WINK подберёт два варианта
             </Link>
           </div>
         </section>
         <section className="wk-product-included">
           <div>
-            <p className="wk-eyebrow">Без догадок</p>
-            <h2>Что приедет к вам</h2>
+            <p className="wk-eyebrow">Фиксируем до оплаты</p>
+            <h2>Что именно входит</h2>
           </div>
           <ul>
             {included.map((item) => (

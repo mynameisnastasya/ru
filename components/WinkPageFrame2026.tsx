@@ -19,15 +19,17 @@ export default function WinkPageFrame2026({
   useEffect(() => {
     const sync = () => {
       try {
+        const cart = readCart();
         setTotal(
-          readCart().reduce(
+          cart.reduce(
             (sum, line) => sum + line.qty * line.unitPriceMinor,
             0,
           ),
         );
-        setCount(readCart().reduce((sum, line) => sum + line.qty, 0));
+        setCount(cart.reduce((sum, line) => sum + line.qty, 0));
       } catch {
         setCount(0);
+        setTotal(0);
       }
     };
     sync();
@@ -39,18 +41,18 @@ export default function WinkPageFrame2026({
     };
   }, []);
   const navigation = [
-    ["/shop", "Композиции"],
+    ["/#finder", "Подбор"],
+    ["/shop", "Готовые решения"],
     ["/occasion/birthday", "День рождения"],
     ["/room", "Для комнаты"],
-    ["/gifts", "Подарки"],
     ["/delivery", "Доставка"],
   ];
   return (
     <div className="wk-shell wps26">
       {WINK_DEMO && (
         <div className="wk-demo-notice" role="note">
-          Демо · Заказы и оплата отключены.
-          <span>Дополнения, цены на них и остатки — тестовые.</span>
+          Демо · Реальные заказы и оплата отключены.
+          <span>Дополнения, цены и остатки в этом режиме тестовые.</span>
         </div>
       )}
       <a className="wk-skip" href="#main-content">
@@ -58,8 +60,8 @@ export default function WinkPageFrame2026({
       </a>
       {!WINK_DEMO && (
         <div className="wk-announcement">
-          Красивые поздравления с доставкой по Кемерову{" "}
-          <span>Собираем с заботой о вашем моменте</span>
+          Красивый результат без сложного выбора · Кемерово{" "}
+          <span>Повод + человек + бюджет → до двух решений WINK</span>
         </div>
       )}
       <header className="wk-header">
@@ -115,22 +117,22 @@ export default function WinkPageFrame2026({
             WINK<span>;</span>
           </Link>
           <p>
-            Когда хочется
+            Красивый результат.
             <br />
-            сделать красиво.
+            Без сложного выбора.
           </p>
-          <span>Шары и поздравления · Кемерово</span>
+          <span>Подарки и поздравления · Кемерово</span>
         </div>
         <div>
-          <h2>Выбрать</h2>
-          <Link href="/shop">Все композиции</Link>
+          <h2>Начать</h2>
+          <Link href="/#finder">WINK MATCH · подбор</Link>
+          <Link href="/shop">Готовые решения</Link>
           <Link href="/for-her">Для неё</Link>
           <Link href="/for-him">Для него</Link>
           <Link href="/kids">Детям</Link>
-          <Link href="/build">Собрать свой набор</Link>
         </div>
         <div>
-          <h2>Остаёмся рядом</h2>
+          <h2>После выбора</h2>
           <Link href="/delivery">Доставка и оплата</Link>
           <Link href="/faq">Вопросы и ответы</Link>
           <Link href="/about">О WINK</Link>
@@ -139,23 +141,26 @@ export default function WinkPageFrame2026({
           <Link href="/corporate">Для компаний</Link>
         </div>
         <div className="wk-footer-contact">
-          <h2>Поможем выбрать</h2>
-          <p>Напишите, кого поздравляем и когда. Подскажем, с чего начать.</p>
+          <h2>Не знаете, что выбрать?</h2>
+          <p>
+            Напишите, кого поздравляем, повод и бюджет. Начнём с двух решений,
+            а не с сотни вопросов.
+          </p>
           <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
-            Написать в Telegram <ShopIcon name="arrow" />
+            Написать «ПОДБОР» <ShopIcon name="arrow" />
           </a>
         </div>
         <div className="wk-footer-bottom">
-          <span>WINK · С любовью к деталям</span>
-          <Link href="/favorites">Сохранённые композиции</Link>
+          <span>Меньше выбора · больше точного попадания</span>
+          <Link href="/favorites">Сохранённые решения</Link>
         </div>
       </footer>
       {!path.replace(/\/$/, "").endsWith("/checkout") && (
         <nav className="wk-bottom-nav" aria-label="Мобильная навигация">
           {[
             ["/", "Главная", "home"],
-            ["/shop", "Каталог", "search"],
-            ["/favorites", "Избранное", "heart"],
+            ["/shop", "Решения", "search"],
+            ["/favorites", "Сохранено", "heart"],
             ["/checkout", count ? money(total) : "Корзина", "bag"],
           ].map(([href, label, icon]) => (
             <Link
@@ -176,7 +181,7 @@ export default function WinkPageFrame2026({
             ["/for-her", "Для неё"],
             ["/for-him", "Для него"],
             ["/kids", "Детям"],
-            ["/build", "Собрать свой"],
+            ["/build", "Персонализировать"],
             ["/account", "Важные даты"],
           ].map(([href, label]) => (
             <Link key={href} href={href} onClick={() => setMenu(false)}>
@@ -191,7 +196,7 @@ export default function WinkPageFrame2026({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Помочь с выбором
+          Написать «ПОДБОР»
         </a>
       </ShopDialog>
     </div>
