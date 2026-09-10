@@ -7,10 +7,10 @@
     letter-spacing:-.065em;
   }
 
-  /* Keep the closing word as a deliberate one-line poster on 390px. */
+  /* Keep the closing word as a deliberate one-line poster without accidental crop. */
   .wv4-close h2{
     max-width:100%;
-    font-size:clamp(66px,18vw,76px);
+    font-size:clamp(62px,17.4vw,70px);
     line-height:.72;
     letter-spacing:-.09em;
     white-space:nowrap;
