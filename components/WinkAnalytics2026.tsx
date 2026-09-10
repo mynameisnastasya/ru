@@ -57,9 +57,15 @@ export default function WinkAnalytics2026() {
       if (!(e.target instanceof Element)) return;
       const link = e.target.closest("a");
       const href = link?.getAttribute("href") || "";
+      const button = e.target.closest("button");
+      const finderButton =
+        button?.matches(".wv2-hero .wv2-button.primary") ||
+        button?.matches(".wv2-proof .wv2-text-button") ||
+        button?.matches(".wv2-close .wv2-button.light");
       if (href.includes("/product/"))
         trackWink({ event: "product_click", product_slug: slug(href) });
-      else if (href.includes("#finder")) trackWink({ event: "finder_open" });
+      else if (href.includes("#finder") || finderButton)
+        trackWink({ event: "finder_open" });
     };
     const onAdd = (event: Event) => {
       const detail = (event as CustomEvent<{ slug: string; price: number }>)
