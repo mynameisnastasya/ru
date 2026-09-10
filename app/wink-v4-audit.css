@@ -1,0 +1,18 @@
+/* WINK V4 — rendered-artifact audit fixes. */
+@media (max-width:760px){
+  /* The longest Russian MATCH prompt must fit without clipping on 390px. */
+  .wv4-question>h3{
+    font-size:clamp(36px,10.2vw,43px);
+    line-height:.86;
+    letter-spacing:-.065em;
+  }
+
+  /* Keep the closing word as a deliberate one-line poster without accidental crop. */
+  .wv4-close h2{
+    max-width:100%;
+    font-size:clamp(62px,17.4vw,70px);
+    line-height:.72;
+    letter-spacing:-.09em;
+    white-space:nowrap;
+  }
+}

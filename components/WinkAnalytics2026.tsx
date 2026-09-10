@@ -55,7 +55,11 @@ export default function WinkAnalytics2026() {
       const link = e.target.closest("a");
       const href = link?.getAttribute("href") || "";
       const button = e.target.closest("button");
-      const finderButton = Boolean(button?.closest(".wv3-hero, .wv3-close"));
+      const finderButton = Boolean(
+        button?.closest(
+          ".wv3-hero, .wv3-close, .wv4-hero, .wv4-manifesto, .wv4-close",
+        ),
+      );
       if (href.includes("/product/"))
         trackWink({ event: "product_click", product_slug: slug(href) });
       else if (href.includes("#finder") || finderButton)
