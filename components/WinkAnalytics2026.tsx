@@ -36,10 +36,7 @@ export default function WinkAnalytics2026() {
     );
     if (Object.keys(attribution).length) {
       try {
-        window.sessionStorage.setItem(
-          "wink-attribution",
-          JSON.stringify(attribution),
-        );
+        window.sessionStorage.setItem("wink-attribution", JSON.stringify(attribution));
       } catch {}
     }
     const event = /\/product\//.test(pathname)
@@ -58,53 +55,29 @@ export default function WinkAnalytics2026() {
       const link = e.target.closest("a");
       const href = link?.getAttribute("href") || "";
       const button = e.target.closest("button");
-      const finderButton =
-        button?.matches(".wv2-hero .wv2-button.primary") ||
-        button?.matches(".wv2-proof .wv2-text-button") ||
-        button?.matches(".wv2-close .wv2-button.light");
+      const finderButton = Boolean(button?.closest(".wv3-hero, .wv3-close"));
       if (href.includes("/product/"))
         trackWink({ event: "product_click", product_slug: slug(href) });
       else if (href.includes("#finder") || finderButton)
         trackWink({ event: "finder_open" });
     };
     const onAdd = (event: Event) => {
-      const detail = (event as CustomEvent<{ slug: string; price: number }>)
-        .detail;
-      trackWink({
-        event: "add_to_cart",
-        product_slug: detail.slug,
-        value: detail.price,
-      });
+      const detail = (event as CustomEvent<{ slug: string; price: number }>).detail;
+      trackWink({ event: "add_to_cart", product_slug: detail.slug, value: detail.price });
     };
     const onOrder = (event: Event) => {
       const detail = (event as CustomEvent<{ value: number }>).detail;
       trackWink({ event: "order_created", value: detail.value });
     };
     const onAddon = (event: Event) => {
-      const d = (
-        event as CustomEvent<{
-          event_id: string;
-          event_name: string;
-          addon_id: string;
-          main_slug?: string;
-        }>
-      ).detail;
-      if (
-        ![
-          "addon_view",
-          "addon_click",
-          "addon_add",
-          "addon_remove",
-          "bundle_view",
-          "bundle_add",
-        ].includes(d.event_name)
-      )
-        return;
-      trackWink({
-        event: d.event_name,
-        addon_id: d.addon_id,
-        product_slug: d.main_slug,
-      });
+      const d = (event as CustomEvent<{
+        event_id: string;
+        event_name: string;
+        addon_id: string;
+        main_slug?: string;
+      }>).detail;
+      if (!["addon_view", "addon_click", "addon_add", "addon_remove", "bundle_view", "bundle_add"].includes(d.event_name)) return;
+      trackWink({ event: d.event_name, addon_id: d.addon_id, product_slug: d.main_slug });
       void fetch(`${API_URL}/api/addons/events`, {
         method: "POST",
         headers: { "content-type": "application/json" },
