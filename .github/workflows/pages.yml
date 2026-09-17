@@ -1,4 +1,4 @@
-name: Deploy GuruDreads site to Pages
+name: Deploy Threads Autopilot to Pages
 
 on:
   push:
