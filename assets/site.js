@@ -44,7 +44,7 @@ $('#copyBrief')?.addEventListener('click',async()=>{const text=brief();try{await
 const dock=$('.mobile-dock'),custom=$('#custom');if(dock&&custom&&'IntersectionObserver' in window)new IntersectionObserver(([e])=>dock.classList.toggle('hidden',e.isIntersecting),{threshold:.15}).observe(custom);
 
 const HERO_FALLBACK='assets/hero.webp';
-function installImageFallback(img){if(!img||img.dataset.fallbackBound)return;img.dataset.fallbackBound='1';img.addEventListener('error',()=>{if(img.getAttribute('src')===HERO_FALLBACK)return;img.src=HERO_FALLBACK;img.removeAttribute('srcset');img.style.opacity='1'},{once:false})}
+function installImageFallback(img){if(!img||img.dataset.fallbackBound)return;img.dataset.fallbackBound='1';const fallback=()=>{if(img.getAttribute('src')===HERO_FALLBACK)return;img.removeAttribute('srcset');img.src=HERO_FALLBACK;img.style.opacity='1'};img.addEventListener('error',fallback);if(img.complete&&img.naturalWidth===0)fallback()}
 $$('img').forEach(installImageFallback);
 new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.matches?.('img'))installImageFallback(n);$$('img',n).forEach(installImageFallback)}))).observe(document.documentElement,{childList:true,subtree:true});
 applyLang();
