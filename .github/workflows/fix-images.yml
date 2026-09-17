@@ -1,0 +1,55 @@
+name: One-time image compatibility fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-images.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify and convert images
+        shell: bash
+        run: |
+          set -euxo pipefail
+          file assets/hero.webp assets/blonde.webp assets/copper.webp assets/warm.webp
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          for name in hero blonde copper warm; do
+            ffmpeg -hide_banner -loglevel error -y -i "assets/${name}.webp" -frames:v 1 -q:v 3 "assets/${name}.jpg"
+            test -s "assets/${name}.jpg"
+            file "assets/${name}.jpg"
+          done
+      - name: Switch site references to JPEG
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for rel in ['index.html','assets/site.css','assets/site.js','README.md']:
+              p=Path(rel)
+              if p.exists():
+                  s=p.read_text(encoding='utf-8')
+                  s=s.replace('.webp','.jpg')
+                  p.write_text(s,encoding='utf-8')
+          PY
+          grep -R "\.webp" index.html assets/site.css assets/site.js || true
+          grep -R "assets/.*\.jpg\|url('.*\.jpg')" index.html assets/site.css assets/site.js | head -40
+      - name: Commit fixed images
+        shell: bash
+        run: |
+          rm -f .github/workflows/fix-images.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Serve GuruDreads images as JPEG for maximum compatibility"
+          git push
