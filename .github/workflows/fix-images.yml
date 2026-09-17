@@ -1,3 +1,4 @@
+# retry after replacing corrupted blonde binary
 name: One-time image compatibility fix
 
 on:
