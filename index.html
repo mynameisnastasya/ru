@@ -1,497 +1,96 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0b0b0f" />
-  <title>Threads Autopilot — контент-агент для Threads</title>
-  <meta name="description" content="Автоматизация Threads через n8n, LLM и официальный Threads API: генерация постов, публикация, автоответы и аналитика." />
-  <style>
-    :root{
-      --bg:#09090c;
-      --bg-soft:#111116;
-      --card:#15151c;
-      --card-2:#1a1a23;
-      --text:#f7f7fb;
-      --muted:#9d9dac;
-      --line:rgba(255,255,255,.09);
-      --accent:#ffffff;
-      --accent-2:#b9a7ff;
-      --good:#73e0a8;
-      --warn:#ffd276;
-      --danger:#ff8b9d;
-      --shadow:0 20px 70px rgba(0,0,0,.35);
-      --radius:24px;
-      --max:1180px;
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(900px 500px at 15% -10%, rgba(185,167,255,.15), transparent 60%),
-        radial-gradient(800px 500px at 90% 10%, rgba(255,255,255,.08), transparent 60%),
-        var(--bg);
-      color:var(--text);
-      line-height:1.55;
-    }
-
-    a{color:inherit;text-decoration:none}
-    button,input,select,textarea{font:inherit}
-    .wrap{width:min(var(--max), calc(100% - 36px)); margin:auto}
-
-    .nav{
-      position:sticky; top:0; z-index:20;
-      background:rgba(9,9,12,.72);
-      backdrop-filter:blur(18px);
-      border-bottom:1px solid var(--line);
-    }
-    .nav-inner{
-      min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:24px;
-    }
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.02em}
-    .logo{
-      width:38px;height:38px;border-radius:12px;
-      display:grid;place-items:center;
-      background:#fff;color:#09090c;font-size:20px;font-weight:900;
-      box-shadow:0 8px 24px rgba(255,255,255,.12);
-    }
-    .nav-links{display:flex;gap:24px;color:var(--muted);font-size:14px}
-    .nav-links a:hover{color:var(--text)}
-    .nav-cta{
-      padding:10px 16px;border-radius:999px;background:#fff;color:#0a0a0c;font-weight:800;font-size:14px;
-    }
-
-    .hero{padding:92px 0 48px}
-    .eyebrow{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:8px 12px;border:1px solid var(--line);border-radius:999px;
-      background:rgba(255,255,255,.03);color:#d8d8e0;font-size:13px;
-    }
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 6px rgba(115,224,168,.1)}
-    h1{
-      max-width:940px;margin:24px 0 18px;
-      font-size:clamp(46px, 8vw, 96px); line-height:.96; letter-spacing:-.06em;
-    }
-    .hero p{
-      max-width:760px;margin:0;color:var(--muted);font-size:clamp(18px,2vw,22px)
-    }
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
-    .btn{
-      border:0;border-radius:14px;padding:14px 18px;font-weight:800;cursor:pointer;
-      display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    }
-    .btn-primary{background:#fff;color:#0a0a0c}
-    .btn-secondary{background:rgba(255,255,255,.05);color:#fff;border:1px solid var(--line)}
-    .btn:hover{transform:translateY(-1px)}
-
-    .hero-card{
-      margin-top:48px;
-      background:linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.025));
-      border:1px solid var(--line);border-radius:30px;padding:18px;box-shadow:var(--shadow);
-    }
-    .window{background:#0e0e13;border-radius:20px;overflow:hidden;border:1px solid var(--line)}
-    .window-top{height:46px;display:flex;align-items:center;gap:7px;padding:0 16px;border-bottom:1px solid var(--line)}
-    .lamp{width:9px;height:9px;border-radius:50%;background:#2b2b33}
-    .dash{display:grid;grid-template-columns:220px 1fr;min-height:520px}
-    .side{padding:18px;border-right:1px solid var(--line);background:#0b0b10}
-    .side-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#666676;margin:12px 10px}
-    .side-item{
-      padding:10px 12px;border-radius:10px;color:#9292a1;font-size:14px;margin-bottom:5px;display:flex;gap:10px;
-    }
-    .side-item.active{background:#191921;color:#fff}
-    .main{padding:28px}
-    .main-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
-    .main h3{font-size:26px;margin:0 0 6px;letter-spacing:-.03em}
-    .muted{color:var(--muted)}
-    .status{padding:7px 10px;border-radius:999px;background:rgba(115,224,168,.09);color:var(--good);font-size:12px;border:1px solid rgba(115,224,168,.18)}
-    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
-    .metric{padding:18px;border:1px solid var(--line);border-radius:16px;background:#121219}
-    .metric b{font-size:24px;display:block;letter-spacing:-.04em}
-    .metric span{color:var(--muted);font-size:12px}
-    .flowline{margin-top:22px;padding:18px;border:1px solid var(--line);border-radius:16px;background:#111117}
-    .flow-nodes{display:flex;align-items:center;gap:8px;overflow:auto;padding-bottom:4px}
-    .node{
-      white-space:nowrap;padding:11px 14px;border-radius:12px;background:#191922;border:1px solid var(--line);font-size:13px;
-    }
-    .arrow{color:#555566}
-    .activity{margin-top:16px;display:grid;gap:10px}
-    .event{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
-    .event:last-child{border-bottom:0}
-    .event strong{font-weight:700}
-    .event span{color:var(--muted)}
-
-    section{padding:78px 0}
-    .section-kicker{color:var(--accent-2);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.14em}
-    h2{font-size:clamp(36px,5vw,64px);line-height:1.02;letter-spacing:-.05em;margin:12px 0 18px;max-width:880px}
-    .lead{color:var(--muted);max-width:720px;font-size:18px}
-
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
-    .card{
-      background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
-      border:1px solid var(--line);border-radius:var(--radius);padding:24px;
-    }
-    .card h3{margin:14px 0 8px;font-size:20px;letter-spacing:-.025em}
-    .card p{margin:0;color:var(--muted)}
-    .icon{width:42px;height:42px;border-radius:13px;background:#fff;color:#0a0a0c;display:grid;place-items:center;font-weight:900}
-
-    .flow-wrap{margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .process{padding:26px;border-radius:var(--radius);background:#111117;border:1px solid var(--line)}
-    .process-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
-    .process-title h3{margin:0;font-size:20px}
-    .badge{font-size:12px;padding:6px 9px;border-radius:999px;background:#1b1b24;color:#b8b8c7}
-    .step{display:grid;grid-template-columns:36px 1fr;gap:14px;position:relative;padding-bottom:20px}
-    .step:last-child{padding-bottom:0}
-    .step::after{
-      content:"";position:absolute;left:17px;top:36px;bottom:0;width:1px;background:var(--line)
-    }
-    .step:last-child::after{display:none}
-    .num{width:36px;height:36px;border:1px solid var(--line);border-radius:11px;display:grid;place-items:center;background:#17171f;font-size:12px;font-weight:800}
-    .step b{display:block;margin-top:6px}
-    .step small{color:var(--muted)}
-
-    .code-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
-    pre{
-      margin:0;overflow:auto;background:#0b0b10;border:1px solid var(--line);border-radius:18px;padding:18px;
-      color:#d6d6e0;font:13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    .code-card{background:#111117;border:1px solid var(--line);border-radius:24px;padding:18px}
-    .code-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:13px}
-    .copy{cursor:pointer;color:#aaaab7;background:transparent;border:0}
-    .copy:hover{color:#fff}
-
-    .rules{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
-    .rule-group{padding:24px;border-radius:24px;border:1px solid var(--line);background:#111117}
-    .rule-group h3{margin-top:0}
-    .rule{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
-    .rule:last-child{border-bottom:0}
-    .check{color:var(--good)} .cross{color:var(--danger)}
-
-    .planner{margin-top:34px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
-    .bars{display:grid;gap:14px;margin-top:22px}
-    .bar{display:grid;grid-template-columns:150px 1fr 44px;gap:12px;align-items:center;font-size:13px}
-    .track{height:9px;border-radius:999px;background:#23232c;overflow:hidden}
-    .fill{height:100%;background:linear-gradient(90deg,#fff,#b9a7ff);border-radius:999px}
-    .prompt{
-      white-space:pre-wrap;color:#cfcfda;background:#0b0b10;border:1px solid var(--line);border-radius:20px;padding:20px;font:13px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .cta{
-      text-align:center;padding:70px 24px;border:1px solid var(--line);border-radius:32px;
-      background:
-        radial-gradient(600px 220px at 50% 0%, rgba(185,167,255,.18), transparent 70%),
-        #111117;
-    }
-    .cta h2{margin-left:auto;margin-right:auto}
-    .cta p{color:var(--muted);max-width:650px;margin:0 auto 24px}
-
-    footer{padding:36px 0 48px;color:#6f6f7e;font-size:13px}
-    .footer-inner{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding-top:24px}
-
-    .toast{
-      position:fixed;right:18px;bottom:18px;padding:12px 14px;border-radius:12px;background:#fff;color:#111;font-weight:700;
-      transform:translateY(30px);opacity:0;pointer-events:none;transition:.25s;z-index:50;
-    }
-    .toast.show{transform:translateY(0);opacity:1}
-
-    @media (max-width:900px){
-      .nav-links{display:none}
-      .dash{grid-template-columns:1fr}
-      .side{display:none}
-      .metrics{grid-template-columns:repeat(2,1fr)}
-      .grid-3,.flow-wrap,.code-grid,.rules,.planner{grid-template-columns:1fr}
-      .hero{padding-top:62px}
-      .main{padding:18px}
-    }
-    @media (max-width:560px){
-      .wrap{width:min(var(--max), calc(100% - 22px))}
-      .nav-cta{display:none}
-      .metrics{grid-template-columns:1fr 1fr}
-      .metric{padding:14px}
-      .bar{grid-template-columns:100px 1fr 40px}
-      .footer-inner{flex-direction:column}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09090c">
+<title>Threads Autopilot — Control Center</title>
+<meta name="description" content="Панель управления Threads Autopilot через n8n webhook.">
+<style>
+:root{--bg:#09090c;--panel:#111117;--panel2:#17171f;--text:#f7f7fb;--muted:#9797a8;--line:rgba(255,255,255,.09);--good:#73e0a8;--warn:#ffd276;--bad:#ff8b9d;--purple:#b9a7ff;--r:20px;--max:1180px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(900px 500px at 12% -10%,rgba(185,167,255,.16),transparent 62%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{color:inherit}.wrap{width:min(var(--max),calc(100% - 30px));margin:auto}.nav{position:sticky;top:0;z-index:20;background:rgba(9,9,12,.8);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.navin{height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:-.02em}.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#fff;color:#09090c;font-size:20px;font-weight:950}.right{display:flex;align-items:center;gap:10px}.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:#60606d}.dot.ok{background:var(--good);box-shadow:0 0 0 5px rgba(115,224,168,.09)}.dot.err{background:var(--bad)}.navbtn{border:1px solid var(--line);background:#15151c;border-radius:11px;padding:9px 12px;cursor:pointer}.navbtn:hover{background:#1b1b24}.hero{padding:54px 0 24px}.kicker{color:var(--purple);font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}h1{font-size:clamp(42px,7vw,78px);line-height:.96;letter-spacing:-.055em;margin:12px 0 16px;max-width:900px}.hero p{margin:0;max-width:760px;color:var(--muted);font-size:18px}.notice{margin-top:22px;padding:14px 16px;border:1px solid rgba(255,210,118,.2);background:rgba(255,210,118,.06);border-radius:14px;color:#d8c79d;font-size:13px}.grid{display:grid;grid-template-columns:1.45fr .75fr;gap:16px;padding:22px 0 70px}.card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:var(--r);padding:20px}.card h2,.card h3{margin:0;letter-spacing:-.03em}.card h2{font-size:24px}.card h3{font-size:17px}.sub{color:var(--muted);font-size:13px;margin-top:5px}.actions{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:18px}.action{border:1px solid var(--line);background:#17171f;border-radius:13px;padding:13px 10px;cursor:pointer;font-weight:750;min-height:66px}.action span{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:4px}.action:hover{background:#202029}.action.primary{background:#fff;color:#0a0a0c;border-color:#fff}.action.primary span{color:#555}.action.danger{border-color:rgba(255,139,157,.25)}.action:disabled{opacity:.45;cursor:not-allowed}.editor{margin-top:16px;display:grid;gap:10px}.label{font-size:12px;color:#b7b7c3}.field,textarea{width:100%;border:1px solid var(--line);background:#0c0c11;color:#fff;border-radius:13px;padding:12px 13px;outline:none}.field:focus,textarea:focus{border-color:rgba(185,167,255,.5)}textarea{min-height:170px;resize:vertical;line-height:1.55}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.minirow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#17171f;border-radius:11px;padding:10px 12px;cursor:pointer;font-weight:700}.btn:hover{background:#202029}.btn.white{background:#fff;color:#111;border-color:#fff}.btn.bad{color:#ffc2ca}.result{margin-top:16px;border:1px solid var(--line);background:#0c0c11;border-radius:14px;padding:14px;min-height:76px;white-space:pre-wrap;word-break:break-word;color:#cfcfd9;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:16px}.metric{padding:15px;border:1px solid var(--line);background:#14141b;border-radius:14px}.metric b{display:block;font-size:24px;letter-spacing:-.04em}.metric span{color:var(--muted);font-size:11px}.stack{display:grid;gap:16px}.settings{display:grid;gap:11px;margin-top:16px}.hint{color:var(--muted);font-size:11px}.checks{display:grid;gap:8px}.check{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#13131a}.switch{appearance:none;width:42px;height:24px;border-radius:999px;background:#2b2b35;position:relative;cursor:pointer;transition:.2s}.switch:before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}.switch:checked{background:#6c5ce7}.switch:checked:before{left:21px}.logs{max-height:400px;overflow:auto;margin-top:12px}.log{padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}.log:last-child{border-bottom:0}.logtop{display:flex;justify-content:space-between;gap:12px}.logtop b{font-size:12px}.time{color:#666678}.logmsg{color:var(--muted);margin-top:3px;word-break:break-word}.oktxt{color:var(--good)}.errtxt{color:var(--bad)}.warntxt{color:var(--warn)}.contract{margin-top:16px;background:#0c0c11;border:1px solid var(--line);border-radius:14px;padding:14px;white-space:pre-wrap;color:#bdbdca;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.footer{border-top:1px solid var(--line);padding:24px 0 42px;color:#6f6f7e;font-size:12px}.toast{position:fixed;right:16px;bottom:16px;z-index:50;background:#fff;color:#111;border-radius:12px;padding:11px 14px;font-weight:800;transform:translateY(30px);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:40;display:none;place-items:center;padding:18px}.modal.show{display:grid}.modalbox{width:min(620px,100%);background:#111117;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.5)}.modalbox h2{margin:0}.close{float:right;background:transparent;border:0;color:#888;cursor:pointer;font-size:22px}.statusbar{display:flex;gap:8px;align-items:center;margin-top:16px;font-size:12px;color:var(--muted)}@media(max-width:980px){.grid{grid-template-columns:1fr}.actions{grid-template-columns:repeat(3,1fr)}}@media(max-width:620px){.actions{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.right .pill{display:none}.hero{padding-top:38px}.card{padding:16px}}
+</style>
 </head>
 <body>
-  <nav class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="#top">
-        <span class="logo">@</span>
-        <span>Threads Autopilot</span>
-      </a>
-      <div class="nav-links">
-        <a href="#how">Как работает</a>
-        <a href="#api">API</a>
-        <a href="#replies">Автоответы</a>
-        <a href="#analytics">Аналитика</a>
-      </div>
-      <a class="nav-cta" href="#start">Собрать систему</a>
-    </div>
-  </nav>
+<nav class="nav"><div class="wrap navin"><div class="brand"><span class="logo">@</span><span>Threads Autopilot</span></div><div class="right"><span class="pill"><span id="navDot" class="dot"></span><span id="navStatus">не подключено</span></span><button class="navbtn" id="openSettings">⚙ Настройки</button></div></div></nav>
+<main>
+<section class="hero"><div class="wrap"><div class="kicker">Control center</div><h1>Теперь этим можно управлять.</h1><p>Генерация постов, публикация, синхронизация replies, аналитика и полный цикл запускаются прямо отсюда через твой n8n production webhook.</p><div class="notice">Threads/OpenAI access tokens сюда не вставляй. Они должны храниться в credentials n8n. В панели сохраняются только URL управляющего webhook и необязательный токен доступа к самому webhook.</div></div></section>
+<div class="wrap grid">
+<section class="card">
+<div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div><h2>Управление</h2><div class="sub">Команды уходят в n8n одним POST-запросом.</div></div><button class="btn" id="healthBtn">Проверить связь</button></div>
+<div class="actions">
+<button class="action primary run" data-action="generate_post">✦ Сгенерировать<span>получить черновик</span></button>
+<button class="action run" data-action="publish_post">↑ Опубликовать<span>текущий черновик</span></button>
+<button class="action run" data-action="sync_replies">↩ Replies<span>проверить и обработать</span></button>
+<button class="action run" data-action="run_analytics">⌁ Аналитика<span>обновить метрики</span></button>
+<button class="action danger run" data-action="run_full_cycle">▶ Полный цикл<span>всё по сценарию</span></button>
+</div>
+<div class="editor">
+<div><div class="label">Тема / задача для генерации</div><input class="field" id="topic" placeholder="Например: почему автоматизация контента не должна звучать как робот"></div>
+<div><div class="label">Черновик поста</div><textarea id="draft" placeholder="После команды generate_post текст появится здесь. Его можно отредактировать перед публикацией."></textarea></div>
+<div class="minirow"><button class="btn" id="copyDraft">Копировать текст</button><button class="btn" id="clearDraft">Очистить</button><a id="postLink" class="btn" style="display:none;text-decoration:none" target="_blank" rel="noopener">Открыть пост ↗</a></div>
+</div>
+<div class="statusbar"><span id="busyDot" class="dot"></span><span id="busyText">Готово к работе</span></div>
+<div class="result" id="result">Ответ n8n появится здесь.</div>
+<div class="metrics">
+<div class="metric"><b id="mPublished">—</b><span>опубликовано</span></div>
+<div class="metric"><b id="mReplies">—</b><span>новых replies</span></div>
+<div class="metric"><b id="mResolved">—</b><span>auto-resolved</span></div>
+<div class="metric"><b id="mEngagement">—</b><span>engagement</span></div>
+</div>
+</section>
+<aside class="stack">
+<section class="card"><h3>Автоматизация</h3><div class="sub">Эти флаги передаются в каждый запуск.</div><div class="checks" style="margin-top:14px"><label class="check"><span><b>Auto publish</b><div class="hint">разрешить n8n публикацию без ручной проверки</div></span><input id="autoPublish" class="switch" type="checkbox"></label><label class="check"><span><b>Auto replies</b><div class="hint">разрешить автоматические ответы</div></span><input id="autoReplies" class="switch" type="checkbox"></label><label class="check"><span><b>Dry run</b><div class="hint">ничего не публиковать, только вернуть результат</div></span><input id="dryRun" class="switch" type="checkbox" checked></label></div></section>
+<section class="card"><div style="display:flex;justify-content:space-between;gap:10px"><div><h3>Журнал</h3><div class="sub">Последние действия этой панели.</div></div><button class="btn" id="clearLogs">Очистить</button></div><div class="logs" id="logs"></div></section>
+<section class="card"><h3>Контракт webhook</h3><div class="sub">В n8n Webhook → Switch по полю <code>action</code>.</div><div class="contract">POST {WEBHOOK_URL}
+Content-Type: application/json
 
-  <main id="top">
-    <section class="hero">
-      <div class="wrap">
-        <span class="eyebrow"><span class="dot"></span> n8n + LLM + Threads API</span>
-        <h1>Threads, который работает сам.</h1>
-        <p>Контент-агент генерирует темы, пишет посты в твоём стиле, публикует их через официальный API, отвечает на комментарии и учится на аналитике.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#how">Посмотреть архитектуру →</a>
-          <a class="btn btn-secondary" href="#api">Открыть API flow</a>
-        </div>
-
-        <div class="hero-card">
-          <div class="window">
-            <div class="window-top"><span class="lamp"></span><span class="lamp"></span><span class="lamp"></span></div>
-            <div class="dash">
-              <aside class="side">
-                <div class="side-title">Workspace</div>
-                <div class="side-item active">◉ Overview</div>
-                <div class="side-item">✦ Content</div>
-                <div class="side-item">↩ Replies</div>
-                <div class="side-item">⌁ Analytics</div>
-                <div class="side-item">⚙ Settings</div>
-              </aside>
-              <div class="main">
-                <div class="main-head">
-                  <div>
-                    <h3>Content Agent</h3>
-                    <div class="muted">Автономный workflow для Threads</div>
-                  </div>
-                  <span class="status">● Online</span>
-                </div>
-
-                <div class="metrics">
-                  <div class="metric"><b>3</b><span>поста сегодня</span></div>
-                  <div class="metric"><b>17</b><span>новых ответов</span></div>
-                  <div class="metric"><b>82%</b><span>auto-resolved</span></div>
-                  <div class="metric"><b>4.6×</b><span>engagement lift</span></div>
-                </div>
-
-                <div class="flowline">
-                  <div class="muted" style="font-size:12px;margin-bottom:12px">LIVE WORKFLOW</div>
-                  <div class="flow-nodes">
-                    <span class="node">Cron</span><span class="arrow">→</span>
-                    <span class="node">Idea</span><span class="arrow">→</span>
-                    <span class="node">LLM</span><span class="arrow">→</span>
-                    <span class="node">Review</span><span class="arrow">→</span>
-                    <span class="node">Threads API</span><span class="arrow">→</span>
-                    <span class="node">Log</span>
-                  </div>
-                </div>
-
-                <div class="activity">
-                  <div class="event"><strong>Пост опубликован</strong><span>2 мин назад</span></div>
-                  <div class="event"><strong>Ответ передан на ручную проверку</strong><span>8 мин назад</span></div>
-                  <div class="event"><strong>Получена аналитика за 48 часов</strong><span>14 мин назад</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="how">
-      <div class="wrap">
-        <div class="section-kicker">Архитектура</div>
-        <h2>Два workflow. Один контент‑агент.</h2>
-        <p class="lead">Первый отвечает за публикации. Второй — за новые ответы и решение, стоит ли на них реагировать автоматически.</p>
-
-        <div class="flow-wrap">
-          <div class="process">
-            <div class="process-title"><h3>Публикация</h3><span class="badge">2–4 раза в день</span></div>
-            <div class="step"><span class="num">01</span><div><b>Schedule Trigger</b><small>Запускает сценарий по расписанию.</small></div></div>
-            <div class="step"><span class="num">02</span><div><b>Выбор темы</b><small>Берём контент-план, кейсы и последние посты.</small></div></div>
-            <div class="step"><span class="num">03</span><div><b>LLM пишет пост</b><small>Твой стиль, ограничения и анти-повторы.</small></div></div>
-            <div class="step"><span class="num">04</span><div><b>Проверка</b><small>Автоматически или через ручной Approve.</small></div></div>
-            <div class="step"><span class="num">05</span><div><b>Threads API</b><small>Container → publish → сохраняем post_id.</small></div></div>
-          </div>
-
-          <div class="process">
-            <div class="process-title"><h3>Автоответы</h3><span class="badge">каждые 15 мин</span></div>
-            <div class="step"><span class="num">01</span><div><b>Получить новые replies</b><small>Фильтруем уже обработанные.</small></div></div>
-            <div class="step"><span class="num">02</span><div><b>LLM классифицирует</b><small>Ответить / пропустить / передать человеку.</small></div></div>
-            <div class="step"><span class="num">03</span><div><b>Генерация ответа</b><small>Коротко, естественно, без выдуманных фактов.</small></div></div>
-            <div class="step"><span class="num">04</span><div><b>Safety rules</b><small>Лимиты, задержки и эскалация спорных случаев.</small></div></div>
-            <div class="step"><span class="num">05</span><div><b>Reply via API</b><small>Публикуем ответ и логируем результат.</small></div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="section-kicker">Стек</div>
-        <h2>Без браузерных ботов и ручного тыканья.</h2>
-        <div class="grid-3">
-          <div class="card"><div class="icon">n8n</div><h3>Оркестрация</h3><p>Расписание, условия, очереди, ветвления, ручное подтверждение и логирование.</p></div>
-          <div class="card"><div class="icon">AI</div><h3>LLM</h3><p>Идеи, посты, классификация комментариев, ответы и анализ результатов.</p></div>
-          <div class="card"><div class="icon">@</div><h3>Threads API</h3><p>Публикация, replies, управление ответами и метрики через официальный API.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="api">
-      <div class="wrap">
-        <div class="section-kicker">API flow</div>
-        <h2>Публикация в два запроса.</h2>
-        <p class="lead">Сначала создаём контейнер с текстом, затем публикуем его. Токен держим в secret storage, а не в промптах или таблицах.</p>
-
-        <div class="code-grid">
-          <div class="code-card">
-            <div class="code-head"><span>1. Create container</span><button class="copy" data-copy="create">Copy</button></div>
-            <pre id="create">POST https://graph.threads.net/v1.0/me/threads
-
-media_type=TEXT
-text=ТЕКСТ_ПОСТА
-access_token={{THREADS_TOKEN}}</pre>
-          </div>
-          <div class="code-card">
-            <div class="code-head"><span>2. Publish</span><button class="copy" data-copy="publish">Copy</button></div>
-            <pre id="publish">POST https://graph.threads.net/v1.0/me/threads_publish
-
-creation_id={{CONTAINER_ID}}
-access_token={{THREADS_TOKEN}}</pre>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="replies">
-      <div class="wrap">
-        <div class="section-kicker">Replies</div>
-        <h2>Бот отвечает только там, где это уместно.</h2>
-        <div class="rules">
-          <div class="rule-group">
-            <h3>Отвечать</h3>
-            <div class="rule"><span class="check">✓</span><span>На нормальные вопросы по теме.</span></div>
-            <div class="rule"><span class="check">✓</span><span>На содержательную дискуссию и возражения.</span></div>
-            <div class="rule"><span class="check">✓</span><span>На шутки, когда можно естественно поддержать тон.</span></div>
-            <div class="rule"><span class="check">✓</span><span>На комментарии, где есть уверенный фактический ответ.</span></div>
-          </div>
-          <div class="rule-group">
-            <h3>Не отвечать автоматически</h3>
-            <div class="rule"><span class="cross">×</span><span>Спам, повторы и бессмысленные сообщения.</span></div>
-            <div class="rule"><span class="cross">×</span><span>Конфликты, способные навредить репутации.</span></div>
-            <div class="rule"><span class="cross">×</span><span>Юридические, медицинские и финансовые вопросы без ручной проверки.</span></div>
-            <div class="rule"><span class="cross">×</span><span>Ситуации, где модель не уверена в фактах.</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="analytics">
-      <div class="wrap">
-        <div class="section-kicker">Контент-система</div>
-        <h2>Не просто генерация постов, а цикл обучения.</h2>
-        <div class="planner">
-          <div class="card">
-            <h3 style="margin-top:0">Контент-микс</h3>
-            <p class="muted">Модель использует распределение как ориентир, а не жёсткое правило.</p>
-            <div class="bars">
-              <div class="bar"><span>Экспертность</span><div class="track"><div class="fill" style="width:40%"></div></div><b>40%</b></div>
-              <div class="bar"><span>Истории / кейсы</span><div class="track"><div class="fill" style="width:25%"></div></div><b>25%</b></div>
-              <div class="bar"><span>Мнение</span><div class="track"><div class="fill" style="width:20%"></div></div><b>20%</b></div>
-              <div class="bar"><span>Продукт</span><div class="track"><div class="fill" style="width:10%"></div></div><b>10%</b></div>
-              <div class="bar"><span>Эксперименты</span><div class="track"><div class="fill" style="width:5%"></div></div><b>5%</b></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3 style="margin-top:0">Feedback loop</h3>
-            <div class="prompt">Пост опубликован
-↓
-через 24 / 48 часов
-получить метрики
-↓
-сохранить в базу
-↓
-LLM анализирует:
-— хуки
-— темы
-— длину
-— ответы
-↓
-использует выводы
-в следующих публикациях</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="section-kicker">Промпт</div>
-        <h2>Стиль задаётся правилами, а не магией.</h2>
-        <div class="prompt">Ты автор моего Threads.
-
-Тематика:
-[описание]
-
-Целевая аудитория:
-[описание]
-
-Стиль:
-коротко, разговорно, конкретно.
-
-Не используй:
-— канцелярит
-— «в современном мире»
-— «давайте разберемся»
-— чрезмерные эмодзи
-— фальшивые истории
-— придуманные цифры
-
-Структура:
-1. Сильная первая строка.
-2. Одна мысль.
-3. Конкретный пример или наблюдение.
-4. Финал, который естественно вызывает обсуждение.
-
-Не повторяй идеи предыдущих постов.
-Верни только текст публикации.</div>
-      </div>
-    </section>
-
-    <section id="start">
-      <div class="wrap">
-        <div class="cta">
-          <div class="section-kicker">MVP</div>
-          <h2>n8n → OpenAI → Threads → Google Sheets</h2>
-          <p>Первая версия сама берёт тему, пишет пост, проверяет повторы, публикует, сохраняет post_id, читает replies и готовит ответы по правилам.</p>
-          <a class="btn btn-primary" href="#how">Посмотреть workflow</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap footer-inner">
-      <span>Threads Autopilot — demo concept</span>
-      <span>Built for n8n + LLM + official Threads API</span>
-    </div>
-  </footer>
-
-  <div class="toast" id="toast">Скопировано</div>
-
-  <script>
-    const toast = document.getElementById('toast');
-    document.querySelectorAll('.copy').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const el = document.getElementById(btn.dataset.copy);
-        try {
-          await navigator.clipboard.writeText(el.innerText);
-          toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 1400);
-        } catch(e) {
-          btn.textContent = 'Select manually';
-        }
-      });
-    });
-  </script>
+{
+  "action": "generate_post",
+  "source": "threads-autopilot-dashboard",
+  "timestamp": "ISO_DATE",
+  "account": "my_threads",
+  "options": {
+    "autoPublish": false,
+    "autoReplies": false,
+    "dryRun": true
+  },
+  "payload": {
+    "topic": "...",
+    "draft": "..."
+  }
+}</div></section>
+</aside>
+</div>
+</main>
+<footer class="footer"><div class="wrap">GitHub Pages — только панель. Секреты, Threads API, OpenAI и расписания выполняются на стороне n8n.</div></footer>
+<div class="modal" id="settingsModal"><div class="modalbox"><button class="close" id="closeSettings">×</button><h2>Подключение к n8n</h2><div class="sub">Используй production URL Webhook node. Test URL работает только когда workflow слушает тестовый вызов.</div><div class="settings"><div><div class="label">Production webhook URL</div><input class="field" id="webhook" placeholder="https://your-n8n.example/webhook/threads-controller"></div><div><div class="label">Токен панели (необязательно)</div><input class="field" id="token" type="password" autocomplete="off" placeholder="Отдельный Bearer token для защиты webhook"></div><div><div class="label">Название аккаунта</div><input class="field" id="account" placeholder="my_threads"></div><div class="notice" style="margin-top:0">Если n8n на другом домене, webhook должен разрешать CORS для <b>https://mynameisnastasya.github.io</b>. Никогда не используй здесь Threads/OpenAI токены.</div><div class="minirow"><button class="btn white" id="saveSettings">Сохранить</button><button class="btn" id="saveAndTest">Сохранить и проверить</button><button class="btn bad" id="forgetSettings">Забыть настройки</button></div></div></div></div>
+<div class="toast" id="toast">Готово</div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),KEY='threadsAutopilotConfigV2',LOGKEY='threadsAutopilotLogsV2';
+const els={webhook:$('webhook'),token:$('token'),account:$('account'),topic:$('topic'),draft:$('draft'),autoPublish:$('autoPublish'),autoReplies:$('autoReplies'),dryRun:$('dryRun'),result:$('result'),logs:$('logs'),navDot:$('navDot'),navStatus:$('navStatus'),busyDot:$('busyDot'),busyText:$('busyText'),postLink:$('postLink')};
+let busy=false;
+function config(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}}
+function saveConfig(){const c={webhook:els.webhook.value.trim(),token:els.token.value.trim(),account:els.account.value.trim(),autoPublish:els.autoPublish.checked,autoReplies:els.autoReplies.checked,dryRun:els.dryRun.checked};localStorage.setItem(KEY,JSON.stringify(c));applyConfig();toast('Настройки сохранены');return c}
+function applyConfig(){const c=config();els.webhook.value=c.webhook||'';els.token.value=c.token||'';els.account.value=c.account||'';els.autoPublish.checked=!!c.autoPublish;els.autoReplies.checked=!!c.autoReplies;els.dryRun.checked=c.dryRun!==false;const ok=!!c.webhook;els.navDot.className='dot '+(ok?'ok':'');els.navStatus.textContent=ok?'webhook настроен':'не подключено'}
+function logs(){try{return JSON.parse(localStorage.getItem(LOGKEY)||'[]')}catch{return []}}
+function addLog(action,status,msg){const list=logs();list.unshift({time:new Date().toLocaleString('ru-RU'),action,status,msg:String(msg||'').slice(0,260)});localStorage.setItem(LOGKEY,JSON.stringify(list.slice(0,50)));renderLogs()}
+function renderLogs(){const list=logs();els.logs.innerHTML=list.length?list.map(x=>`<div class="log"><div class="logtop"><b class="${x.status==='ok'?'oktxt':x.status==='error'?'errtxt':'warntxt'}">${escapeHtml(x.action)}</b><span class="time">${escapeHtml(x.time)}</span></div><div class="logmsg">${escapeHtml(x.msg)}</div></div>`).join(''):'<div class="sub" style="padding:12px 0">Пока пусто.</div>'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function toast(t){const x=$('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),1500)}
+function setBusy(v,text=''){busy=v;document.querySelectorAll('.run,#healthBtn').forEach(b=>b.disabled=v);els.busyDot.className='dot '+(v?'ok':'');els.busyText.textContent=text||(v?'Выполняется…':'Готово к работе')}
+function deep(obj,paths){for(const p of paths){let v=obj;for(const k of p.split('.'))v=v&&v[k];if(v!==undefined&&v!==null)return v}return null}
+function applyResponse(data){if(!data||typeof data!=='object')return;const draft=deep(data,['draft','text','data.draft','data.text','result.draft']);if(typeof draft==='string'&&draft.trim())els.draft.value=draft;const url=deep(data,['post_url','postUrl','url','data.post_url','data.postUrl']);if(typeof url==='string'&&/^https?:\/\//.test(url)){els.postLink.href=url;els.postLink.style.display='inline-flex'}const m=deep(data,['metrics','data.metrics'])||{};const vals={mPublished:m.published??m.posts??deep(data,['published']),mReplies:m.replies??m.newReplies??deep(data,['replies']),mResolved:m.resolved??m.autoResolved??deep(data,['resolved']),mEngagement:m.engagement??m.engagementRate??deep(data,['engagement'])};for(const [id,v] of Object.entries(vals))if(v!==undefined&&v!==null)$(id).textContent=typeof v==='number'&&id==='mResolved'&&v<=1?Math.round(v*100)+'%':String(v)}
+async function call(action,payload={}){if(busy)return;const c=config();if(!c.webhook){$('settingsModal').classList.add('show');throw new Error('Сначала укажи production webhook n8n');}setBusy(true,'Запускаю '+action+'…');els.result.textContent='Запрос отправлен…';const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45000);try{const headers={'Content-Type':'application/json'};if(c.token)headers.Authorization='Bearer '+c.token;const body={action,source:'threads-autopilot-dashboard',timestamp:new Date().toISOString(),account:c.account||'',options:{autoPublish:els.autoPublish.checked,autoReplies:els.autoReplies.checked,dryRun:els.dryRun.checked},payload:{topic:els.topic.value.trim(),draft:els.draft.value,...payload}};const r=await fetch(c.webhook,{method:'POST',headers,body:JSON.stringify(body),signal:controller.signal});const text=await r.text();let data;try{data=text?JSON.parse(text):{}}catch{data={message:text}}if(!r.ok)throw new Error((data&&data.message)||`HTTP ${r.status}`);applyResponse(data);els.result.textContent=JSON.stringify(data,null,2);addLog(action,'ok',deep(data,['message','status','data.message'])||'Успешно');els.navDot.className='dot ok';els.navStatus.textContent='подключено';return data}catch(e){const msg=e.name==='AbortError'?'n8n не ответил за 45 секунд':e.message;els.result.textContent='Ошибка: '+msg;addLog(action,'error',msg);els.navDot.className='dot err';els.navStatus.textContent='ошибка связи';throw e}finally{clearTimeout(timer);setBusy(false)}}
+async function guarded(action){if(action==='publish_post'){if(!els.draft.value.trim()){toast('Сначала нужен черновик');return}if(!confirm('Опубликовать текущий текст через n8n?'))return}if(action==='run_full_cycle'&&!confirm('Запустить полный цикл? Если Dry run выключен, workflow может публиковать и отвечать.'))return;try{await call(action)}catch(e){toast(e.message)}}
+document.querySelectorAll('.run').forEach(b=>b.addEventListener('click',()=>guarded(b.dataset.action)));
+$('healthBtn').onclick=()=>call('health').then(()=>toast('n8n отвечает')).catch(e=>toast(e.message));
+$('openSettings').onclick=()=>$('settingsModal').classList.add('show');$('closeSettings').onclick=()=>$('settingsModal').classList.remove('show');$('settingsModal').addEventListener('click',e=>{if(e.target===$('settingsModal'))$('settingsModal').classList.remove('show')});
+$('saveSettings').onclick=()=>{saveConfig();$('settingsModal').classList.remove('show')};$('saveAndTest').onclick=async()=>{saveConfig();try{await call('health');$('settingsModal').classList.remove('show');toast('Подключение работает')}catch(e){toast(e.message)}};$('forgetSettings').onclick=()=>{if(confirm('Удалить локальные настройки подключения?')){localStorage.removeItem(KEY);applyConfig();toast('Настройки удалены')}};
+['autoPublish','autoReplies','dryRun'].forEach(id=>$(id).addEventListener('change',()=>{const c=config();c.autoPublish=els.autoPublish.checked;c.autoReplies=els.autoReplies.checked;c.dryRun=els.dryRun.checked;localStorage.setItem(KEY,JSON.stringify(c))}));
+$('copyDraft').onclick=async()=>{if(!els.draft.value)return;try{await navigator.clipboard.writeText(els.draft.value);toast('Текст скопирован')}catch{els.draft.select();toast('Выделил текст — скопируй вручную')}};$('clearDraft').onclick=()=>{els.draft.value='';els.postLink.style.display='none'};$('clearLogs').onclick=()=>{localStorage.removeItem(LOGKEY);renderLogs();toast('Журнал очищен')};
+applyConfig();renderLogs();if(!config().webhook)setTimeout(()=>$('settingsModal').classList.add('show'),500);
+})();
+</script>
 </body>
 </html>
