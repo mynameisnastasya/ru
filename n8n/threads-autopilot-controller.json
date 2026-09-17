@@ -1,0 +1,1506 @@
+{
+  "name": "Threads Autopilot Controller",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "threads-autopilot-control",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "https://mynameisnastasya.github.io",
+          "responseData": "firstEntryJson"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1500,
+        0
+      ],
+      "id": "a57f24e0-12ed-4480-8042-29dd122af62f",
+      "name": "Dashboard Webhook",
+      "webhookId": "0fdd127f-79b5-442f-9849-012fab8ab6e7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? {};\nconst allowed = new Set([\n  'health',\n  'generate_post',\n  'publish_post',\n  'sync_replies',\n  'run_analytics',\n  'run_full_cycle'\n]);\n\nconst action = String(body.action ?? '').trim();\nif (!allowed.has(action)) {\n  throw new Error(`Unsupported action: ${action || '(empty)'}`);\n}\n\nconst options = {\n  autoPublish: body.options?.autoPublish === true,\n  autoReplies: body.options?.autoReplies === true,\n  dryRun: body.options?.dryRun !== false,\n};\n\nreturn [{\n  json: {\n    action,\n    source: body.source ?? 'threads-autopilot-dashboard',\n    timestamp: body.timestamp ?? new Date().toISOString(),\n    account: String(body.account ?? ''),\n    options,\n    payload: {\n      topic: String(body.payload?.topic ?? ''),\n      draft: String(body.payload?.draft ?? ''),\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        0
+      ],
+      "id": "02140eca-ae66-4aca-9636-20126cd0e625",
+      "name": "Normalize Input"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "530e4ea2-9ad8-45b9-9442-a317f1415c4e",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "health",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Health"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f82b0ceb-f925-468a-8a75-06c339539ba3",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "generate_post",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Generate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ed1c1e3e-c022-42d9-a9e9-97d5401213d0",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "publish_post",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Publish"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "70431571-a3c8-42c1-bbd5-8bdf8b1c4fd4",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "sync_replies",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Replies"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cb0e81a0-8b2b-463e-8b99-c18e26060179",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "run_analytics",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Analytics"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "df5567e8-f1f7-4ce8-b682-6be743c132fa",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "run_full_cycle",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FullCycle"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1020,
+        0
+      ],
+      "id": "3bfa3daf-5e0f-4b73-8dc1-0755d7c25620",
+      "name": "Route Action"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    ok: true,\n    status: 'online',\n    message: 'Threads Autopilot controller online',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        -500
+      ],
+      "id": "497dcb8a-a349-4bb5-a1f4-ef603e34cf51",
+      "name": "Health Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = ($json.payload?.topic || '').trim() || 'Дай одну сильную идею для Threads по теме моего бизнеса.';\nconst instructions = `Ты автор Threads. Пиши по-русски, коротко, разговорно и конкретно.\nНе используй канцелярит, фразы \"в современном мире\" и \"давайте разберемся\", чрезмерные эмодзи, выдуманные цифры и фальшивые истории.\nСтруктура: сильная первая строка, одна мысль, конкретный пример или наблюдение, естественный финал для обсуждения.\nВерни только текст публикации без кавычек и пояснений.`;\n\nreturn [{\n  json: {\n    requestBody: {\n      model: 'gpt-5.6-luna',\n      instructions,\n      input: `Тема или задача: ${topic}`\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        -320
+      ],
+      "id": "b23724b4-0a84-418b-8186-d914448b338a",
+      "name": "Build Post Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -500,
+        -320
+      ],
+      "id": "5d34054e-6d1b-4213-a8de-68f4bdcfed05",
+      "name": "OpenAI · Generate Post"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parts = Array.isArray($json.output) ? $json.output : [];\nlet text = '';\nfor (const out of parts) {\n  for (const c of (out.content || [])) {\n    if ((c.type === 'output_text' || typeof c.text === 'string') && c.text) {\n      text += (text ? '\\n' : '') + c.text;\n    }\n  }\n}\ntext = text.trim();\nif (!text) throw new Error('OpenAI returned no text');\nreturn [{ json: { ok: true, message: 'Черновик готов', draft: text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -320
+      ],
+      "id": "85710841-356a-4a3b-a2c9-ce2a1f1ac1e0",
+      "name": "Return Draft"
+    },
+    {
+      "parameters": {
+        "jsCode": "const draft = ($json.payload?.draft || '').trim();\nif (!draft) throw new Error('Draft is empty');\nreturn [{\n  json: {\n    draft,\n    skip: $json.options?.dryRun === true,\n    dryRun: $json.options?.dryRun === true\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        -100
+      ],
+      "id": "9f5d186f-faf3-4864-be54-4315a99b0a76",
+      "name": "Prepare Publish"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9468c477-1c85-49e3-b4a9-c4e9014d8a96",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -520,
+        -100
+      ],
+      "id": "3a1b8524-1a0b-43ff-9323-6c04cdfc915d",
+      "name": "Dry Run?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ok: true, dryRun: true, message: 'Dry run: публикация пропущена', draft: $json.draft } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -180
+      ],
+      "id": "0e91afdb-95e9-4a1e-a48f-512658a670f9",
+      "name": "Publish Dry Run Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "TEXT"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.draft }}"
+            },
+            {
+              "name": "auto_publish_text",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -240,
+        -40
+      ],
+      "id": "914d60b3-9bb7-4e35-ab25-1160428939b9",
+      "name": "Threads · Publish Text"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://graph.threads.net/v1.0/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,permalink,text,timestamp"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        20,
+        -40
+      ],
+      "id": "66e8facc-64ec-4246-b7fc-44791447eede",
+      "name": "Threads · Get Published Post"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    ok: true,\n    message: 'Пост опубликован',\n    post_id: $json.id ?? null,\n    post_url: $json.permalink ?? null,\n    draft: $json.text ?? ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        -40
+      ],
+      "id": "d5ddcf32-46f6-4061-b652-37f036cb85ec",
+      "name": "Publish Response"
+    },
+    {
+      "parameters": {
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,text,permalink,timestamp,has_replies"
+            },
+            {
+              "name": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -760,
+        160
+      ],
+      "id": "bc0cd355-8479-4fdd-bfac-83c8ab238384",
+      "name": "Threads · Recent Posts"
+    },
+    {
+      "parameters": {
+        "url": "https://graph.threads.net/v1.0/me/threads_insights",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "metric",
+              "value": "views,likes,replies,reposts,quotes,followers_count"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -500,
+        160
+      ],
+      "id": "9b351fb9-ee81-4b72-926d-eb3203533824",
+      "name": "Threads · Account Insights"
+    },
+    {
+      "parameters": {
+        "jsCode": "const metrics = Array.isArray($json.data) ? $json.data : [];\nconst recentPosts = $('Threads · Recent Posts').first().json.data || [];\n\nfunction value(name) {\n  const m = metrics.find(x => x.name === name);\n  if (!m) return 0;\n  if (m.total_value && m.total_value.value != null) return Number(m.total_value.value) || 0;\n  const values = Array.isArray(m.values) ? m.values : [];\n  if (!values.length) return 0;\n  return Number(values[values.length - 1].value) || 0;\n}\n\nconst likes = value('likes');\nconst replies = value('replies');\nconst reposts = value('reposts');\nconst quotes = value('quotes');\n\nreturn [{\n  json: {\n    ok: true,\n    message: 'Аналитика обновлена',\n    metrics: {\n      published: recentPosts.length,\n      replies,\n      resolved: '—',\n      engagement: likes + replies + reposts + quotes\n    },\n    details: {\n      views: value('views'),\n      likes,\n      replies,\n      reposts,\n      quotes,\n      followers: value('followers_count'),\n      recentPostsFetched: recentPosts.length\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        160
+      ],
+      "id": "4e632fd4-bf99-4f8c-b5d7-84db2ff3cb11",
+      "name": "Analytics Response"
+    },
+    {
+      "parameters": {
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,text,permalink,timestamp,has_replies"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -760,
+        420
+      ],
+      "id": "4dc9bec2-55fb-494c-9208-edb407b619c8",
+      "name": "Threads · Posts With Replies"
+    },
+    {
+      "parameters": {
+        "jsCode": "const posts = ($json.data || []).filter(p => p.has_replies).slice(0, 10);\nif (!posts.length) return [{ json: { noTargets: true, thread_id: '' } }];\nreturn posts.map(p => ({\n  json: {\n    noTargets: false,\n    thread_id: p.id,\n    post_text: p.text || '',\n    post_permalink: p.permalink || ''\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        420
+      ],
+      "id": "339fb288-372f-43f0-8d15-9543987e0ae9",
+      "name": "Build Reply Targets"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b0b462d7-c1fb-46af-8d01-f54fbe5e3a1d",
+              "leftValue": "={{ $json.noTargets }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -260,
+        420
+      ],
+      "id": "64588450-7ff2-4a70-92cd-0e4502c10f6a",
+      "name": "Has Reply Targets?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ok: true, message: 'У последних постов нет replies', replies: [], decisions: [], metrics: { replies: 0, resolved: '0%' } } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        20,
+        560
+      ],
+      "id": "17c63a7b-6143-4ae4-ae27-1e618ae84aec",
+      "name": "No Reply Targets Response"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://graph.threads.net/v1.0/' + $json.thread_id + '/replies' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,text,timestamp,permalink,username,is_reply_owned_by_me,root_post,replied_to"
+            },
+            {
+              "name": "reverse",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        20,
+        380
+      ],
+      "id": "35e05fbe-126b-4eb0-b97e-26846f23ae70",
+      "name": "Threads · Get Replies"
+    },
+    {
+      "parameters": {
+        "jsCode": "const all = [];\nconst seen = new Set();\nfor (const item of $input.all()) {\n  const rows = Array.isArray(item.json.data) ? item.json.data : [];\n  for (const r of rows) {\n    if (!r?.id || r.is_reply_owned_by_me === true || seen.has(r.id)) continue;\n    seen.add(r.id);\n    all.push({\n      reply_id: r.id,\n      username: r.username || '',\n      text: r.text || '',\n      timestamp: r.timestamp || '',\n      permalink: r.permalink || '',\n      root_post_id: r.root_post?.id || '',\n      replied_to_id: r.replied_to?.id || ''\n    });\n  }\n}\nall.sort((a,b) => String(a.timestamp).localeCompare(String(b.timestamp)));\nreturn [{\n  json: {\n    noReplies: all.length === 0,\n    replies: all.slice(-30)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        380
+      ],
+      "id": "18f8f8cc-5238-4a4d-be19-4273a1420373",
+      "name": "Collect Incoming Replies"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f6b4db7d-05fb-40c4-9027-f959b9e36c5d",
+              "leftValue": "={{ $json.noReplies }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        380
+      ],
+      "id": "7d019e8b-9b35-4daf-962a-42258bb69cf1",
+      "name": "Has Incoming Replies?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ok: true, message: 'Новых входящих replies не найдено', replies: [], decisions: [], metrics: { replies: 0, resolved: '0%' } } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        560
+      ],
+      "id": "c10a8c28-a34e-426a-82d4-b9ac099a5dd0",
+      "name": "No Incoming Replies Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const replies = $json.replies || [];\nconst instructions = `Ты модератор Threads-аккаунта. Для каждого входящего reply реши: reply, skip или human.\nreply: нормальный вопрос, содержательная дискуссия, естественная шутка, понятное возражение.\nskip: спам, бессмыслица, повтор.\nhuman: конфликт, репутационный риск, юридический/медицинский/финансовый вопрос или факт, в котором нельзя быть уверенным.\nЕсли action=reply, напиши короткий естественный ответ по-русски. Не выдумывай факты. Не притворяйся человеком при прямом вопросе об автоматизации.\nВерни ТОЛЬКО JSON-массив объектов: [{\"reply_id\":\"...\",\"action\":\"reply|skip|human\",\"text\":\"...\"}].`;\n\nreturn [{\n  json: {\n    requestBody: {\n      model: 'gpt-5.6-luna',\n      instructions,\n      input: JSON.stringify(replies)\n    },\n    replies\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        340
+      ],
+      "id": "fcde7272-56f5-49e5-aed0-ea70104fc50e",
+      "name": "Build Reply Decisions Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        340
+      ],
+      "id": "1343837d-f5ee-4912-b521-5228280206d8",
+      "name": "OpenAI · Decide Replies"
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = '';\nfor (const out of ($json.output || [])) {\n  for (const c of (out.content || [])) {\n    if (c.text) text += c.text;\n  }\n}\ntext = text.trim().replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/,'');\nlet decisions;\ntry {\n  decisions = JSON.parse(text);\n} catch {\n  throw new Error('OpenAI reply decision was not valid JSON');\n}\nif (!Array.isArray(decisions)) throw new Error('Reply decisions must be an array');\n\nconst input = $('Normalize Input').first().json;\nconst replies = $('Collect Incoming Replies').first().json.replies || [];\nconst allowedIds = new Set(replies.map(r => String(r.reply_id)));\ndecisions = decisions\n  .filter(d => d && allowedIds.has(String(d.reply_id)))\n  .map(d => ({\n    reply_id: String(d.reply_id),\n    action: ['reply','skip','human'].includes(d.action) ? d.action : 'human',\n    text: String(d.text || '').trim()\n  }));\n\nreturn [{\n  json: {\n    decisions,\n    replies,\n    autoReplies: input.options?.autoReplies === true,\n    dryRun: input.options?.dryRun === true\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        340
+      ],
+      "id": "877f0610-feef-4d4e-9bdd-31ebd80a9661",
+      "name": "Parse Reply Decisions"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd003ef1-c0e8-4eb4-99f8-465b388c3a8a",
+              "leftValue": "={{ $json.autoReplies }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a6489671-e0ac-4266-ae60-13c00881272d",
+              "leftValue": "={{ $json.dryRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1560,
+        340
+      ],
+      "id": "1e017c47-9569-41b0-a1f8-ff5109c11ea6",
+      "name": "Auto Replies Enabled?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json.decisions || [];\nconst auto = d.filter(x => x.action === 'reply').length;\nconst human = d.filter(x => x.action === 'human').length;\nreturn [{\n  json: {\n    ok: true,\n    message: $json.dryRun ? 'Dry run: replies проанализированы, ничего не отправлено' : 'Replies проанализированы',\n    replies: $json.replies || [],\n    decisions: d,\n    metrics: {\n      replies: ($json.replies || []).length,\n      resolved: d.length ? Math.round(((d.length - human) / d.length) * 100) + '%' : '0%'\n    },\n    suggestedReplies: auto\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        500
+      ],
+      "id": "a1a2ed69-2c80-4da5-8763-c6f6ed603e8d",
+      "name": "Reply Suggestions Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = ($json.decisions || [])\n  .filter(d => d.action === 'reply' && d.text && d.reply_id)\n  .slice(0, 10);\nif (!rows.length) return [{ json: { skipPost: true } }];\nreturn rows.map(r => ({ json: { skipPost: false, reply_id: r.reply_id, text: r.text } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        300
+      ],
+      "id": "7c6cd28d-7c00-4a44-bf34-279c670701e4",
+      "name": "Select Auto Replies"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d9f0bbe4-ea7e-443d-9480-f1eac17763aa",
+              "leftValue": "={{ $json.skipPost }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2070,
+        300
+      ],
+      "id": "a1ef37dd-d123-42ba-a92c-a2f629c32d2c",
+      "name": "Has Replies To Send?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $('Parse Reply Decisions').first().json;\nreturn [{\n  json: {\n    ok: true,\n    message: 'Replies проанализированы, автоматических ответов не требуется',\n    replies: parsed.replies || [],\n    decisions: parsed.decisions || [],\n    metrics: { replies: (parsed.replies || []).length, resolved: '100%' }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        440
+      ],
+      "id": "c281417d-6730-4222-aa14-d4cfe0085029",
+      "name": "No Auto Replies Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "TEXT"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "reply_to_id",
+              "value": "={{ $json.reply_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2320,
+        240
+      ],
+      "id": "17bc0ecb-ab06-4d6d-8238-c89406e24e38",
+      "name": "Threads · Send Reply"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sent = $input.all();\nconst parsed = $('Parse Reply Decisions').first().json;\nconst human = (parsed.decisions || []).filter(x => x.action === 'human').length;\nreturn [{\n  json: {\n    ok: true,\n    message: `Автоответы отправлены: ${sent.length}`,\n    replies: parsed.replies || [],\n    decisions: parsed.decisions || [],\n    sent_reply_ids: sent.map(x => x.json.id).filter(Boolean),\n    metrics: {\n      replies: (parsed.replies || []).length,\n      resolved: parsed.decisions?.length ? Math.round(((parsed.decisions.length - human) / parsed.decisions.length) * 100) + '%' : '0%'\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2580,
+        240
+      ],
+      "id": "4915cc05-7402-4a22-9465-d250566bdbd8",
+      "name": "Auto Replies Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = ($json.payload?.topic || '').trim() || 'Выбери сильную тему из моей экспертной области и напиши пост для Threads.';\nconst instructions = `Ты автор Threads. Пиши по-русски, коротко, разговорно и конкретно.\nНе используй канцелярит, клише, чрезмерные эмодзи, фальшивые истории и придуманные цифры.\nСтруктура: сильная первая строка, одна мысль, конкретный пример или наблюдение, естественный финал для обсуждения.\nВерни только текст публикации.`;\nreturn [{\n  json: {\n    requestBody: { model: 'gpt-5.6-luna', instructions, input: `Тема или задача: ${topic}` }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        760
+      ],
+      "id": "6c02a058-19e4-4cf7-8793-fd9cf4a43682",
+      "name": "Full Cycle · Build Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -500,
+        760
+      ],
+      "id": "7bfe562d-e267-49e6-bf11-3d22da5551d1",
+      "name": "Full Cycle · OpenAI"
+    },
+    {
+      "parameters": {
+        "jsCode": "let draft = '';\nfor (const out of ($json.output || [])) for (const c of (out.content || [])) if (c.text) draft += c.text;\ndraft = draft.trim();\nif (!draft) throw new Error('OpenAI returned no text');\nconst opts = $('Normalize Input').first().json.options || {};\nreturn [{\n  json: {\n    draft,\n    shouldPublish: opts.autoPublish === true && opts.dryRun !== true,\n    dryRun: opts.dryRun === true\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        760
+      ],
+      "id": "c52f8826-e5c7-47a8-9907-e90bf4ce277c",
+      "name": "Full Cycle · Draft"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "74186f5a-ac14-4a2a-aa60-2278c56315b4",
+              "leftValue": "={{ $json.shouldPublish }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        760
+      ],
+      "id": "4be50573-07e6-4ad4-a63d-afab1bec1174",
+      "name": "Full Cycle · Publish?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    ok: true,\n    dryRun: true,\n    message: 'Полный цикл остановлен на черновике: включи Auto publish и выключи Dry run для публикации',\n    draft: $json.draft\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        900
+      ],
+      "id": "6215b101-a09a-4f0e-b1c6-47b099960cd0",
+      "name": "Full Cycle · Draft Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "TEXT"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.draft }}"
+            },
+            {
+              "name": "auto_publish_text",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        280,
+        700
+      ],
+      "id": "e2fe5573-1836-417a-bf63-f612a878ca49",
+      "name": "Full Cycle · Publish"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://graph.threads.net/v1.0/' + $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,permalink,text,timestamp"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        540,
+        700
+      ],
+      "id": "615ba1d8-99a7-4871-aa81-6fd19da526fe",
+      "name": "Full Cycle · Post Details"
+    },
+    {
+      "parameters": {
+        "url": "https://graph.threads.net/v1.0/me/threads_insights",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "metric",
+              "value": "views,likes,replies,reposts,quotes,followers_count"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        700
+      ],
+      "id": "a10189f7-6d51-4793-a144-c63f5f68b4c7",
+      "name": "Full Cycle · Account Insights"
+    },
+    {
+      "parameters": {
+        "jsCode": "const post = $('Full Cycle · Post Details').first().json;\nconst data = $json.data || [];\nfunction value(name) {\n  const m = data.find(x => x.name === name);\n  if (!m) return 0;\n  if (m.total_value?.value != null) return Number(m.total_value.value) || 0;\n  const values = m.values || [];\n  return values.length ? Number(values[values.length - 1].value) || 0 : 0;\n}\nconst likes=value('likes'), replies=value('replies'), reposts=value('reposts'), quotes=value('quotes');\nreturn [{\n  json: {\n    ok: true,\n    message: 'Полный контент-цикл завершён',\n    draft: post.text || '',\n    post_id: post.id || null,\n    post_url: post.permalink || null,\n    metrics: {\n      published: 1,\n      replies,\n      resolved: '—',\n      engagement: likes + replies + reposts + quotes\n    },\n    details: {\n      views: value('views'),\n      likes, replies, reposts, quotes,\n      followers: value('followers_count')\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        700
+      ],
+      "id": "a261d22c-bec4-43d6-9087-ac757c14dbe5",
+      "name": "Full Cycle Response"
+    },
+    {
+      "parameters": {
+        "color": 7,
+        "width": 980,
+        "height": 430,
+        "content": "# Threads Autopilot Controller\n\n1. Create **Header Auth** credential `OpenAI Authorization`: header `Authorization`, value `Bearer YOUR_OPENAI_API_KEY`.\n2. Create **Header Auth** credential `Threads Authorization`: header `Authorization`, value `Bearer YOUR_THREADS_ACCESS_TOKEN`.\n3. Assign the OpenAI credential to both OpenAI HTTP Request nodes.\n4. Assign the Threads credential to every Threads HTTP Request node.\n5. Optional: protect the Webhook itself with a third Header Auth credential using `Authorization: Bearer YOUR_DASHBOARD_TOKEN`.\n6. Activate the workflow and copy the **Production URL** into the site's Settings.\n\nThe webhook accepts: `health`, `generate_post`, `publish_post`, `sync_replies`, `run_analytics`, `run_full_cycle`.\n\nSafety: `dryRun` defaults to true. Auto-replies send at most 10 replies per manual sync."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        -900
+      ],
+      "id": "b85d87d5-501d-46b7-9369-c953543e9c44",
+      "name": "SETUP · Read Me"
+    }
+  ],
+  "connections": {
+    "Dashboard Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Health Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Post Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Publish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Threads · Posts With Replies",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Threads · Recent Posts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Full Cycle · Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Post Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI · Generate Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI · Generate Post": {
+      "main": [
+        [
+          {
+            "node": "Return Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Publish": {
+      "main": [
+        [
+          {
+            "node": "Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Publish Dry Run Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Threads · Publish Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Publish Text": {
+      "main": [
+        [
+          {
+            "node": "Threads · Get Published Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Get Published Post": {
+      "main": [
+        [
+          {
+            "node": "Publish Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Recent Posts": {
+      "main": [
+        [
+          {
+            "node": "Threads · Account Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Account Insights": {
+      "main": [
+        [
+          {
+            "node": "Analytics Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Posts With Replies": {
+      "main": [
+        [
+          {
+            "node": "Build Reply Targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reply Targets": {
+      "main": [
+        [
+          {
+            "node": "Has Reply Targets?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Reply Targets?": {
+      "main": [
+        [
+          {
+            "node": "Threads · Get Replies",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Reply Targets Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Get Replies": {
+      "main": [
+        [
+          {
+            "node": "Collect Incoming Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Incoming Replies": {
+      "main": [
+        [
+          {
+            "node": "Has Incoming Replies?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Incoming Replies?": {
+      "main": [
+        [
+          {
+            "node": "Build Reply Decisions Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Incoming Replies Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reply Decisions Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI · Decide Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI · Decide Replies": {
+      "main": [
+        [
+          {
+            "node": "Parse Reply Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Reply Decisions": {
+      "main": [
+        [
+          {
+            "node": "Auto Replies Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Replies Enabled?": {
+      "main": [
+        [
+          {
+            "node": "Select Auto Replies",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Suggestions Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Auto Replies": {
+      "main": [
+        [
+          {
+            "node": "Has Replies To Send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Replies To Send?": {
+      "main": [
+        [
+          {
+            "node": "Threads · Send Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Auto Replies Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads · Send Reply": {
+      "main": [
+        [
+          {
+            "node": "Auto Replies Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Draft": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · Publish?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Publish?": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · Publish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Full Cycle · Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Publish": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · Post Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Post Details": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle · Account Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full Cycle · Account Insights": {
+      "main": [
+        [
+          {
+            "node": "Full Cycle Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
