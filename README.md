@@ -1,33 +1,105 @@
 # Threads Autopilot — Control Center
 
-Рабочая панель управления Threads-автоматизацией через `n8n`.
+Рабочая панель управления Threads-автоматизацией через `n8n` + OpenAI + официальный Threads API.
 
-Сайт опубликован через GitHub Pages. Сам GitHub Pages не хранит секреты и не вызывает Threads/OpenAI напрямую: все чувствительные credentials и бизнес-логика должны жить в `n8n`.
+Сайт: `https://mynameisnastasya.github.io/ru/`
 
-## Что умеет панель
+## Что уже есть
 
-- проверить соединение с n8n;
-- запустить генерацию поста;
-- принять черновик из n8n и отредактировать его;
-- опубликовать текущий черновик после подтверждения;
-- запустить обработку replies;
-- запросить аналитику;
-- запустить полный цикл;
-- включать `autoPublish`, `autoReplies` и `dryRun`;
-- показывать метрики и ссылку на опубликованный пост;
-- хранить локальный журнал запусков.
+- проверка соединения с n8n;
+- генерация поста через OpenAI;
+- редактирование черновика в панели;
+- публикация текста в Threads после подтверждения;
+- поиск replies у последних постов;
+- AI-классификация replies: `reply / skip / human`;
+- автоматические ответы, если включены `Auto replies` и выключен `Dry run`;
+- аналитика аккаунта Threads;
+- полный контент-цикл: генерация → при разрешении публикация → метрики;
+- локальный журнал запусков;
+- безопасный `Dry run` включён по умолчанию.
 
-## Подключение
+## Готовый n8n workflow
 
-Открой сайт → **Настройки** → вставь production URL одного `Webhook` node из n8n.
+Импортируй в n8n файл:
 
-Threads/OpenAI токены в сайт вставлять нельзя. Они должны храниться в n8n Credentials.
+`n8n/threads-autopilot-controller.json`
 
-Если n8n находится на другом домене, webhook должен разрешать CORS для:
+Workflow содержит один controller webhook и маршрутизирует команды из сайта:
+
+- `health`
+- `generate_post`
+- `publish_post`
+- `sync_replies`
+- `run_analytics`
+- `run_full_cycle`
+
+## Настройка credentials в n8n
+
+### 1. OpenAI
+
+Создай credential типа **Header Auth**:
+
+- Header Name: `Authorization`
+- Header Value: `Bearer YOUR_OPENAI_API_KEY`
+
+Выбери его во всех HTTP Request nodes, название которых начинается с `OpenAI`.
+
+### 2. Threads
+
+Создай второй credential типа **Header Auth**:
+
+- Header Name: `Authorization`
+- Header Value: `Bearer YOUR_THREADS_ACCESS_TOKEN`
+
+Выбери его во всех HTTP Request nodes, название которых начинается с `Threads` или `Full Cycle · Publish / Post Details / Account Insights`.
+
+Для используемых возможностей Threads-токену нужны соответствующие permissions, включая публикацию, чтение/управление replies и insights.
+
+### 3. Защита controller webhook — рекомендуется
+
+В самом `Dashboard Webhook` можно включить Header Auth и создать отдельный credential:
+
+- Header Name: `Authorization`
+- Header Value: `Bearer СЛУЧАЙНЫЙ_ДЛИННЫЙ_ТОКЕН_ПАНЕЛИ`
+
+Это **не** OpenAI key и **не** Threads token.
+
+Тот же токен вставь в сайте: **Настройки → Токен панели**.
+
+### 4. Активируй workflow
+
+После импорта и назначения credentials:
+
+1. Activate workflow.
+2. Открой `Dashboard Webhook`.
+3. Скопируй **Production URL**.
+4. Открой сайт → **Настройки**.
+5. Вставь Production URL.
+6. Нажми **Сохранить и проверить**.
+
+Webhook уже настроен на CORS origin:
 
 `https://mynameisnastasya.github.io`
 
-## Контракт запроса
+## Безопасный первый запуск
+
+Оставь `Dry run` включённым.
+
+1. Нажми **Проверить связь**.
+2. Введи тему и нажми **Сгенерировать**.
+3. Проверь текст.
+4. Нажми **Опубликовать** — при `Dry run` реальной публикации не будет.
+5. Нажми **Replies** — модель покажет решения, но не отправит ответы.
+6. Нажми **Аналитика**.
+
+Когда всё проверено, выключи `Dry run`.
+
+- Обычная кнопка **Опубликовать** начнёт реально публиковать текущий черновик.
+- Для `Полный цикл` дополнительно включи `Auto publish`.
+- Для автоматических ответов включи `Auto replies`.
+- Один ручной sync ограничен максимум 10 автоматически отправляемыми replies.
+
+## Контракт dashboard → n8n
 
 Панель делает `POST` на один controller webhook:
 
@@ -49,27 +121,9 @@ Threads/OpenAI токены в сайт вставлять нельзя. Они 
 }
 ```
 
-Поддерживаемые `action`:
+## Формат ответа n8n → dashboard
 
-- `health`
-- `generate_post`
-- `publish_post`
-- `sync_replies`
-- `run_analytics`
-- `run_full_cycle`
-
-## Формат ответа
-
-Минимальный успешный ответ:
-
-```json
-{
-  "ok": true,
-  "message": "Готово"
-}
-```
-
-Для генерации панель автоматически подхватит `draft` или `text`:
+Черновик:
 
 ```json
 {
@@ -78,16 +132,17 @@ Threads/OpenAI токены в сайт вставлять нельзя. Они 
 }
 ```
 
-После публикации можно вернуть ссылку:
+После публикации:
 
 ```json
 {
   "ok": true,
+  "post_id": "...",
   "post_url": "https://www.threads.net/@user/post/..."
 }
 ```
 
-Метрики можно вернуть так:
+Метрики:
 
 ```json
 {
@@ -96,13 +151,11 @@ Threads/OpenAI токены в сайт вставлять нельзя. Они 
     "published": 3,
     "replies": 17,
     "resolved": "82%",
-    "engagement": "4.6x"
+    "engagement": 41
   }
 }
 ```
 
-## Рекомендуемая схема n8n
+## Где хранятся секреты
 
-`Webhook (POST)` → `Switch` по `{{$json.action}}` → нужная ветка → `Respond to Webhook`.
-
-Для реальной автоматизации ветки должны использовать n8n Credentials для OpenAI/LLM и Threads API. Расписания публикаций и автоответов лучше держать отдельными workflow с `Schedule Trigger`, а controller webhook использовать для ручного запуска из этой панели.
+GitHub Pages содержит только интерфейс. OpenAI API key и Threads access token должны находиться в **n8n Credentials** и никогда не должны попадать в `index.html`, README, localStorage или публичный GitHub.
