@@ -1,28 +1,32 @@
-const MEDIA={
-  'assets/hero.webp':'https://i0.wp.com/www.weddingforward.com/wp-content/uploads/2023/07/wedding-hairstyles-for-dreadlocks-human-hair-extension-ombre-long-gurudreads.jpg?fit=1080%2C1350&quality=82&ssl=1',
-  'assets/blonde.webp':'https://i0.wp.com/www.weddingforward.com/wp-content/uploads/2023/07/wedding-hairstyles-for-dreadlocks-human-hair-extension-ombre-gurudreads.jpg?fit=1080%2C1350&quality=82&ssl=1',
-  'assets/copper.webp':'https://i0.wp.com/www.weddingforward.com/wp-content/uploads/2023/07/wedding-hairstyles-for-dreadlocks-human-hair-extension-ombre-long-gurudreads.jpg?fit=1080%2C1350&quality=82&ssl=1',
-  'assets/warm.webp':'https://i0.wp.com/www.weddingforward.com/wp-content/uploads/2023/07/wedding-hairstyles-for-dreadlocks-human-hair-extension-ombre-gurudreads.jpg?fit=1080%2C1350&quality=82&ssl=1'
-};
-const FALLBACK=MEDIA['assets/blonde.webp'];
-document.querySelectorAll('img').forEach(img=>{const src=img.getAttribute('src');if(MEDIA[src]){img.src=MEDIA[src];img.decoding='async';img.loading=img.closest('.hero,.preview')?'eager':'lazy';img.addEventListener('error',()=>{if(img.src!==FALLBACK)img.src=FALLBACK},{once:true})}});
-document.querySelectorAll('[data-img]').forEach(el=>{if(MEDIA[el.dataset.img])el.dataset.img=MEDIA[el.dataset.img]});
-const heroCopy=document.querySelector('.hero-copy');const mobileHero=matchMedia('(max-width:980px)');function syncHero(){heroCopy.style.background=mobileHero.matches?`linear-gradient(90deg,rgba(22,19,15,.9),rgba(22,19,15,.2)),url("${MEDIA['assets/hero.webp']}") center/cover`:''}syncHero();mobileHero.addEventListener?.('change',syncHero);
-
 const header=document.getElementById('header');
 const onScroll=()=>header.classList.toggle('scrolled',scrollY>28);onScroll();addEventListener('scroll',onScroll,{passive:true});
-const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.11});document.querySelectorAll('.reveal:not(.visible)').forEach(el=>io.observe(el));
-const menuBtn=document.getElementById('menuBtn'),mobileMenu=document.getElementById('mobileMenu');function closeMenu(){menuBtn.classList.remove('open');mobileMenu.classList.remove('open');mobileMenu.setAttribute('aria-hidden','true');document.body.style.overflow=''}menuBtn.addEventListener('click',()=>{const open=!mobileMenu.classList.contains('open');menuBtn.classList.toggle('open',open);mobileMenu.classList.toggle('open',open);mobileMenu.setAttribute('aria-hidden',String(!open));document.body.style.overflow=open?'hidden':''});mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
 
-let lang=localStorage.getItem('guru-lang')||'en';function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-en][data-ru]').forEach(el=>el.innerHTML=el.dataset[lang]);document.getElementById('langBtn').textContent=lang==='en'?'EN / RU':'RU / EN';document.getElementById('langBtnMobile').textContent=lang==='en'?'EN / RU':'RU / EN';localStorage.setItem('guru-lang',lang)}function toggleLang(){lang=lang==='en'?'ru':'en';applyLang()}document.getElementById('langBtn').addEventListener('click',toggleLang);document.getElementById('langBtnMobile').addEventListener('click',toggleLang);applyLang();
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.11});
+document.querySelectorAll('.reveal:not(.visible)').forEach(el=>io.observe(el));
 
-const state={tone:'Smoke / Linen',toneSub:'Cool brunette',img:MEDIA['assets/hero.webp'],ends:'Loose waves',length:'Mid-back',contrast:'Soft blend'};
+const menuBtn=document.getElementById('menuBtn'),mobileMenu=document.getElementById('mobileMenu');
+function closeMenu(){menuBtn.classList.remove('open');mobileMenu.classList.remove('open');mobileMenu.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+menuBtn.addEventListener('click',()=>{const open=!mobileMenu.classList.contains('open');menuBtn.classList.toggle('open',open);mobileMenu.classList.toggle('open',open);mobileMenu.setAttribute('aria-hidden',String(!open));document.body.style.overflow=open?'hidden':''});
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+
+let lang=localStorage.getItem('guru-lang')||'en';
+function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-en][data-ru]').forEach(el=>el.innerHTML=el.dataset[lang]);document.getElementById('langBtn').textContent=lang==='en'?'EN / RU':'RU / EN';document.getElementById('langBtnMobile').textContent=lang==='en'?'EN / RU':'RU / EN';localStorage.setItem('guru-lang',lang)}
+function toggleLang(){lang=lang==='en'?'ru':'en';applyLang()}
+document.getElementById('langBtn').addEventListener('click',toggleLang);document.getElementById('langBtnMobile').addEventListener('click',toggleLang);applyLang();
+
+const state={tone:'Smoke / Linen',toneSub:'Cool brunette',img:'assets/hero.webp',ends:'Loose waves',length:'Mid-back',contrast:'Soft blend'};
 const previewImg=document.getElementById('previewImg'),previewTitle=document.getElementById('previewTitle'),previewSub=document.getElementById('previewSub'),summaryTitle=document.getElementById('summaryTitle'),summaryMeta=document.getElementById('summaryMeta'),copyStatus=document.getElementById('copyStatus');
 function update(){previewTitle.textContent=state.tone;previewSub.textContent=`${state.toneSub} · ${state.ends.toLowerCase()} · ${state.length.toLowerCase()}`;summaryTitle.textContent=`${state.tone} · ${state.ends}`;summaryMeta.textContent=`${state.length} · ${state.contrast}`;if(previewImg.getAttribute('src')!==state.img){previewImg.style.opacity='.25';setTimeout(()=>{previewImg.src=state.img;previewImg.onload=()=>{previewImg.style.opacity='1';previewImg.style.transform='scale(1.02)';setTimeout(()=>previewImg.style.transform='',250)}},170)}}
-document.querySelectorAll('.option-group').forEach(group=>group.querySelectorAll('.chip').forEach(btn=>btn.addEventListener('click',()=>{group.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const key=group.dataset.key;if(key==='tone'){state.tone=btn.dataset.value;state.toneSub=btn.dataset.sub;state.img=MEDIA[btn.dataset.img]||btn.dataset.img}else state[key]=btn.dataset.value;update()})));
-document.querySelectorAll('.piece').forEach(card=>card.addEventListener('click',()=>{const preset=card.dataset.preset;const map={smoke:0,blonde:1,copper:2,warm:3};document.querySelector('[data-key="tone"] .chips').children[map[preset]].click();document.querySelector('#custom').scrollIntoView({behavior:'smooth'})}));
+
+document.querySelectorAll('.option-group').forEach(group=>group.querySelectorAll('.chip').forEach(btn=>btn.addEventListener('click',()=>{group.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const key=group.dataset.key;if(key==='tone'){state.tone=btn.dataset.value;state.toneSub=btn.dataset.sub;state.img=btn.dataset.img}else state[key]=btn.dataset.value;update()})));
+
+document.querySelectorAll('.piece').forEach(card=>card.addEventListener('click',()=>{const map={smoke:0,blonde:1,copper:2,warm:3};const target=document.querySelector('[data-key="tone"] .chips').children[map[card.dataset.preset]];target?.click();document.querySelector('#custom').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}));
 document.querySelectorAll('.piece').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click()}}));
+
 function brief(){return lang==='ru'?`Привет, GuruDreads! Хочу обсудить кастомный заказ. Направление: ${state.tone}; концы: ${state.ends}; длина: ${state.length}; контраст: ${state.contrast}. Могу прислать референсы.`:`Hi GuruDreads! I’d like to discuss a custom order. Direction: ${state.tone}; ends: ${state.ends}; length: ${state.length}; contrast: ${state.contrast}. I can send references.`}
 document.getElementById('copyBrief').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(brief());copyStatus.textContent=lang==='ru'?'Бриф скопирован. Теперь можно открыть Instagram.':'Brief copied. You can open Instagram now.'}catch{copyStatus.textContent=brief()}setTimeout(()=>copyStatus.textContent='',4500)});
 update();
-const dock=document.querySelector('.mobile-dock');const custom=document.getElementById('custom');new IntersectionObserver(([e])=>dock?.classList.toggle('hidden',e.isIntersecting),{threshold:.15}).observe(custom);
+
+const dock=document.querySelector('.mobile-dock'),custom=document.getElementById('custom');
+new IntersectionObserver(([e])=>dock?.classList.toggle('hidden',e.isIntersecting),{threshold:.15}).observe(custom);
