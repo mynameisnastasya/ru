@@ -1,4 +1,4 @@
-name: Diagnose remaining GuruDreads images
+name: One-time robust image fallback
 
 on:
   push:
@@ -7,22 +7,64 @@ on:
       - '.github/workflows/fix-images.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  verify:
+  fix:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decode hero copper and warm
+        with:
+          fetch-depth: 0
+      - name: Replace broken image references
         shell: bash
         run: |
           set -euxo pipefail
-          sudo apt-get update >/dev/null
-          sudo apt-get install -y ffmpeg >/dev/null
-          for name in hero copper warm; do
-            file "assets/${name}.webp"
-            ffmpeg -hide_banner -loglevel error -y -i "assets/${name}.webp" -frames:v 1 "/tmp/${name}.png"
-            test -s "/tmp/${name}.png"
-            echo "VALID: ${name}"
-          done
+          python - <<'PY'
+          from pathlib import Path
+          for rel in ['index.html','assets/site.js','README.md']:
+              p=Path(rel)
+              if not p.exists():
+                  continue
+              s=p.read_text(encoding='utf-8')
+              for old in ['assets/blonde.webp','assets/copper.webp','assets/warm.webp']:
+                  s=s.replace(old,'assets/hero.webp')
+              p.write_text(s,encoding='utf-8')
+
+          p=Path('assets/site.js')
+          s=p.read_text(encoding='utf-8')
+          needle="function update(){if(!previewTitle)return;previewTitle.textContent=state.tone;"
+          repl="function update(){if(!previewTitle)return;if(previewImg)previewImg.dataset.tone=state.tone;previewTitle.textContent=state.tone;"
+          if needle in s:
+              s=s.replace(needle,repl)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('assets/site.css')
+          s=p.read_text(encoding='utf-8')
+          extra=r'''
+/* Stable single-source editorial image treatment */
+.piece:nth-child(1) img{object-position:center 42%;filter:saturate(.92) contrast(1.02)}
+.piece:nth-child(2) img{object-position:58% 48%;filter:saturate(.42) brightness(1.18) sepia(.12)}
+.piece:nth-child(3) img{object-position:35% 58%;filter:sepia(.52) saturate(1.22) hue-rotate(-10deg) brightness(.9)}
+.piece:nth-child(4) img{object-position:68% 38%;filter:sepia(.34) saturate(1.08) brightness(.96)}
+.preview img[data-tone="Smoke / Linen"]{filter:saturate(.92) contrast(1.02)}
+.preview img[data-tone="Ideal Blonde"]{filter:saturate(.42) brightness(1.18) sepia(.12)}
+.preview img[data-tone="Copper Earth"]{filter:sepia(.52) saturate(1.22) hue-rotate(-10deg) brightness(.9)}
+.preview img[data-tone="Warm Honey"]{filter:sepia(.34) saturate(1.08) brightness(.96)}
+'''
+          if 'Stable single-source editorial image treatment' not in s:
+              s += extra
+          p.write_text(s,encoding='utf-8')
+          PY
+          rm -f assets/blonde.webp assets/copper.webp assets/warm.webp
+          test -s assets/hero.webp
+          grep -R "blonde.webp\|copper.webp\|warm.webp" index.html assets/site.css assets/site.js && exit 1 || true
+      - name: Commit production-safe media fix
+        shell: bash
+        run: |
+          rm -f .github/workflows/fix-images.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix GuruDreads image delivery with stable media fallback"
+          git push
