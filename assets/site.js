@@ -1,6 +1,6 @@
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-addEventListener('load',()=>setTimeout(()=>$('.loader')?.classList.add('done'),650));
+const finishLoader=()=>$('.loader')?.classList.add('done');if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTimeout(finishLoader,180),{once:true});else setTimeout(finishLoader,180);addEventListener('load',finishLoader,{once:true});setTimeout(finishLoader,1400);
 
 const header=$('#header');const scrollHeader=()=>header?.classList.toggle('scrolled',scrollY>40);scrollHeader();addEventListener('scroll',scrollHeader,{passive:true});
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});$$('.reveal').forEach(el=>io.observe(el))}else{$$('.reveal').forEach(el=>el.classList.add('visible'))}

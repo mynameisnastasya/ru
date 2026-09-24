@@ -27,3 +27,17 @@ The production entry point is `index.html`. GitHub Pages deployment is handled b
 - Added first-party favicon, robots.txt, sitemap.xml and a GitHub Pages 404 redirect.
 - Added intrinsic image dimensions, browser-language defaulting, a Web Share/copy fallback for the custom brief, and a link to the official shop.
 - Static release checks cover JavaScript syntax, unique IDs, local asset references, safe external links and removal of unrelated app code.
+
+## Marketing conversion pass
+
+The editorial design now supports a clearer high-intent funnel:
+
+- direct route from the hero to the custom brief
+- independently verifiable editorial proof from Wedding Forward
+- root-photo guidance before colour confirmation
+- three-step custom-order process
+- objection handling around checkout, colour, price and timing
+- persistent mobile CTA to the brief or official Instagram
+- loader fallback so slow assets never block the first interaction
+
+The site intentionally avoids fabricated ratings, customer counts, delivery promises and scarcity.
