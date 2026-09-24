@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://mynameisnastasya.github.io/ru/sitemap.xml
