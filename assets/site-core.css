@@ -18,3 +18,11 @@
 .proof-strip .micro{text-align:right}
 @media(max-width:1000px){.proof-strip{grid-template-columns:1fr}.proof-strip .micro{text-align:left}}
 @media(max-width:650px){.hero-value>div{gap:6px}.hero-value span{font-size:7px}.proof-strip{padding:24px 20px;gap:14px}.proof-strip>a{font-size:27px}}
+
+
+/* Mobile rendering hardening */
+#signature,#collection,#custom,#process,#story,#faq{scroll-margin-top:84px}
+@media(max-width:650px){
+  .header.scrolled{background:rgba(15,13,10,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);mix-blend-mode:normal;border-bottom:1px solid rgba(255,255,255,.08)}
+  #signature,#collection,#custom,#process,#story,#faq{scroll-margin-top:74px}
+}
