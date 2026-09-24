@@ -1,81 +1,29 @@
-# Threads Autopilot — Control Center
+# GuruDreads — editorial concept site
 
-Рабочая панель управления Threads-автоматизацией через `n8n`.
+A responsive one-page concept for GuruDreads, built around the visual language in the supplied Instagram references: loose-end dread extensions, tonal ombré work, raw wood, dried botanicals, linen and earthy neutrals.
 
-## Быстрый старт
+**Live:** https://mynameisnastasya.github.io/ru/
 
-Открой setup-мастер:
+## Release direction
 
-https://mynameisnastasya.github.io/ru/setup.html
+- Premium editorial art direction rather than generic hair-store UI
+- Signature focus on loose ends, movement and dimensional colour
+- Interactive custom-order brief builder with copy-to-clipboard flow
+- English / Russian interface with remembered language preference
+- Keyboard-friendly mobile navigation, focus states and reduced-motion support
+- SEO/social metadata, canonical URL and structured data
+- First-party local image assets; no dependency on third-party image hosts
+- Lightweight vanilla HTML/CSS/JS with no framework runtime
 
-Он проведёт по импорту workflow, credentials, Production Webhook URL и сразу проверит связь с n8n.
+## QA
 
-Готовый workflow:
+Release layout and interactions were checked at 1440×900, 834×1112, 390×844 and 320×700. The audited build has no document-level horizontal overflow at those viewports, and the custom-order flow, language switcher and mobile menu were exercised before release.
 
-`n8n/threads-autopilot-controller.json`
+The production entry point is `index.html`. GitHub Pages deployment is handled by `.github/workflows/pages.yml`.
 
-## Что умеет панель
+## Current release QA
 
-- проверить соединение с n8n;
-- запустить генерацию поста;
-- принять черновик из n8n и отредактировать его;
-- опубликовать текущий черновик после подтверждения;
-- запустить обработку replies;
-- запросить аналитику;
-- запустить полный цикл;
-- включать `autoPublish`, `autoReplies` и `dryRun`;
-- показывать метрики и ссылку на опубликованный пост;
-- хранить локальный журнал запусков.
-
-## Безопасность
-
-Threads/OpenAI токены в сайт вставлять нельзя. Они должны храниться в n8n Credentials.
-
-Если используется отдельный токен защиты controller webhook, его можно сохранить в setup-мастере или настройках панели. Он хранится только в localStorage браузера.
-
-## Контракт controller webhook
-
-Панель делает `POST` на один n8n Webhook:
-
-```json
-{
-  "action": "generate_post",
-  "source": "threads-autopilot-dashboard",
-  "timestamp": "2026-09-18T00:00:00.000Z",
-  "account": "my_threads",
-  "options": {
-    "autoPublish": false,
-    "autoReplies": false,
-    "dryRun": true
-  },
-  "payload": {
-    "topic": "тема поста",
-    "draft": "текущий черновик"
-  }
-}
-```
-
-Поддерживаемые `action`:
-
-- `health`
-- `generate_post`
-- `publish_post`
-- `sync_replies`
-- `run_analytics`
-- `run_full_cycle`
-
-## Рекомендуемый первый тест
-
-1. Импортировать `n8n/threads-autopilot-controller.json`.
-2. Назначить OpenAI и Threads credentials.
-3. Активировать workflow.
-4. В setup-мастере вставить Production Webhook URL.
-5. Нажать **Сохранить и проверить**.
-6. Открыть основную панель.
-7. Оставить `Dry run = ON`.
-8. Нажать **Сгенерировать**.
-9. Только после успешного теста отключать Dry run и пробовать публикацию.
-
-Сайт:
-
-https://mynameisnastasya.github.io/ru/
+- Restored the GuruDreads release after the main branch was repurposed; the later Threads Autopilot state is preserved on `backup/threads-autopilot-2026-09-24`.
+- Added first-party favicon, robots.txt, sitemap.xml and a GitHub Pages 404 redirect.
+- Added intrinsic image dimensions, browser-language defaulting, a Web Share/copy fallback for the custom brief, and a link to the official shop.
+- Static release checks cover JavaScript syntax, unique IDs, local asset references, safe external links and removal of unrelated app code.
